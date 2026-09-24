@@ -1,0 +1,2194 @@
+<!DOCTYPE html>
+<html lang="en" data-shell="public" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" id="themeColorMeta" content="#fbfbfd">
+  <title>E3 Fiber Connect</title>
+  <meta name="description" content="Pure fiber internet for Santa Maria, Bulacan — no data caps, no lock-in. Apply online, track your application and pay your bill.">
+  <link rel="icon" type="image/png" href="assets/img/logo-mark.png">
+  <link rel="stylesheet" href="assets/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content" id="skipLink">Skip to content</a>
+
+  <!-- ================================================================
+       Icon sprite (drawn in the style of SF Symbols, 24 × 24 grid)
+       ================================================================ -->
+  <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M5 9l7 7 7-7"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.7 2.7L16 9.6"/></symbol>
+    <symbol id="i-xmark" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.75"/><path d="M4.75 20c.9-3.6 3.8-5.5 7.25-5.5s6.35 1.9 7.25 5.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.25"/><path d="M2.75 19.5c.75-3.1 3.2-4.75 6.25-4.75s5.5 1.65 6.25 4.75"/><path d="M15.5 5.6a3.25 3.25 0 010 5.8M17.5 14.9c2 .6 3.3 2.1 3.75 4.6"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3.5H7.5a2 2 0 00-2 2v13a2 2 0 002 2h9a2 2 0 002-2V8z"/><path d="M14 3.5V8h4.5M9 12.5h6M9 16h6"/></symbol>
+    <symbol id="i-doc-plus" viewBox="0 0 24 24"><path d="M14 3.5H7.5a2 2 0 00-2 2v13a2 2 0 002 2h9a2 2 0 002-2V8z"/><path d="M14 3.5V8h4.5M12 11.5v6M9 14.5h6"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18M7 15h3"/></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3.5h12v17l-2-1.3-2 1.3-2-1.3-2 1.3-2-1.3-2 1.3z"/><path d="M9 8.5h6M9 12h6M9 15.5h3.5"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2.5 9a14 14 0 0119 0M5.5 12.2a9.5 9.5 0 0113 0M8.6 15.4a5 5 0 016.8 0"/><circle cx="12" cy="18.6" r="1.1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2.75L5.5 13.25H12l-1 8 7.5-10.5H12z"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4.2 17.5a9 9 0 1115.6 0"/><path d="M12 13.5l4-4.5"/><circle cx="12" cy="13.5" r="1.3" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6z"/><path d="M8.8 12.2l2.2 2.2 4.3-4.4"/></symbol>
+    <symbol id="i-infinity" viewBox="0 0 24 24"><path d="M7.2 8.5c2.6 0 4.8 3.5 4.8 3.5s2.2 3.5 4.8 3.5a3.5 3.5 0 000-7c-2.6 0-4.8 3.5-4.8 3.5s-2.2 3.5-4.8 3.5a3.5 3.5 0 010-7z"/></symbol>
+    <symbol id="i-unlock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.2"/><path d="M8.5 10.5v-3a3.5 3.5 0 016.8-1.2"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.2"/><path d="M8.5 10.5v-3a3.5 3.5 0 017 0v3"/></symbol>
+    <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M20 7.5a4.5 4.5 0 01-6.2 4.2L6.6 19a1.8 1.8 0 01-2.6-2.6l7.3-7.2A4.5 4.5 0 0115.5 3l-2.7 2.7.7 2.8 2.8.7z"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.4-6.5-11a6.5 6.5 0 0113 0c0 5.6-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 3.5h2.2l1.4 4.1-2 1.4a11 11 0 006.8 6.8l1.4-2 4.1 1.4v2.2a2 2 0 01-2.2 2A17 17 0 014.6 5.7a2 2 0 012-2.2z"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.8 7l8.2 6 8.2-6"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14L4.5 9.5 9 5"/><path d="M4.5 9.5H14a5.5 5.5 0 010 11h-3"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.7 7.7 0 000-3l2-1.6-2-3.4-2.4 1a7.6 7.6 0 00-2.6-1.5L14 2.5h-4l-.4 2.5A7.6 7.6 0 007 6.5l-2.4-1-2 3.4 2 1.6a7.7 7.7 0 000 3l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 002.6 1.5l.4 2.5h4l.4-2.5a7.6 7.6 0 002.6-1.5l2.4 1 2-3.4z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14 4.5H7a2 2 0 00-2 2v11a2 2 0 002 2h7"/><path d="M11 12h9.5M17 8.5l3.5 3.5-3.5 3.5"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20.5 11.5c0 4.1-3.8 7.5-8.5 7.5-1.2 0-2.3-.2-3.3-.6L4 20l1.3-3.6a7 7 0 01-1.8-4.9C3.5 7.4 7.3 4 12 4s8.5 3.4 8.5 7.5z"/></symbol>
+    <symbol id="i-question" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.3a2.6 2.6 0 015 .9c0 1.7-2.5 2.3-2.5 3.8"/><circle cx="12" cy="17.2" r=".9" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".9" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-exclamation" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V13"/><circle cx="12" cy="16.3" r=".9" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-warning" viewBox="0 0 24 24"><path d="M10.3 4.2L2.8 17.5a2 2 0 001.7 3h15a2 2 0 001.7-3L13.7 4.2a2 2 0 00-3.4 0z"/><path d="M12 9.5v4"/><circle cx="12" cy="16.8" r=".9" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20.5h16"/><rect x="5.5" y="11" width="3" height="7" rx="1"/><rect x="10.5" y="7" width="3" height="11" rx="1"/><rect x="15.5" y="3.5" width="3" height="14.5" rx="1"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></symbol>
+    <symbol id="i-braces" viewBox="0 0 24 24"><path d="M8.5 4.5c-2 0-2.5 1-2.5 2.5v2.2c0 1.3-.8 2.3-2 2.8 1.2.5 2 1.5 2 2.8V17c0 1.5.5 2.5 2.5 2.5M15.5 4.5c2 0 2.5 1 2.5 2.5v2.2c0 1.3.8 2.3 2 2.8-1.2.5-2 1.5-2 2.8V17c0 1.5-.5 2.5-2.5 2.5"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3.5l8.5 4.5-8.5 4.5L3.5 8z"/><path d="M3.5 12l8.5 4.5 8.5-4.5M3.5 16l8.5 4.5 8.5-4.5"/></symbol>
+    <symbol id="i-queue" viewBox="0 0 24 24"><rect x="3" y="8" width="4.5" height="8" rx="1.3"/><rect x="9.75" y="8" width="4.5" height="8" rx="1.3"/><path d="M16.5 12h4.5M18.5 9.5L21 12l-2.5 2.5"/></symbol>
+    <symbol id="i-hash" viewBox="0 0 24 24"><path d="M9.5 3.5L7.5 20.5M16.5 3.5l-2 17M4.5 9h16M3.5 15h16"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M10.6 5.6c.5-.1.9-.1 1.4-.1 6 0 9.5 6.5 9.5 6.5a17 17 0 01-2.7 3.5M6.4 6.5A16.6 16.6 0 002.5 12s3.5 6.5 9.5 6.5c1.6 0 3-.4 4.2-1"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/><path d="M15.5 8.5V6A2.5 2.5 0 0013 3.5H6A2.5 2.5 0 003.5 6v7A2.5 2.5 0 006 15.5h2.5"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15.5V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4.5 14v4A2.5 2.5 0 007 20.5h10a2.5 2.5 0 002.5-2.5v-4"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8.5 5.5v13M15.5 5.5v13"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 6.5h15M9.5 6.5v-2h5v2M6.5 6.5l1 13a1.5 1.5 0 001.5 1.4h6a1.5 1.5 0 001.5-1.4l1-13M10 10.5V17M14 10.5V17"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8.5-8.5M16 7l2.5 2.5M14 9l2 2"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.3 2.4 3.5 5.2 3.5 8.5s-1.2 6.1-3.5 8.5c-2.3-2.4-3.5-5.2-3.5-8.5S9.7 5.9 12 3.5z"/></symbol>
+    <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 102.5-6"/><path d="M3.5 4v4h4"/><path d="M12 8v4.5l3 1.8"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3.5l1.8 4.7 4.7 1.8-4.7 1.8L12 16.5l-1.8-4.7L5.5 10l4.7-1.8z"/><path d="M18.5 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M4.5 12h15M13.5 6l6 6-6 6"/></symbol>
+    <symbol id="i-sort" viewBox="0 0 24 24"><path d="M8 4v16M4.5 7.5L8 4l3.5 3.5M16 20V4M12.5 16.5L16 20l3.5-3.5"/></symbol>
+    <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M3.5 8.5v-2A1.5 1.5 0 015 5h14a1.5 1.5 0 011.5 1.5v2a3 3 0 000 6v2A1.5 1.5 0 0119 18H5a1.5 1.5 0 01-1.5-1.5v-2a3 3 0 000-6z"/><path d="M14.5 6.5v1.5M14.5 11v2M14.5 16v1.5"/></symbol>
+  </svg>
+
+  <!-- ================================================================
+       PUBLIC WEBSITE
+       ================================================================ -->
+  <div id="publicShell">
+    <header class="gnav" id="globalNav">
+      <nav class="gnav-inner" aria-label="Main">
+        <a class="gnav-brand" href="#/"><img src="assets/img/logo-mark.png" alt="" width="30" height="26">E3 Fiber</a>
+        <ul class="gnav-links">
+          <li><a href="#/plans" data-nav="plans">Plans</a></li>
+          <li><a href="#/coverage" data-nav="coverage">Coverage</a></li>
+          <li><a href="#/track" data-nav="track">Track</a></li>
+          <li><a href="#/pay" data-nav="pay">Pay Bills</a></li>
+          <li><a href="#/support" data-nav="support">Support</a></li>
+        </ul>
+        <div class="gnav-actions">
+          <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Dark mode" title="Dark mode"><svg class="icon" aria-hidden="true"><use href="#i-moon"></use></svg></button>
+          <a class="gnav-staff" href="#/admin"><svg class="icon" aria-hidden="true"><use href="#i-user"></use></svg>Staff</a>
+          <a class="btn btn-accent btn-sm" href="#/apply">Apply now</a>
+          <button class="gnav-menu-btn" id="publicMenuButton" type="button" aria-expanded="false" aria-controls="publicMenu" aria-label="Open menu"><span></span><span></span></button>
+        </div>
+      </nav>
+    </header>
+    <div class="gnav-menu" id="publicMenu" hidden>
+      <ul>
+        <li><a href="#/">Home</a></li>
+        <li><a href="#/plans">Plans</a></li>
+        <li><a href="#/coverage">Coverage</a></li>
+        <li><a href="#/apply">Apply</a></li>
+        <li><a href="#/track">Track</a></li>
+        <li><a href="#/pay">Pay Bills</a></li>
+        <li><a href="#/support">Support</a></li>
+      </ul>
+      <ul class="gnav-menu-small mt-4">
+        <li><a href="#/admin">Staff sign in</a></li>
+      </ul>
+    </div>
+
+    <main id="publicMain">
+
+      <!-- ---------------------------------------------------------- Home -->
+      <section data-view="home" hidden aria-labelledby="homeTitle">
+        <div class="hero">
+          <div class="wrap">
+            <p class="eyebrow">E3 Fiber Connect · Santa Maria, Bulacan</p>
+            <h1 class="headline-hero" id="homeTitle">Triple the power.<br><span class="gradient-text">Limitless connection.</span></h1>
+            <p class="lead-text">Pure fiber internet with no data caps and no lock-in — installed in days and backed by a team right here in Santa Maria.</p>
+            <div class="hero-actions">
+              <a class="btn btn-accent btn-lg" href="#/apply">Apply now</a>
+              <a class="link-chevron" href="#/plans">See all plans<svg class="icon" aria-hidden="true"><use href="#i-chevron-right"></use></svg></a>
+            </div>
+            <p class="hero-note" id="homeFromPrice">Plans from ₱800 a month.</p>
+
+            <div class="hero-visual" id="homeHeroVisual">
+              <div class="hero-visual-caption">
+                <p class="hero-visual-kicker">Fiber speeds up to</p>
+                <p class="hero-visual-speed"><span class="gradient-text" id="homeTopSpeed">300</span> <small>Mbps</small></p>
+              </div>
+              <svg class="hero-arcs" viewBox="0 0 800 360" aria-hidden="true" focusable="false">
+                <defs>
+                  <linearGradient id="heroArcGradient" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0" stop-color="#0a84ff"/>
+                    <stop offset="0.5" stop-color="#30b0c7"/>
+                    <stop offset="1" stop-color="#34c759"/>
+                  </linearGradient>
+                </defs>
+                <g class="arc-glow">
+                  <path class="arc arc-1" d="M348.04 300A60 60 0 0 1 451.96 300"/>
+                  <path class="arc arc-2" d="M296.08 270A120 120 0 0 1 503.92 270"/>
+                  <path class="arc arc-3" d="M244.12 240A180 180 0 0 1 555.88 240"/>
+                  <path class="arc arc-4" d="M192.16 210A240 240 0 0 1 607.84 210"/>
+                </g>
+                <path class="arc arc-1" d="M348.04 300A60 60 0 0 1 451.96 300"/>
+                <path class="arc arc-2" d="M296.08 270A120 120 0 0 1 503.92 270"/>
+                <path class="arc arc-3" d="M244.12 240A180 180 0 0 1 555.88 240"/>
+                <path class="arc arc-4" d="M192.16 210A240 240 0 0 1 607.84 210"/>
+                <circle class="arc-dot" cx="400" cy="330" r="14"/>
+              </svg>
+              <ul class="hero-visual-chips">
+                <li>No data cap</li>
+                <li>No lock-in</li>
+                <li>Local support</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <section class="section section-alt" aria-labelledby="homePlansTitle">
+          <div class="wrap">
+            <div class="section-head">
+              <h2 class="headline-1" id="homePlansTitle">Choose your speed.</h2>
+              <p class="lead-text">Every plan comes with unlimited data, free or low-cost installation and no lock-in period.</p>
+            </div>
+            <div class="plan-rail" id="homePlanRail"></div>
+            <p class="text-center mt-4"><a class="link-chevron" href="#/plans">Compare all plans<svg class="icon" aria-hidden="true"><use href="#i-chevron-right"></use></svg></a></p>
+          </div>
+        </section>
+
+        <section class="section section-dark" aria-labelledby="homeStatsTitle">
+          <div class="wrap">
+            <div class="section-head">
+              <h2 class="headline-1" id="homeStatsTitle">Fast is just the beginning.</h2>
+              <p class="lead-text">Fiber runs all the way to your home, so the speed you pay for is the speed you get.</p>
+            </div>
+            <div class="stat-grid">
+              <div><p class="stat-value gradient-text" id="homeStatSpeed">300</p><p class="stat-label">Mbps top speed</p></div>
+              <div><p class="stat-value gradient-text">0</p><p class="stat-label">data caps, ever</p></div>
+              <div><p class="stat-value gradient-text">0</p><p class="stat-label">months of lock-in</p></div>
+              <div><p class="stat-value gradient-text" id="homeStatBarangays">18</p><p class="stat-label">barangays connected</p></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section section-alt" aria-labelledby="homeStepsTitle">
+          <div class="wrap">
+            <div class="section-head">
+              <h2 class="headline-1" id="homeStepsTitle">Online in four simple steps.</h2>
+            </div>
+            <ol class="steps">
+              <li class="step-card"><span class="step-number">1</span><h3 class="step-title">Apply online</h3><p class="step-text">Pick a plan and send your details and a valid ID. It takes about five minutes.</p></li>
+              <li class="step-card"><span class="step-number">2</span><h3 class="step-title">We review</h3><p class="step-text">Our team checks your documents and coverage — usually within one to two days.</p></li>
+              <li class="step-card"><span class="step-number">3</span><h3 class="step-title">We install</h3><p class="step-text">We agree on a date and a technician brings fiber all the way to your home.</p></li>
+              <li class="step-card"><span class="step-number">4</span><h3 class="step-title">You’re online</h3><p class="step-text">Enjoy fast, unlimited internet. Pay monthly by GCash, Maya, bank or at our office.</p></li>
+            </ol>
+            <p class="text-center mt-5"><a class="btn btn-accent btn-lg" href="#/apply">Start your application</a></p>
+          </div>
+        </section>
+
+        <section class="section" aria-labelledby="homeTilesTitle">
+          <div class="wrap">
+            <div class="section-head">
+              <h2 class="headline-1" id="homeTilesTitle">Everything in one place.</h2>
+            </div>
+            <div class="tiles">
+              <a class="tile" href="#/coverage">
+                <span class="icon-bubble icon-bubble-lg tone-green"><svg class="icon" aria-hidden="true"><use href="#i-pin"></use></svg></span>
+                <span class="tile-title">Check coverage</span>
+                <span class="tile-text">See whether fiber has reached your barangay.</span>
+              </a>
+              <a class="tile" href="#/track">
+                <span class="icon-bubble icon-bubble-lg tone-blue"><svg class="icon" aria-hidden="true"><use href="#i-doc"></use></svg></span>
+                <span class="tile-title">Track an application</span>
+                <span class="tile-text">Follow each step from review to installation day.</span>
+              </a>
+              <a class="tile" href="#/pay">
+                <span class="icon-bubble icon-bubble-lg tone-orange"><svg class="icon" aria-hidden="true"><use href="#i-card"></use></svg></span>
+                <span class="tile-title">Pay your bill</span>
+                <span class="tile-text">See your balance and tell us about a GCash, Maya or bank payment.</span>
+              </a>
+              <a class="tile" href="#/support">
+                <span class="icon-bubble icon-bubble-lg tone-purple"><svg class="icon" aria-hidden="true"><use href="#i-chat"></use></svg></span>
+                <span class="tile-title">Get support</span>
+                <span class="tile-text">Answers to common questions, or send our team a message.</span>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section class="section section-alt cta-band" aria-labelledby="homeCtaTitle">
+          <div class="wrap">
+            <h2 class="headline-1" id="homeCtaTitle">Ready when you are.</h2>
+            <p class="lead-text mt-3">Apply today and get connected within the week.</p>
+            <div class="hero-actions">
+              <a class="btn btn-accent btn-lg" href="#/apply">Apply now</a>
+              <a class="link-chevron" href="#/support">Talk to us<svg class="icon" aria-hidden="true"><use href="#i-chevron-right"></use></svg></a>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- --------------------------------------------------------- Plans -->
+      <section data-view="plans" hidden aria-labelledby="plansTitle">
+        <div class="page-hero">
+          <div class="wrap">
+            <p class="eyebrow">Plans</p>
+            <h1 class="headline-1" id="plansTitle">Simple pricing.<br>Serious speed.</h1>
+            <p class="lead-text">Five fiber plans, every one with unlimited data and no lock-in. Change your plan whenever you like.</p>
+          </div>
+        </div>
+
+        <section class="section-tight section-alt" aria-labelledby="recTitle">
+          <div class="wrap">
+            <div class="recommender">
+              <div>
+                <h2 class="headline-3" id="recTitle">Which plan is right for me?</h2>
+                <p class="body-text mt-2">Answer two quick questions and we’ll suggest the plan that fits.</p>
+                <p class="form-label mt-4" id="recDevicesLabel">Devices online at home</p>
+                <div class="segmented segmented-lg" role="group" aria-labelledby="recDevicesLabel" id="recDevices">
+                  <button type="button" data-value="1-3" aria-pressed="false">1–3</button>
+                  <button type="button" data-value="4-6" aria-pressed="true">4–6</button>
+                  <button type="button" data-value="7-10" aria-pressed="false">7–10</button>
+                  <button type="button" data-value="11+" aria-pressed="false">11+</button>
+                </div>
+                <p class="form-label mt-3" id="recActivityLabel">What do you do most?</p>
+                <div class="segmented segmented-lg" role="group" aria-labelledby="recActivityLabel" id="recActivity">
+                  <button type="button" data-value="browsing" aria-pressed="false">Browsing</button>
+                  <button type="button" data-value="streaming" aria-pressed="true">Streaming</button>
+                  <button type="button" data-value="work" aria-pressed="false">Work &amp; school</button>
+                  <button type="button" data-value="gaming" aria-pressed="false">Gaming</button>
+                </div>
+              </div>
+              <div class="recommender-result" id="recResult" aria-live="polite"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-tight" aria-labelledby="allPlansTitle">
+          <div class="wrap">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+              <h2 class="headline-2" id="allPlansTitle">All plans</h2>
+              <div class="d-flex align-items-center gap-2">
+                <label class="caption-text" for="plansSort">Sort by</label>
+                <select class="form-select select-compact" id="plansSort">
+                  <option value="speed-asc">Speed: low to high</option>
+                  <option value="speed-desc">Speed: high to low</option>
+                  <option value="price-asc">Price: low to high</option>
+                  <option value="price-desc">Price: high to low</option>
+                </select>
+              </div>
+            </div>
+            <div class="plan-rail" id="plansRail"></div>
+            <p class="algo-note" id="plansSortNote"></p>
+          </div>
+        </section>
+
+        <section class="section-tight section-alt" aria-labelledby="compareTitle">
+          <div class="wrap">
+            <h2 class="headline-2 mb-4" id="compareTitle">Compare plans</h2>
+            <div class="panel p-2 p-md-3">
+              <div class="compare-scroll"><table class="compare-table" id="plansCompare"></table></div>
+            </div>
+            <p class="caption-text mt-3">Speeds are maximum download speeds over fiber. Installation is free within 150 m of a fiber access point; homes farther away may pay a small fee.</p>
+          </div>
+        </section>
+      </section>
+
+      <!-- ------------------------------------------------------ Coverage -->
+      <section data-view="coverage" hidden aria-labelledby="coverageTitle">
+        <div class="page-hero">
+          <div class="wrap">
+            <p class="eyebrow">Coverage</p>
+            <h1 class="headline-1" id="coverageTitle">Is fiber in your barangay?</h1>
+            <p class="lead-text" id="coverageLead">Search your barangay to see if E3 Fiber is available.</p>
+          </div>
+        </div>
+        <div class="wrap pb-5">
+          <form class="search-wrap" id="coverageForm" role="search" autocomplete="off" novalidate>
+            <label class="visually-hidden" for="coverageInput">Barangay name</label>
+            <div class="big-search">
+              <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+              <input id="coverageInput" type="text" placeholder="Type your barangay, e.g. Poblacion" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="coverageSuggestions" spellcheck="false">
+              <button class="btn btn-accent" type="submit">Check</button>
+            </div>
+            <ul class="suggestions" id="coverageSuggestions" role="listbox" aria-label="Matching barangays" hidden></ul>
+          </form>
+          <div id="coverageResult" aria-live="polite"></div>
+        </div>
+        <section class="section-tight section-alt" aria-labelledby="barangaysTitle">
+          <div class="wrap">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+              <h2 class="headline-2" id="barangaysTitle">All barangays</h2>
+              <div class="segmented" role="group" aria-label="Filter barangays" id="coverageFilter">
+                <button type="button" data-value="all" aria-pressed="true">All <span class="segment-count" data-count-for="all"></span></button>
+                <button type="button" data-value="available" aria-pressed="false">Available <span class="segment-count" data-count-for="available"></span></button>
+                <button type="button" data-value="coming-soon" aria-pressed="false">Coming soon <span class="segment-count" data-count-for="coming-soon"></span></button>
+              </div>
+            </div>
+            <ul class="barangay-grid" id="barangayGrid"></ul>
+          </div>
+        </section>
+      </section>
+
+      <!-- --------------------------------------------------------- Apply -->
+      <section data-view="apply" hidden aria-labelledby="applyTitle" class="public-canvas">
+        <div class="page-hero">
+          <div class="wrap">
+            <p class="eyebrow">Apply</p>
+            <h1 class="headline-1" id="applyTitle">Let’s get you connected.</h1>
+            <p class="lead-text">Five short steps. Your details are used only to process your application.</p>
+          </div>
+        </div>
+        <div class="wrap">
+          <div class="apply-layout">
+            <form class="form-card" id="applyForm" novalidate>
+              <ol class="stepper" id="applyStepper" aria-label="Application progress">
+                <li data-step="1"><span>Plan</span></li>
+                <li data-step="2"><span>About you</span></li>
+                <li data-step="3"><span>Address</span></li>
+                <li data-step="4"><span>Valid ID</span></li>
+                <li data-step="5"><span>Review</span></li>
+              </ol>
+              <div class="form-alert" id="applyAlert" role="alert" hidden></div>
+
+              <fieldset class="step-panel field" data-step-panel="1">
+                <legend class="step-panel-title">Choose your plan</legend>
+                <p class="step-panel-text">No lock-in, so you can switch plans later.</p>
+                <div class="choice-grid" id="applyPlanChoices" role="radiogroup" aria-label="Plans" aria-describedby="applyPlanChoices-error"></div>
+                <p class="field-error" id="applyPlanChoices-error"></p>
+              </fieldset>
+
+              <fieldset class="step-panel" data-step-panel="2" hidden>
+                <legend class="step-panel-title">About you</legend>
+                <p class="step-panel-text">We’ll use these to contact you about your application.</p>
+                <div class="row gx-3">
+                  <div class="col-12 field">
+                    <label class="form-label" for="applyFullName">Full name</label>
+                    <input class="form-control" id="applyFullName" autocomplete="name" maxlength="80" aria-describedby="applyFullName-error">
+                    <p class="field-error" id="applyFullName-error"></p>
+                  </div>
+                  <div class="col-md-6 field">
+                    <label class="form-label" for="applyEmail">E-mail</label>
+                    <input class="form-control" id="applyEmail" type="email" autocomplete="email" inputmode="email" maxlength="254" aria-describedby="applyEmail-error">
+                    <p class="field-error" id="applyEmail-error"></p>
+                  </div>
+                  <div class="col-md-6 field">
+                    <label class="form-label" for="applyMobile">Mobile number</label>
+                    <input class="form-control" id="applyMobile" type="tel" autocomplete="tel" inputmode="tel" placeholder="0917 555 0199" maxlength="20" aria-describedby="applyMobile-error">
+                    <p class="field-error" id="applyMobile-error"></p>
+                  </div>
+                  <div class="col-md-6 field">
+                    <label class="form-label" for="applyBirthDate">Birth date</label>
+                    <input class="form-control" id="applyBirthDate" type="date" autocomplete="bday" aria-describedby="applyBirthDate-hint applyBirthDate-error">
+                    <p class="field-hint" id="applyBirthDate-hint">You must be 18 or older.</p>
+                    <p class="field-error" id="applyBirthDate-error"></p>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="step-panel" data-step-panel="3" hidden>
+                <legend class="step-panel-title">Where should we install?</legend>
+                <p class="step-panel-text">We serve homes in Santa Maria, Bulacan.</p>
+                <div class="row gx-3">
+                  <div class="col-md-6 field">
+                    <label class="form-label" for="applyCity">City</label>
+                    <input class="form-control" id="applyCity" value="Santa Maria, Bulacan" readonly>
+                  </div>
+                  <div class="col-md-6 field">
+                    <label class="form-label" for="applyBarangay">Barangay</label>
+                    <select class="form-select" id="applyBarangay" aria-describedby="applyCoverageHint applyBarangay-error"></select>
+                    <p class="coverage-hint" id="applyCoverageHint" aria-live="polite"></p>
+                    <p class="field-error" id="applyBarangay-error"></p>
+                  </div>
+                  <div class="col-12 field">
+                    <label class="form-label" for="applyAddress">House number and street</label>
+                    <input class="form-control" id="applyAddress" autocomplete="street-address" maxlength="150" placeholder="e.g. 18 Mabini St., Purok 2" aria-describedby="applyAddress-error">
+                    <p class="field-error" id="applyAddress-error"></p>
+                  </div>
+                  <div class="col-12 field">
+                    <label class="form-label" for="applyLandmark">Landmark <span class="optional">(optional)</span></label>
+                    <input class="form-control" id="applyLandmark" maxlength="100" placeholder="e.g. Near the barangay hall" aria-describedby="applyLandmark-error">
+                    <p class="field-error" id="applyLandmark-error"></p>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="step-panel" data-step-panel="4" hidden>
+                <legend class="step-panel-title">Valid ID</legend>
+                <p class="step-panel-text">A government-issued ID confirms who the account belongs to.</p>
+                <div class="row gx-3">
+                  <div class="col-md-6 field">
+                    <label class="form-label" for="applyIdType">ID type</label>
+                    <select class="form-select" id="applyIdType" aria-describedby="applyIdType-error"></select>
+                    <p class="field-error" id="applyIdType-error"></p>
+                  </div>
+                  <div class="col-md-6 field">
+                    <label class="form-label" for="applyIdNumber">ID number</label>
+                    <input class="form-control" id="applyIdNumber" maxlength="30" spellcheck="false" aria-describedby="applyIdNumber-error">
+                    <p class="field-error" id="applyIdNumber-error"></p>
+                  </div>
+                  <div class="col-12 field">
+                    <span class="form-label d-block" id="applyIdPhotoLabel">Photo of the ID</span>
+                    <label class="upload" id="applyUpload">
+                      <input type="file" id="applyIdPhoto" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf" aria-labelledby="applyIdPhotoLabel applyUploadText" aria-describedby="applyIdPhoto-error">
+                      <span class="upload-icon"><svg class="icon" aria-hidden="true"><use href="#i-upload"></use></svg></span>
+                      <span>
+                        <span class="upload-title d-block" id="applyUploadTitle">Choose a file</span>
+                        <span class="upload-text d-block" id="applyUploadText">JPG, PNG or PDF, up to 10 MB</span>
+                      </span>
+                    </label>
+                    <p class="field-error" id="applyIdPhoto-error"></p>
+                  </div>
+                  <div class="col-12 field">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="applyConsent" aria-describedby="applyConsent-error">
+                      <label class="form-check-label" for="applyConsent">I confirm these details are correct, and E3 Fiber may contact me about this application.</label>
+                    </div>
+                    <p class="field-error" id="applyConsent-error"></p>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="step-panel" data-step-panel="5" hidden>
+                <legend class="step-panel-title">Review and send</legend>
+                <p class="step-panel-text">Check your details. Use Edit to go back to any step.</p>
+                <div id="applyReview"></div>
+              </fieldset>
+
+              <div class="wizard-actions">
+                <button type="button" class="btn btn-gray" id="applyBack">Back</button>
+                <span class="caption-text" id="applyStepLabel" aria-live="polite">Step 1 of 5</span>
+                <button type="button" class="btn btn-accent" id="applyNext">Continue</button>
+                <button type="submit" class="btn btn-accent" id="applySubmit" hidden>Send application</button>
+              </div>
+            </form>
+
+            <aside class="form-card summary-card" aria-labelledby="applySummaryTitle">
+              <h2 class="panel-title" id="applySummaryTitle">Your plan</h2>
+              <div class="summary-plan">
+                <div>
+                  <p class="fw-semibold" id="applySummaryPlan">Power</p>
+                  <p class="caption-text" id="applySummarySpeed">Up to 100 Mbps</p>
+                </div>
+                <p class="plan-price" id="applySummaryPrice">₱1,200<small>/mo</small></p>
+              </div>
+              <ul class="summary-steps">
+                <li><svg class="icon" aria-hidden="true"><use href="#i-clock"></use></svg><span>We review applications within one to two days.</span></li>
+                <li><svg class="icon" aria-hidden="true"><use href="#i-wrench"></use></svg><span>Installation on a date that suits you.</span></li>
+                <li><svg class="icon" aria-hidden="true"><use href="#i-infinity"></use></svg><span>Unlimited data and no lock-in period.</span></li>
+              </ul>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- ----------------------------------------------------- Submitted -->
+      <section data-view="submitted" hidden aria-labelledby="submittedTitle" class="public-canvas">
+        <div class="wrap pt-5">
+          <div class="confirm-card form-card" id="submittedCard">
+            <div class="check-burst"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg></div>
+            <h1 class="headline-2" id="submittedTitle">Application received.</h1>
+            <p class="body-text mt-2" id="submittedLead">Thank you. We’ll review it within one to two days.</p>
+            <div class="ref-box">
+              <span class="visually-hidden">Reference number:</span>
+              <span class="ref-code" id="submittedRef">—</span>
+              <button class="btn btn-gray btn-sm" type="button" id="submittedCopy"><svg class="icon" aria-hidden="true"><use href="#i-copy"></use></svg>Copy</button>
+            </div>
+            <p class="caption-text">Keep this number. You’ll need it to track your application.</p>
+            <div class="next-steps panel">
+              <div class="panel-body pt-3"><dl class="kv-list" id="submittedSummary"></dl></div>
+            </div>
+            <div class="hero-actions">
+              <a class="btn btn-accent" id="submittedTrack" href="#/track">Track this application</a>
+              <a class="link-chevron" href="#/">Back to home<svg class="icon" aria-hidden="true"><use href="#i-chevron-right"></use></svg></a>
+            </div>
+          </div>
+          <div class="confirm-card form-card" id="submittedMissing" hidden>
+            <h1 class="headline-2">We couldn’t find that application.</h1>
+            <p class="body-text mt-2">Check the reference number and try the tracker.</p>
+            <div class="hero-actions"><a class="btn btn-accent" href="#/track">Open the tracker</a></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- --------------------------------------------------------- Track -->
+      <section data-view="track" hidden aria-labelledby="trackTitle">
+        <div class="page-hero">
+          <div class="wrap">
+            <p class="eyebrow">Track</p>
+            <h1 class="headline-1" id="trackTitle">Where’s my application?</h1>
+            <p class="lead-text">Enter the reference number from your confirmation.</p>
+          </div>
+        </div>
+        <div class="wrap pb-5">
+          <form class="search-wrap" id="trackForm" autocomplete="off" novalidate>
+            <label class="visually-hidden" for="trackInput">Reference number</label>
+            <div class="big-search">
+              <svg class="icon" aria-hidden="true"><use href="#i-doc"></use></svg>
+              <input id="trackInput" type="text" placeholder="E3-2026-004879" autocapitalize="characters" spellcheck="false" maxlength="20" aria-describedby="trackHint">
+              <button class="btn btn-accent" type="submit">Track</button>
+            </div>
+            <p class="caption-text text-center mt-2" id="trackHint">Try the sample <button type="button" class="btn btn-plain btn-xs align-baseline" id="trackExample">—</button></p>
+          </form>
+          <div class="track-result wrap-narrow px-0 mt-4" id="trackResult" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <!-- ----------------------------------------------------- Pay bills -->
+      <section data-view="pay" hidden aria-labelledby="payTitle" class="public-canvas">
+        <div class="page-hero">
+          <div class="wrap">
+            <p class="eyebrow">Pay bills</p>
+            <h1 class="headline-1" id="payTitle">Your bill, in a few taps.</h1>
+            <p class="lead-text">Look up your account to see your balance, then tell us about your payment.</p>
+          </div>
+        </div>
+        <div class="wrap-narrow">
+          <form class="form-card" id="payLookupForm" novalidate>
+            <h2 class="form-card-title">Find your account</h2>
+            <p class="form-card-text">Use the account number on your bill and the mobile number you registered.</p>
+            <div class="form-alert" id="payLookupAlert" role="alert" hidden></div>
+            <div class="row gx-3">
+              <div class="col-md-6 field">
+                <label class="form-label" for="payAccount">Account number</label>
+                <input class="form-control" id="payAccount" placeholder="E3-2026-004871" autocapitalize="characters" spellcheck="false" maxlength="20">
+              </div>
+              <div class="col-md-6 field">
+                <label class="form-label" for="payMobile">Registered mobile number</label>
+                <input class="form-control" id="payMobile" type="tel" inputmode="tel" placeholder="0917 555 0141" maxlength="20">
+              </div>
+            </div>
+            <button class="btn btn-accent" type="submit">Show my bill</button>
+            <p class="caption-text mt-3" id="payDemoHint"></p>
+          </form>
+
+          <div id="payAccountView" hidden>
+            <div class="form-card mb-3">
+              <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                <div>
+                  <p class="caption-text">Account</p>
+                  <h2 class="headline-3" id="payName">—</h2>
+                  <p class="caption-text mt-1" id="payMeta"></p>
+                </div>
+                <button class="btn btn-gray btn-sm" type="button" id="payLeave">Not you?</button>
+              </div>
+              <hr class="divider">
+              <p class="caption-text">Amount due</p>
+              <p class="balance-hero" id="payBalance">₱0</p>
+              <p class="caption-text mt-2" id="payBalanceNote"></p>
+            </div>
+
+            <div class="form-card mb-3">
+              <h2 class="panel-title mb-1">Bills</h2>
+              <ul class="row-list" id="payBills"></ul>
+            </div>
+
+            <div class="form-card mb-3" id="payReportCard">
+              <h2 class="form-card-title">Report a payment</h2>
+              <p class="form-card-text">Paid through GCash, Maya, a bank or at our office? Send the details and we’ll confirm within one business day.</p>
+              <div class="pay-methods mb-4">
+                <div class="pay-method"><strong>GCash or Maya</strong>Send to E3 Fiber Connect using the number printed on your bill.</div>
+                <div class="pay-method"><strong>Bank transfer</strong>Use the bank details printed on your bill.</div>
+                <div class="pay-method"><strong>Over the counter</strong>E3 office, Santa Maria · Mon–Sat, 8 AM – 5 PM.</div>
+              </div>
+              <form id="payReportForm" novalidate>
+                <div class="form-alert" id="payReportAlert" role="alert" hidden></div>
+                <fieldset class="field">
+                  <legend class="form-label">Bill you paid</legend>
+                  <div class="choice-grid choice-grid-2" id="payBillChoices" aria-describedby="payBillChoices-error"></div>
+                  <p class="field-error" id="payBillChoices-error"></p>
+                </fieldset>
+                <div class="row gx-3">
+                  <div class="col-md-6 field">
+                    <label class="form-label" for="payMethod">Paid through</label>
+                    <select class="form-select" id="payMethod" aria-describedby="payMethod-error"></select>
+                    <p class="field-error" id="payMethod-error"></p>
+                  </div>
+                  <div class="col-md-6 field">
+                    <label class="form-label" for="payAmount">Amount paid (₱)</label>
+                    <input class="form-control" id="payAmount" type="number" min="1" max="100000" step="0.01" inputmode="decimal" aria-describedby="payAmount-hint payAmount-error">
+                    <p class="field-hint" id="payAmount-hint">Filled in from the bill you chose — change it if you paid a different amount.</p>
+                    <p class="field-error" id="payAmount-error"></p>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="form-label" for="payReference">Reference number</label>
+                  <input class="form-control" id="payReference" maxlength="30" spellcheck="false" autocapitalize="characters" placeholder="e.g. 5012 873 246 119" aria-describedby="payReference-hint payReference-error">
+                  <p class="field-hint" id="payReference-hint">Printed on your receipt or payment confirmation.</p>
+                  <p class="field-error" id="payReference-error"></p>
+                </div>
+                <button class="btn btn-accent" type="submit">Send payment details</button>
+              </form>
+            </div>
+
+            <div class="form-card">
+              <h2 class="panel-title mb-1">Payment reports</h2>
+              <ul class="row-list" id="payHistory"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------- Support -->
+      <section data-view="support" hidden aria-labelledby="supportTitle">
+        <div class="page-hero">
+          <div class="wrap">
+            <p class="eyebrow">Support</p>
+            <h1 class="headline-1" id="supportTitle">How can we help?</h1>
+            <p class="lead-text">Find a quick answer, send us a message, or check a ticket you’ve already sent.</p>
+          </div>
+        </div>
+
+        <section class="section-tight section-alt" aria-label="Contact details">
+          <div class="wrap">
+            <div class="contact-grid">
+              <a class="contact-card" href="tel:+639218215399">
+                <span class="icon-bubble tone-green"><svg class="icon" aria-hidden="true"><use href="#i-phone"></use></svg></span>
+                <span class="contact-label">Call or text</span>
+                <span class="contact-value">0921 821 5399</span>
+              </a>
+              <a class="contact-card" href="mailto:e3fiberconnect@gmail.com">
+                <span class="icon-bubble tone-blue"><svg class="icon" aria-hidden="true"><use href="#i-mail"></use></svg></span>
+                <span class="contact-label">E-mail</span>
+                <span class="contact-value">e3fiberconnect@<wbr>gmail.com</span>
+              </a>
+              <div class="contact-card">
+                <span class="icon-bubble tone-orange"><svg class="icon" aria-hidden="true"><use href="#i-pin"></use></svg></span>
+                <span class="contact-label">Visit</span>
+                <span class="contact-value">Santa Maria, Bulacan</span>
+              </div>
+              <div class="contact-card">
+                <span class="icon-bubble tone-purple"><svg class="icon" aria-hidden="true"><use href="#i-clock"></use></svg></span>
+                <span class="contact-label">Office hours</span>
+                <span class="contact-value">Mon–Sat · 8 AM – 5 PM</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-tight" aria-labelledby="faqTitle">
+          <div class="wrap-narrow">
+            <h2 class="headline-2 mb-3" id="faqTitle">Frequently asked questions</h2>
+            <div class="faq">
+              <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                  <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="false" aria-controls="faq1">How long does installation take?<svg class="icon faq-icon" aria-hidden="true"><use href="#i-plus"></use></svg></button></h3>
+                  <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Most homes are connected within three to five days after approval. The visit itself takes about two hours, and we call ahead to agree on the date and time.</div></div>
+                </div>
+                <div class="accordion-item">
+                  <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">Is there really no data cap?<svg class="icon faq-icon" aria-hidden="true"><use href="#i-plus"></use></svg></button></h3>
+                  <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Yes. Every plan is unlimited — stream, game and download as much as you like without slowdowns for using “too much”.</div></div>
+                </div>
+                <div class="accordion-item">
+                  <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" aria-expanded="false" aria-controls="faq3">Can I change or cancel my plan?<svg class="icon faq-icon" aria-hidden="true"><use href="#i-plus"></use></svg></button></h3>
+                  <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Any time. There is no lock-in period. Plan changes apply to your next bill; just send us a message or visit the office.</div></div>
+                </div>
+                <div class="accordion-item">
+                  <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4" aria-expanded="false" aria-controls="faq4">Which IDs do you accept?<svg class="icon faq-icon" aria-hidden="true"><use href="#i-plus"></use></svg></button></h3>
+                  <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Any valid government-issued ID: PhilSys National ID, driver’s license, passport, UMID, SSS, PRC, postal, voter’s, PhilHealth, TIN or senior citizen ID.</div></div>
+                </div>
+                <div class="accordion-item">
+                  <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5" aria-expanded="false" aria-controls="faq5">How do I pay my bill?<svg class="icon faq-icon" aria-hidden="true"><use href="#i-plus"></use></svg></button></h3>
+                  <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Pay by GCash, Maya, bank transfer or at our office, then report the payment on the Pay Bills page. Bills are due 15 days after your billing period starts.</div></div>
+                </div>
+                <div class="accordion-item">
+                  <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6" aria-expanded="false" aria-controls="faq6">What if fiber isn’t in my barangay yet?<svg class="icon faq-icon" aria-hidden="true"><use href="#i-plus"></use></svg></button></h3>
+                  <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">You can still apply. We’ll keep your application on our waitlist and contact you as soon as the line reaches your area.</div></div>
+                </div>
+                <div class="accordion-item">
+                  <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq7" aria-expanded="false" aria-controls="faq7">My internet is down. What should I do?<svg class="icon faq-icon" aria-hidden="true"><use href="#i-plus"></use></svg></button></h3>
+                  <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Restart your modem first. If the LOS light is red or it still doesn’t work, send us a message below with your account number — we answer tickets in the order they arrive.</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-tight section-alt" aria-labelledby="ticketTitle">
+          <div class="wrap">
+            <div class="row g-4">
+              <div class="col-lg-7">
+                <form class="form-card" id="ticketForm" novalidate>
+                  <h2 class="form-card-title" id="ticketTitle">Send us a message</h2>
+                  <p class="form-card-text">Report a problem or ask a question. We reply by text or call, usually the same day.</p>
+                  <div class="form-alert" id="ticketAlert" role="alert" hidden></div>
+                  <div class="row gx-3">
+                    <div class="col-md-6 field">
+                      <label class="form-label" for="ticketName">Your name</label>
+                      <input class="form-control" id="ticketName" autocomplete="name" maxlength="80" aria-describedby="ticketName-error">
+                      <p class="field-error" id="ticketName-error"></p>
+                    </div>
+                    <div class="col-md-6 field">
+                      <label class="form-label" for="ticketMobile">Mobile number</label>
+                      <input class="form-control" id="ticketMobile" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" aria-describedby="ticketMobile-error">
+                      <p class="field-error" id="ticketMobile-error"></p>
+                    </div>
+                    <div class="col-md-6 field">
+                      <label class="form-label" for="ticketEmail">E-mail <span class="optional">(optional)</span></label>
+                      <input class="form-control" id="ticketEmail" type="email" autocomplete="email" maxlength="254" aria-describedby="ticketEmail-error">
+                      <p class="field-error" id="ticketEmail-error"></p>
+                    </div>
+                    <div class="col-md-6 field">
+                      <label class="form-label" for="ticketAccount">Account number <span class="optional">(optional)</span></label>
+                      <input class="form-control" id="ticketAccount" placeholder="E3-2026-004871" autocapitalize="characters" spellcheck="false" maxlength="20" aria-describedby="ticketAccount-error">
+                      <p class="field-error" id="ticketAccount-error"></p>
+                    </div>
+                    <div class="col-12 field">
+                      <label class="form-label" for="ticketCategory">Topic</label>
+                      <select class="form-select" id="ticketCategory" aria-describedby="ticketCategory-error"></select>
+                      <p class="field-error" id="ticketCategory-error"></p>
+                    </div>
+                    <div class="col-12 field">
+                      <label class="form-label" for="ticketMessage">Message</label>
+                      <textarea class="form-control" id="ticketMessage" rows="4" maxlength="1000" aria-describedby="ticketMessage-count ticketMessage-error"></textarea>
+                      <p class="field-hint text-end" id="ticketMessage-count">0 / 1,000</p>
+                      <p class="field-error" id="ticketMessage-error"></p>
+                    </div>
+                  </div>
+                  <button class="btn btn-accent" type="submit">Send message</button>
+                </form>
+                <div class="form-card text-center" id="ticketSent" hidden>
+                  <div class="check-burst"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg></div>
+                  <h2 class="headline-3">Message sent.</h2>
+                  <p class="body-text mt-2" id="ticketSentText">We’ll get back to you soon.</p>
+                  <div class="ref-box"><span class="visually-hidden">Ticket number:</span><span class="ref-code" id="ticketSentNo">—</span></div>
+                  <p class="caption-text">Save this number to check on your ticket.</p>
+                  <button class="btn btn-gray mt-3" type="button" id="ticketAnother">Send another message</button>
+                </div>
+              </div>
+              <div class="col-lg-5">
+                <form class="form-card" id="ticketLookupForm" novalidate>
+                  <h2 class="form-card-title">Check a ticket</h2>
+                  <p class="form-card-text">Enter your ticket number and the mobile number you used.</p>
+                  <div class="field">
+                    <label class="form-label" for="lookupTicketNo">Ticket number</label>
+                    <input class="form-control" id="lookupTicketNo" placeholder="TKT-000101" autocapitalize="characters" spellcheck="false" maxlength="12">
+                  </div>
+                  <div class="field">
+                    <label class="form-label" for="lookupMobile">Mobile number</label>
+                    <input class="form-control" id="lookupMobile" type="tel" inputmode="tel" maxlength="20">
+                  </div>
+                  <button class="btn btn-gray" type="submit">Check status</button>
+                  <div class="mt-3" id="ticketLookupResult" aria-live="polite"></div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- ------------------------------------------------------------ 404 -->
+      <section data-view="not-found" hidden aria-labelledby="notFoundTitle">
+        <div class="not-found">
+          <p class="not-found-code gradient-text">404</p>
+          <h1 class="headline-2 mt-3" id="notFoundTitle">This page isn’t here.</h1>
+          <p class="lead-text mt-2">The link may be old or mistyped.</p>
+          <div class="hero-actions">
+            <a class="btn btn-accent" href="#/">Go to the home page</a>
+            <a class="link-chevron" href="#/support">Get support<svg class="icon" aria-hidden="true"><use href="#i-chevron-right"></use></svg></a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="gfooter">
+      <div class="wrap">
+        <p class="gfooter-note">This is a demo website for a Data Structures &amp; Algorithms project. Every record lives in JavaScript arrays in your browser’s memory, so the sample data starts fresh whenever the page is reloaded.</p>
+        <div class="gfooter-cols">
+          <div>
+            <h2>Internet</h2>
+            <ul>
+              <li><a href="#/plans">Plans</a></li>
+              <li><a href="#/coverage">Coverage</a></li>
+              <li><a href="#/apply">Apply</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Your account</h2>
+            <ul>
+              <li><a href="#/track">Track an application</a></li>
+              <li><a href="#/pay">Pay bills</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Support</h2>
+            <ul>
+              <li><a href="#/support">Questions and answers</a></li>
+              <li><a href="#/support">Send a message</a></li>
+              <li><a href="#/support">Check a ticket</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>E3 Fiber Connect</h2>
+            <ul>
+              <li><a href="tel:+639218215399">0921 821 5399</a></li>
+              <li><a href="mailto:e3fiberconnect@gmail.com">e3fiberconnect@gmail.com</a></li>
+              <li>Santa Maria, Bulacan</li>
+              <li><a href="#/admin">Staff sign in</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="gfooter-legal">
+          <p>Copyright © <span id="footerYear">2026</span> E3 Fiber Connect. All rights reserved.</p>
+          <p>Triple the power. Limitless connection.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ================================================================
+       STAFF SIGN-IN
+       ================================================================ -->
+  <div id="loginShell" hidden>
+    <main class="login-shell" id="loginMain">
+      <button class="theme-toggle login-theme" type="button" data-theme-toggle aria-pressed="false" aria-label="Dark mode" title="Dark mode"><svg class="icon" aria-hidden="true"><use href="#i-moon"></use></svg></button>
+      <section data-view="admin-login" hidden aria-labelledby="loginTitle">
+        <div class="login-card" id="loginCard">
+          <img class="login-logo" src="assets/img/logo-mark.png" alt="" width="64" height="55">
+          <h1 class="login-title" id="loginTitle">E3 Admin</h1>
+          <p class="login-subtitle">Sign in with your staff account.</p>
+          <div class="form-alert" id="loginAlert" role="alert" hidden></div>
+          <form id="loginForm" novalidate>
+            <div class="field">
+              <label class="form-label" for="loginEmail">E-mail</label>
+              <input class="form-control" id="loginEmail" type="email" autocomplete="username" inputmode="email" maxlength="254" aria-describedby="loginEmail-error">
+              <p class="field-error" id="loginEmail-error"></p>
+            </div>
+            <div class="field">
+              <label class="form-label" for="loginPassword">Password</label>
+              <div class="password-field">
+                <input class="form-control" id="loginPassword" type="password" autocomplete="current-password" maxlength="100" aria-describedby="loginPassword-error">
+                <button class="btn btn-icon btn-plain password-toggle" type="button" id="loginPasswordToggle" aria-label="Show password" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-eye"></use></svg></button>
+              </div>
+              <p class="field-error" id="loginPassword-error"></p>
+            </div>
+            <button class="btn btn-accent btn-lg w-100 mt-2" type="submit" id="loginSubmit">Sign in</button>
+          </form>
+          <p class="login-switch">New to the team? <a href="#/admin/register">Request staff access</a></p>
+          <div class="demo-accounts">
+            <p class="demo-accounts-title">Demo accounts — choose one to fill in the form</p>
+            <div class="demo-chips" id="loginDemoChips">
+              <button type="button" class="btn btn-gray btn-sm" data-demo-email="maria.santos@e3fiberconnect.ph" data-demo-password="owner123">Owner</button>
+              <button type="button" class="btn btn-gray btn-sm" data-demo-email="juan.delacruz@e3fiberconnect.ph" data-demo-password="e3admin">Admin</button>
+              <button type="button" class="btn btn-gray btn-sm" data-demo-email="paolo.reyes@e3fiberconnect.ph" data-demo-password="support123">Support</button>
+            </div>
+          </div>
+          <a class="login-back" href="#/">← Back to the website</a>
+        </div>
+      </section>
+
+      <section data-view="admin-register" hidden aria-labelledby="registerTitle">
+        <div class="login-card login-card-wide" id="registerCard">
+          <img class="login-logo" src="assets/img/logo-mark.png" alt="" width="64" height="55">
+          <div id="registerFormView">
+            <h1 class="login-title" id="registerTitle">Request staff access</h1>
+            <p class="login-subtitle">For E3 Fiber Connect employees. An Owner or Admin reviews each request — first come, first served.</p>
+            <div class="form-alert" id="registerAlert" role="alert" hidden></div>
+            <form id="registerForm" novalidate>
+              <div class="field">
+                <label class="form-label" for="registerName">Full name</label>
+                <input class="form-control" id="registerName" autocomplete="name" maxlength="80" aria-describedby="registerName-error">
+                <p class="field-error" id="registerName-error"></p>
+              </div>
+              <div class="row gx-3">
+                <div class="col-sm-7 field">
+                  <label class="form-label" for="registerEmail">Work e-mail</label>
+                  <input class="form-control" id="registerEmail" type="email" autocomplete="email" inputmode="email" maxlength="254" placeholder="name@e3fiberconnect.ph" aria-describedby="registerEmail-error">
+                  <p class="field-error" id="registerEmail-error"></p>
+                </div>
+                <div class="col-sm-5 field">
+                  <label class="form-label" for="registerMobile">Mobile number</label>
+                  <input class="form-control" id="registerMobile" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="0917 555 0199" aria-describedby="registerMobile-error">
+                  <p class="field-error" id="registerMobile-error"></p>
+                </div>
+              </div>
+              <fieldset class="field">
+                <legend class="form-label">Access you need</legend>
+                <div class="d-grid gap-2" id="registerRoles" aria-describedby="registerRoles-error"></div>
+                <p class="field-error" id="registerRoles-error"></p>
+              </fieldset>
+              <div class="field">
+                <label class="form-label" for="registerNote">Note for the reviewer <span class="optional">(optional)</span></label>
+                <input class="form-control" id="registerNote" maxlength="150" placeholder="e.g. New cashier at the main office" aria-describedby="registerNote-error">
+                <p class="field-error" id="registerNote-error"></p>
+              </div>
+              <div class="row gx-3">
+                <div class="col-sm-6 field">
+                  <label class="form-label" for="registerPassword">Password</label>
+                  <div class="password-field">
+                    <input class="form-control" id="registerPassword" type="password" autocomplete="new-password" maxlength="100" aria-describedby="registerPassword-hint registerPassword-error">
+                    <button class="btn btn-icon btn-plain password-toggle" type="button" id="registerPasswordToggle" aria-label="Show passwords" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-eye"></use></svg></button>
+                  </div>
+                  <p class="field-hint" id="registerPassword-hint">8 or more characters with a letter and a number.</p>
+                  <p class="field-error" id="registerPassword-error"></p>
+                </div>
+                <div class="col-sm-6 field">
+                  <label class="form-label" for="registerConfirm">Confirm password</label>
+                  <input class="form-control" id="registerConfirm" type="password" autocomplete="new-password" maxlength="100" aria-describedby="registerConfirm-error">
+                  <p class="field-error" id="registerConfirm-error"></p>
+                </div>
+              </div>
+              <div class="field">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="registerAgree" aria-describedby="registerAgree-error">
+                  <label class="form-check-label" for="registerAgree">I work for E3 Fiber Connect, and this request is for my own account.</label>
+                </div>
+                <p class="field-error" id="registerAgree-error"></p>
+              </div>
+              <button class="btn btn-accent btn-lg w-100 mt-1" type="submit" id="registerSubmit">Send request</button>
+            </form>
+          </div>
+          <div class="text-center" id="registerDoneView" hidden>
+            <div class="check-burst"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg></div>
+            <h1 class="login-title" id="registerDoneTitle">Request sent</h1>
+            <p class="login-subtitle mb-0" id="registerDoneText"></p>
+            <div class="ref-box"><span class="visually-hidden">Request number:</span><span class="ref-code" id="registerDoneRef">—</span></div>
+            <ol class="mini-steps">
+              <li><span class="mini-step-no" aria-hidden="true">1</span><span>Your request joins the approval queue. The oldest request is reviewed first.</span></li>
+              <li><span class="mini-step-no" aria-hidden="true">2</span><span>An Owner or Admin approves it, and your staff account is created.</span></li>
+              <li><span class="mini-step-no" aria-hidden="true">3</span><span>Sign in with your work e-mail and the password you chose.</span></li>
+            </ol>
+            <a class="btn btn-accent btn-lg w-100 mt-3" href="#/admin/login">Go to sign in</a>
+            <button class="btn btn-plain btn-sm mt-2" type="button" id="registerAnother">Send another request</button>
+          </div>
+          <p class="login-switch">Already have an account? <a href="#/admin/login">Sign in</a></p>
+          <a class="login-back" href="#/">← Back to the website</a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ================================================================
+       ADMIN APP
+       ================================================================ -->
+  <div id="adminShell" hidden>
+    <aside class="sidebar" id="adminSidebar" aria-label="Admin navigation">
+      <a class="sidebar-brand" href="#/admin">
+        <img src="assets/img/logo-mark.png" alt="" width="30" height="26">
+        <span><span class="sidebar-brand-name">E3 Fiber</span><span class="sidebar-brand-sub">Admin</span></span>
+      </a>
+      <nav aria-label="Sections">
+        <ul class="sidebar-nav">
+          <li><a class="sidebar-link" href="#/admin" data-nav="dashboard"><svg class="icon" aria-hidden="true"><use href="#i-grid"></use></svg>Dashboard</a></li>
+        </ul>
+        <p class="sidebar-heading">Customers</p>
+        <ul class="sidebar-nav">
+          <li><a class="sidebar-link" href="#/admin/applications" data-nav="applications"><svg class="icon" aria-hidden="true"><use href="#i-doc"></use></svg>Applications<span id="navCountApplications"></span></a></li>
+          <li><a class="sidebar-link" href="#/admin/applications/new" data-nav="new-application"><svg class="icon" aria-hidden="true"><use href="#i-doc-plus"></use></svg>New application</a></li>
+          <li><a class="sidebar-link" href="#/admin/subscribers" data-nav="subscribers"><svg class="icon" aria-hidden="true"><use href="#i-users"></use></svg>Subscribers</a></li>
+        </ul>
+        <p class="sidebar-heading">Operations</p>
+        <ul class="sidebar-nav">
+          <li><a class="sidebar-link" href="#/admin/billing" data-nav="billing"><svg class="icon" aria-hidden="true"><use href="#i-receipt"></use></svg>Billing<span id="navCountBilling"></span></a></li>
+          <li><a class="sidebar-link" href="#/admin/payments" data-nav="payments"><svg class="icon" aria-hidden="true"><use href="#i-card"></use></svg>Payments<span id="navCountPayments"></span></a></li>
+          <li><a class="sidebar-link" href="#/admin/support" data-nav="support-admin"><svg class="icon" aria-hidden="true"><use href="#i-chat"></use></svg>Support<span id="navCountSupport"></span></a></li>
+        </ul>
+        <p class="sidebar-heading">System</p>
+        <ul class="sidebar-nav">
+          <li><a class="sidebar-link" href="#/admin/staff" data-nav="staff"><svg class="icon" aria-hidden="true"><use href="#i-user"></use></svg>Staff</a></li>
+          <li><a class="sidebar-link" href="#/admin/registrations" data-nav="registrations"><svg class="icon" aria-hidden="true"><use href="#i-key"></use></svg>Registrations<span id="navCountRegistrations"></span></a></li>
+          <li><a class="sidebar-link" href="#/admin/activity" data-nav="activity"><svg class="icon" aria-hidden="true"><use href="#i-activity"></use></svg>Activity</a></li>
+          <li><a class="sidebar-link" href="#/admin/algorithms" data-nav="algorithms"><svg class="icon" aria-hidden="true"><use href="#i-braces"></use></svg>Algorithms</a></li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <span id="sidebarAvatar"></span>
+          <div class="min-w-0">
+            <p class="sidebar-user-name" id="sidebarUserName">—</p>
+            <p class="sidebar-user-role" id="sidebarUserRole">—</p>
+          </div>
+        </div>
+        <ul class="sidebar-nav">
+          <li><a class="sidebar-link" href="#/admin/account" data-nav="account"><svg class="icon" aria-hidden="true"><use href="#i-gear"></use></svg>Account</a></li>
+          <li><a class="sidebar-link" href="#/"><svg class="icon" aria-hidden="true"><use href="#i-globe"></use></svg>View website</a></li>
+          <li><button class="sidebar-link" type="button" id="signOutButton"><svg class="icon" aria-hidden="true"><use href="#i-logout"></use></svg>Sign out</button></li>
+        </ul>
+        <p class="sidebar-note">Demo data lives in memory and starts fresh when the page reloads.</p>
+      </div>
+    </aside>
+    <div class="sidebar-scrim" id="sidebarScrim" hidden></div>
+
+    <div class="admin-main">
+      <header class="admin-toolbar" id="adminToolbar">
+        <button class="btn btn-icon btn-gray admin-menu-btn" id="adminMenuButton" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="adminSidebar"><svg class="icon" aria-hidden="true"><use href="#i-menu"></use></svg></button>
+        <p class="admin-toolbar-title" id="adminToolbarTitle" aria-hidden="true"></p>
+        <div class="admin-toolbar-actions">
+          <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Dark mode" title="Dark mode"><svg class="icon" aria-hidden="true"><use href="#i-moon"></use></svg></button>
+          <button class="btn btn-gray btn-sm" id="undoButton" type="button" disabled><svg class="icon" aria-hidden="true"><use href="#i-undo"></use></svg><span>Undo</span></button>
+        </div>
+      </header>
+
+      <main class="admin-content" id="adminMain">
+
+        <!-- ---------------------------------------------------- Dashboard -->
+        <section data-view="admin-dashboard" hidden aria-labelledby="dashTitle">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="dashTitle">Dashboard</h1>
+              <p class="page-subtitle" id="dashDate"></p>
+            </div>
+            <div class="page-actions">
+              <a class="btn btn-gray" href="#/admin/applications/new"><svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>New application</a>
+            </div>
+          </div>
+          <div class="kpi-grid" id="dashKpis"></div>
+          <div class="dash-grid">
+            <div class="detail-stack">
+              <section class="panel" aria-labelledby="dashQueueTitle">
+                <div class="panel-header">
+                  <div><h2 class="panel-title" id="dashQueueTitle">Review queue</h2><p class="panel-subtitle">Oldest application first — a first-in, first-out queue</p></div>
+                  <a class="btn btn-plain btn-sm" href="#/admin/applications">All applications</a>
+                </div>
+                <div class="panel-body" id="dashQueue"></div>
+              </section>
+              <section class="panel" aria-labelledby="dashInstallTitle">
+                <div class="panel-header">
+                  <div><h2 class="panel-title" id="dashInstallTitle">Installation schedule</h2><p class="panel-subtitle">Earliest visit first</p></div>
+                </div>
+                <div class="panel-body" id="dashInstalls"></div>
+              </section>
+              <section class="panel" aria-labelledby="dashSupportTitle">
+                <div class="panel-header">
+                  <div><h2 class="panel-title" id="dashSupportTitle">Support queue</h2><p class="panel-subtitle">Open tickets, first come first served</p></div>
+                  <a class="btn btn-plain btn-sm" href="#/admin/support">Open support</a>
+                </div>
+                <div class="panel-body" id="dashSupport"></div>
+              </section>
+            </div>
+            <div class="detail-stack">
+              <section class="panel" aria-labelledby="dashBillingTitle">
+                <div class="panel-header">
+                  <div><h2 class="panel-title" id="dashBillingTitle">Billing this month</h2><p class="panel-subtitle" id="dashBillingMonth"></p></div>
+                  <a class="btn btn-plain btn-sm" href="#/admin/billing">Billing</a>
+                </div>
+                <div class="panel-body" id="dashBilling"></div>
+              </section>
+              <section class="panel" aria-labelledby="dashActivityTitle">
+                <div class="panel-header">
+                  <div><h2 class="panel-title" id="dashActivityTitle">Recent activity</h2><p class="panel-subtitle">Newest first</p></div>
+                  <a class="btn btn-plain btn-sm" href="#/admin/activity">See all</a>
+                </div>
+                <div class="panel-body" id="dashActivity"></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <!-- ------------------------------------------------- Applications -->
+        <section data-view="admin-applications" hidden aria-labelledby="appsTitle">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="appsTitle">Applications</h1>
+              <p class="page-subtitle" id="appsSubtitle"></p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-tinted" type="button" id="appsReviewNext"><svg class="icon" aria-hidden="true"><use href="#i-play"></use></svg>Review next</button>
+              <a class="btn btn-accent" href="#/admin/applications/new"><svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>New application</a>
+            </div>
+          </div>
+          <div class="list-toolbar">
+            <div class="segmented" role="group" aria-label="Filter by status" id="appsFilter">
+              <button type="button" data-value="all" aria-pressed="true">All <span class="segment-count" data-count-for="all"></span></button>
+              <button type="button" data-value="Pending" aria-pressed="false">Pending <span class="segment-count" data-count-for="Pending"></span></button>
+              <button type="button" data-value="Approved" aria-pressed="false">Approved <span class="segment-count" data-count-for="Approved"></span></button>
+              <button type="button" data-value="For Installation" aria-pressed="false">Scheduled <span class="segment-count" data-count-for="For Installation"></span></button>
+              <button type="button" data-value="Completed" aria-pressed="false">Installed <span class="segment-count" data-count-for="Completed"></span></button>
+              <button type="button" data-value="Rejected" aria-pressed="false">Rejected <span class="segment-count" data-count-for="Rejected"></span></button>
+            </div>
+            <div class="list-toolbar-right">
+              <div class="search-field">
+                <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+                <input class="search-input" type="search" id="appsSearch" placeholder="Search name, e-mail, reference" aria-label="Search applications">
+              </div>
+              <select class="form-select select-compact" id="appsSort" aria-label="Sort applications">
+                <option value="submittedAt-desc">Newest first</option>
+                <option value="submittedAt-asc">Oldest first</option>
+                <option value="fullName-asc">Name A–Z</option>
+                <option value="fullName-desc">Name Z–A</option>
+                <option value="price-desc">Plan price: high to low</option>
+                <option value="price-asc">Plan price: low to high</option>
+                <option value="barangay-asc">Barangay A–Z</option>
+              </select>
+              <select class="form-select select-compact" id="appsAlgorithm" aria-label="Sorting algorithm">
+                <option value="insertion">Insertion sort</option>
+                <option value="selection">Selection sort</option>
+                <option value="bubble">Bubble sort</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">Applicant</th>
+                  <th scope="col">Reference</th>
+                  <th scope="col">Plan</th>
+                  <th scope="col" class="col-optional">Barangay</th>
+                  <th scope="col" class="col-optional">Submitted</th>
+                  <th scope="col">Status</th>
+                  <th scope="col"><span class="visually-hidden">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody id="appsBody"></tbody>
+            </table>
+            <div id="appsEmpty" hidden></div>
+          </div>
+          <p class="list-caption" id="appsCaption"></p>
+        </section>
+
+        <!-- -------------------------------------------- Application detail -->
+        <section data-view="admin-application" hidden aria-labelledby="appTitle">
+          <button class="back-button" type="button" data-back data-fallback="/admin/applications"><svg class="icon" aria-hidden="true"><use href="#i-chevron-left"></use></svg><span>Applications</span></button>
+          <div id="appNotFound" hidden></div>
+          <div id="appDetail">
+            <div class="page-header">
+              <div>
+                <h1 class="page-title" id="appTitle">Application</h1>
+                <div class="meta-line" id="appMeta"></div>
+              </div>
+              <div class="page-actions" id="appActions"></div>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-stack">
+                <section class="panel" aria-labelledby="appApplicantTitle">
+                  <div class="panel-header"><h2 class="panel-title" id="appApplicantTitle">Applicant</h2></div>
+                  <div class="panel-body"><dl class="kv-list" id="appApplicant"></dl></div>
+                </section>
+                <section class="panel" aria-labelledby="appAddressTitle">
+                  <div class="panel-header"><h2 class="panel-title" id="appAddressTitle">Service address</h2></div>
+                  <div class="panel-body"><dl class="kv-list" id="appAddress"></dl><div class="mt-2" id="appCoverage"></div></div>
+                </section>
+                <section class="panel" aria-labelledby="appPlanTitle">
+                  <div class="panel-header"><h2 class="panel-title" id="appPlanTitle">Plan and valid ID</h2></div>
+                  <div class="panel-body"><dl class="kv-list" id="appPlan"></dl><div class="mt-2" id="appIdFile"></div></div>
+                </section>
+                <section class="panel" aria-labelledby="appNotesTitle">
+                  <div class="panel-header"><h2 class="panel-title" id="appNotesTitle">Staff notes</h2><span class="caption-text" id="appNotesCount">0 / 500</span></div>
+                  <div class="panel-body">
+                    <label class="visually-hidden" for="appNotes">Staff notes</label>
+                    <textarea class="form-control" id="appNotes" rows="3" maxlength="500" placeholder="Visible to staff only"></textarea>
+                    <div class="d-flex justify-content-end mt-2"><button class="btn btn-gray btn-sm" type="button" id="appNotesSave">Save notes</button></div>
+                  </div>
+                </section>
+              </div>
+              <div class="detail-stack">
+                <section class="panel" aria-labelledby="appTimelineTitle">
+                  <div class="panel-header"><h2 class="panel-title" id="appTimelineTitle">Progress</h2></div>
+                  <div class="panel-body" id="appTimeline"></div>
+                </section>
+                <section class="panel" aria-labelledby="appHistoryTitle">
+                  <div class="panel-header"><h2 class="panel-title" id="appHistoryTitle">History</h2></div>
+                  <div class="panel-body"><ul class="row-list" id="appHistory"></ul></div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------------------------------------------- New application -->
+        <section data-view="admin-new-application" hidden aria-labelledby="newAppTitle">
+          <button class="back-button" type="button" data-back data-fallback="/admin/applications"><svg class="icon" aria-hidden="true"><use href="#i-chevron-left"></use></svg><span>Applications</span></button>
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="newAppTitle">New application</h1>
+              <p class="page-subtitle">For customers who apply in person at the office.</p>
+            </div>
+          </div>
+          <form id="newAppForm" novalidate>
+            <div class="form-alert" id="newAppAlert" role="alert" hidden></div>
+            <div class="detail-grid">
+              <div class="detail-stack">
+                <section class="panel" aria-labelledby="newAppPlanTitle">
+                  <div class="panel-header"><h2 class="panel-title" id="newAppPlanTitle">Plan</h2></div>
+                  <div class="panel-body field mb-0">
+                    <div class="choice-grid" id="newAppPlanChoices" role="radiogroup" aria-labelledby="newAppPlanTitle" aria-describedby="newAppPlanChoices-error"></div>
+                    <p class="field-error" id="newAppPlanChoices-error"></p>
+                    <div class="field mt-3 mb-0" id="newAppCustomField" hidden>
+                      <label class="form-label" for="newAppCustomPrice">Custom monthly price (₱)</label>
+                      <input class="form-control" id="newAppCustomPrice" type="number" min="300" max="20000" step="50" inputmode="numeric" aria-describedby="newAppCustomPrice-error">
+                      <p class="field-error" id="newAppCustomPrice-error"></p>
+                    </div>
+                  </div>
+                </section>
+                <section class="panel" aria-labelledby="newAppPersonTitle">
+                  <div class="panel-header"><h2 class="panel-title" id="newAppPersonTitle">Applicant</h2></div>
+                  <div class="panel-body">
+                    <div class="row gx-3">
+                      <div class="col-12 field">
+                        <label class="form-label" for="newAppFullName">Full name</label>
+                        <input class="form-control" id="newAppFullName" maxlength="80" aria-describedby="newAppFullName-error">
+                        <p class="field-error" id="newAppFullName-error"></p>
+                      </div>
+                      <div class="col-md-6 field">
+                        <label class="form-label" for="newAppEmail">E-mail</label>
+                        <input class="form-control" id="newAppEmail" type="email" maxlength="254" aria-describedby="newAppEmail-error">
+                        <p class="field-error" id="newAppEmail-error"></p>
+                      </div>
+                      <div class="col-md-6 field">
+                        <label class="form-label" for="newAppMobile">Mobile number</label>
+                        <input class="form-control" id="newAppMobile" type="tel" inputmode="tel" maxlength="20" placeholder="0917 555 0199" aria-describedby="newAppMobile-error">
+                        <p class="field-error" id="newAppMobile-error"></p>
+                      </div>
+                      <div class="col-md-6 field mb-0">
+                        <label class="form-label" for="newAppBirthDate">Birth date</label>
+                        <input class="form-control" id="newAppBirthDate" type="date" aria-describedby="newAppBirthDate-error">
+                        <p class="field-error" id="newAppBirthDate-error"></p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+                <section class="panel" aria-labelledby="newAppAddressTitle">
+                  <div class="panel-header"><h2 class="panel-title" id="newAppAddressTitle">Service address</h2></div>
+                  <div class="panel-body">
+                    <div class="row gx-3">
+                      <div class="col-md-6 field">
+                        <label class="form-label" for="newAppCity">City</label>
+                        <input class="form-control" id="newAppCity" value="Santa Maria, Bulacan" readonly>
+                      </div>
+                      <div class="col-md-6 field">
+                        <label class="form-label" for="newAppBarangay">Barangay</label>
+                        <select class="form-select" id="newAppBarangay" aria-describedby="newAppCoverageHint newAppBarangay-error"></select>
+                        <p class="coverage-hint" id="newAppCoverageHint" aria-live="polite"></p>
+                        <p class="field-error" id="newAppBarangay-error"></p>
+                      </div>
+                      <div class="col-12 field">
+                        <label class="form-label" for="newAppAddress">House number and street</label>
+                        <input class="form-control" id="newAppAddress" maxlength="150" aria-describedby="newAppAddress-error">
+                        <p class="field-error" id="newAppAddress-error"></p>
+                      </div>
+                      <div class="col-12 field mb-0">
+                        <label class="form-label" for="newAppLandmark">Landmark <span class="optional">(optional)</span></label>
+                        <input class="form-control" id="newAppLandmark" maxlength="100" aria-describedby="newAppLandmark-error">
+                        <p class="field-error" id="newAppLandmark-error"></p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+                <section class="panel" aria-labelledby="newAppIdTitle">
+                  <div class="panel-header"><h2 class="panel-title" id="newAppIdTitle">Valid ID</h2></div>
+                  <div class="panel-body">
+                    <div class="row gx-3">
+                      <div class="col-md-6 field">
+                        <label class="form-label" for="newAppIdType">ID type</label>
+                        <select class="form-select" id="newAppIdType" aria-describedby="newAppIdType-error"></select>
+                        <p class="field-error" id="newAppIdType-error"></p>
+                      </div>
+                      <div class="col-md-6 field">
+                        <label class="form-label" for="newAppIdNumber">ID number</label>
+                        <input class="form-control" id="newAppIdNumber" maxlength="30" spellcheck="false" aria-describedby="newAppIdNumber-error">
+                        <p class="field-error" id="newAppIdNumber-error"></p>
+                      </div>
+                      <div class="col-12 field">
+                        <span class="form-label d-block" id="newAppIdPhotoLabel">Scanned ID <span class="optional">(optional)</span></span>
+                        <label class="upload" id="newAppUpload">
+                          <input type="file" id="newAppIdPhoto" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf" aria-labelledby="newAppIdPhotoLabel newAppUploadText" aria-describedby="newAppIdPhoto-error">
+                          <span class="upload-icon"><svg class="icon" aria-hidden="true"><use href="#i-upload"></use></svg></span>
+                          <span>
+                            <span class="upload-title d-block" id="newAppUploadTitle">Choose a file</span>
+                            <span class="upload-text d-block" id="newAppUploadText">JPG, PNG or PDF, up to 10 MB</span>
+                          </span>
+                        </label>
+                        <p class="field-error" id="newAppIdPhoto-error"></p>
+                      </div>
+                      <div class="col-12 field mb-0">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="newAppIdChecked" aria-describedby="newAppIdChecked-error">
+                          <label class="form-check-label" for="newAppIdChecked">I checked the customer’s original ID in person.</label>
+                        </div>
+                        <p class="field-error" id="newAppIdChecked-error"></p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+              <div class="detail-stack">
+                <section class="panel summary-card" aria-labelledby="newAppSummaryTitle">
+                  <div class="panel-header"><h2 class="panel-title" id="newAppSummaryTitle">Summary</h2></div>
+                  <div class="panel-body">
+                    <dl class="kv-list" id="newAppSummary"></dl>
+                    <button class="btn btn-accent w-100 mt-3" type="submit" id="newAppSubmit">Create application</button>
+                    <p class="caption-text mt-3">The application starts as Pending and joins the end of the review queue.</p>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <!-- -------------------------------------------------- Subscribers -->
+        <section data-view="admin-subscribers" hidden aria-labelledby="subsTitle">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="subsTitle">Subscribers</h1>
+              <p class="page-subtitle" id="subsSubtitle"></p>
+            </div>
+          </div>
+          <div class="list-toolbar">
+            <div class="segmented" role="group" aria-label="Filter by status" id="subsFilter">
+              <button type="button" data-value="all" aria-pressed="true">All <span class="segment-count" data-count-for="all"></span></button>
+              <button type="button" data-value="Active" aria-pressed="false">Active <span class="segment-count" data-count-for="Active"></span></button>
+              <button type="button" data-value="Suspended" aria-pressed="false">Suspended <span class="segment-count" data-count-for="Suspended"></span></button>
+              <button type="button" data-value="Terminated" aria-pressed="false">Terminated <span class="segment-count" data-count-for="Terminated"></span></button>
+            </div>
+            <div class="list-toolbar-right">
+              <div class="search-field">
+                <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+                <input class="search-input" type="search" id="subsSearch" placeholder="Search name, account, barangay" aria-label="Search subscribers">
+              </div>
+              <select class="form-select select-compact" id="subsSort" aria-label="Sort subscribers">
+                <option value="since-desc">Newest first</option>
+                <option value="since-asc">Oldest first</option>
+                <option value="fullName-asc">Name A–Z</option>
+                <option value="balance-desc">Balance: high to low</option>
+                <option value="price-desc">Plan price: high to low</option>
+              </select>
+              <select class="form-select select-compact" id="subsAlgorithm" aria-label="Sorting algorithm">
+                <option value="insertion">Insertion sort</option>
+                <option value="selection">Selection sort</option>
+                <option value="bubble">Bubble sort</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">Subscriber</th>
+                  <th scope="col">Account</th>
+                  <th scope="col">Plan</th>
+                  <th scope="col" class="col-optional">Barangay</th>
+                  <th scope="col" class="col-optional">Since</th>
+                  <th scope="col" class="num">Balance</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody id="subsBody"></tbody>
+            </table>
+            <div id="subsEmpty" hidden></div>
+          </div>
+          <p class="list-caption" id="subsCaption"></p>
+        </section>
+
+        <!-- -------------------------------------------- Subscriber detail -->
+        <section data-view="admin-subscriber" hidden aria-labelledby="subTitle">
+          <button class="back-button" type="button" data-back data-fallback="/admin/subscribers"><svg class="icon" aria-hidden="true"><use href="#i-chevron-left"></use></svg><span>Subscribers</span></button>
+          <div id="subNotFound" hidden></div>
+          <div id="subDetail">
+            <div class="page-header">
+              <div>
+                <h1 class="page-title" id="subTitle">Subscriber</h1>
+                <div class="meta-line" id="subMeta"></div>
+              </div>
+              <div class="page-actions" id="subActions"></div>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-stack">
+                <section class="panel" aria-labelledby="subAccountTitle">
+                  <div class="panel-header"><h2 class="panel-title" id="subAccountTitle">Account</h2></div>
+                  <div class="panel-body"><dl class="kv-list" id="subAccount"></dl></div>
+                </section>
+                <section class="panel" aria-labelledby="subBillsTitle">
+                  <div class="panel-header"><div><h2 class="panel-title" id="subBillsTitle">Billing history</h2><p class="panel-subtitle">Newest period first</p></div></div>
+                  <div class="panel-body pt-0">
+                    <table class="data-table">
+                      <thead><tr><th scope="col">Period</th><th scope="col">Due</th><th scope="col" class="num">Amount</th><th scope="col">Status</th></tr></thead>
+                      <tbody id="subBillsBody"></tbody>
+                    </table>
+                    <div id="subBillsEmpty" hidden></div>
+                  </div>
+                </section>
+                <section class="panel" aria-labelledby="subTicketsTitle">
+                  <div class="panel-header"><h2 class="panel-title" id="subTicketsTitle">Support tickets</h2></div>
+                  <div class="panel-body"><ul class="row-list" id="subTickets"></ul></div>
+                </section>
+              </div>
+              <div class="detail-stack">
+                <section class="panel" aria-labelledby="subBalanceTitle">
+                  <div class="panel-header"><h2 class="panel-title" id="subBalanceTitle">Balance</h2></div>
+                  <div class="panel-body" id="subBalance"></div>
+                </section>
+                <section class="panel" aria-labelledby="subPlanTitle">
+                  <div class="panel-header"><h2 class="panel-title" id="subPlanTitle">Plan</h2></div>
+                  <div class="panel-body" id="subPlan"></div>
+                </section>
+                <section class="panel" aria-labelledby="subPaymentsTitle">
+                  <div class="panel-header"><h2 class="panel-title" id="subPaymentsTitle">Payment reports</h2></div>
+                  <div class="panel-body"><ul class="row-list" id="subPayments"></ul></div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ------------------------------------------------------ Billing -->
+        <section data-view="admin-billing" hidden aria-labelledby="billTitle">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="billTitle">Billing</h1>
+              <p class="page-subtitle" id="billSubtitle"></p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-gray" type="button" id="billNew"><svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>New bill</button>
+              <button class="btn btn-accent" type="button" id="billGenerate"><svg class="icon" aria-hidden="true"><use href="#i-receipt"></use></svg>Generate bills</button>
+            </div>
+          </div>
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+            <div class="month-switch" role="group" aria-label="Billing month">
+              <button class="btn btn-icon btn-plain" type="button" id="billPrev" aria-label="Previous month"><svg class="icon" aria-hidden="true"><use href="#i-chevron-left"></use></svg></button>
+              <span class="month-switch-label" id="billMonthLabel" aria-live="polite">—</span>
+              <button class="btn btn-icon btn-plain" type="button" id="billNext" aria-label="Next month"><svg class="icon" aria-hidden="true"><use href="#i-chevron-right"></use></svg></button>
+            </div>
+            <button class="btn btn-gray btn-sm" type="button" id="billToday">This month</button>
+          </div>
+          <div class="kpi-grid" id="billKpis"></div>
+          <div class="callout callout-action tone-orange mb-3" id="billPaymentsPanel" hidden>
+            <span class="icon-bubble tone-orange"><svg class="icon" aria-hidden="true"><use href="#i-card"></use></svg></span>
+            <div class="flex-grow-1 min-w-0"><p class="callout-title" id="billPaymentsTitle">Payments waiting for validation</p><p class="callout-text" id="billPaymentsText"></p></div>
+            <a class="btn btn-accent btn-sm" href="#/admin/payments">Validate payments</a>
+          </div>
+          <section class="panel mb-3" id="billEarlierPanel" aria-labelledby="billEarlierTitle" hidden>
+            <div class="panel-header">
+              <div><h2 class="panel-title" id="billEarlierTitle">Still overdue from earlier months</h2><p class="panel-subtitle">Unpaid bills that are past their due date</p></div>
+            </div>
+            <div class="panel-body"><ul class="row-list" id="billEarlier"></ul></div>
+          </section>
+          <div class="list-toolbar">
+            <div class="segmented" role="group" aria-label="Filter bills" id="billFilter">
+              <button type="button" data-value="all" aria-pressed="true">All</button>
+              <button type="button" data-value="unpaid" aria-pressed="false">Unpaid</button>
+              <button type="button" data-value="paid" aria-pressed="false">Paid</button>
+            </div>
+            <div class="list-toolbar-right">
+              <div class="search-field">
+                <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+                <input class="search-input" type="search" id="billSearch" placeholder="Search name, account, bill" aria-label="Search bills">
+              </div>
+            </div>
+          </div>
+          <div id="billGroups"></div>
+          <div class="panel" id="billEmpty" hidden></div>
+        </section>
+
+        <!-- --------------------------------------------------- Payments -->
+        <section data-view="admin-payments" hidden aria-labelledby="paymentsTitle">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="paymentsTitle">Payments</h1>
+              <p class="page-subtitle" id="paymentsSubtitle"></p>
+            </div>
+          </div>
+          <section class="panel mb-3" aria-labelledby="paymentsQueueTitle">
+            <div class="panel-header">
+              <div><h2 class="panel-title" id="paymentsQueueTitle">Validation queue</h2><p class="panel-subtitle">Customer reports wait in a first-in, first-out queue. The one at the front is checked below.</p></div>
+            </div>
+            <div class="panel-body">
+              <div class="queue-strip" id="paymentsQueueStrip"></div>
+              <div class="mt-2" id="paymentsFront"></div>
+            </div>
+          </section>
+          <div class="list-toolbar">
+            <div class="segmented" role="group" aria-label="Filter payments" id="paymentsFilter">
+              <button type="button" data-value="all" aria-pressed="true">All <span class="segment-count" data-count-for="all"></span></button>
+              <button type="button" data-value="For verification" aria-pressed="false">To validate <span class="segment-count" data-count-for="For verification"></span></button>
+              <button type="button" data-value="Confirmed" aria-pressed="false">Confirmed <span class="segment-count" data-count-for="Confirmed"></span></button>
+              <button type="button" data-value="Declined" aria-pressed="false">Declined <span class="segment-count" data-count-for="Declined"></span></button>
+            </div>
+            <div class="list-toolbar-right">
+              <div class="search-field">
+                <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+                <input class="search-input" type="search" id="paymentsSearch" placeholder="Search name, account, reference" aria-label="Search payments">
+              </div>
+              <select class="form-select select-compact" id="paymentsSort" aria-label="Sort payments">
+                <option value="submittedAt-desc">Newest first</option>
+                <option value="submittedAt-asc">Oldest first</option>
+                <option value="amount-desc">Amount, high to low</option>
+                <option value="fullName-asc">Name A–Z</option>
+              </select>
+              <select class="form-select select-compact" id="paymentsAlgorithm" aria-label="Sorting algorithm">
+                <option value="insertion">Insertion sort</option>
+                <option value="selection">Selection sort</option>
+                <option value="bubble">Bubble sort</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">Customer</th>
+                  <th scope="col">Payment</th>
+                  <th scope="col" class="col-optional">Bill</th>
+                  <th scope="col" class="num">Amount</th>
+                  <th scope="col" class="col-optional">Sent</th>
+                  <th scope="col">Status</th>
+                  <th scope="col"><span class="visually-hidden">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody id="paymentsBody"></tbody>
+            </table>
+            <div id="paymentsEmpty" hidden></div>
+          </div>
+          <p class="list-caption" id="paymentsCaption"></p>
+        </section>
+
+        <!-- --------------------------------------------------- Support -->
+        <section data-view="admin-support" hidden aria-labelledby="supTitle">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="supTitle">Support</h1>
+              <p class="page-subtitle" id="supSubtitle"></p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-accent" type="button" id="supServeNext"><svg class="icon" aria-hidden="true"><use href="#i-play"></use></svg>Serve next</button>
+            </div>
+          </div>
+          <section class="panel mb-3" aria-labelledby="supQueueTitle">
+            <div class="panel-header">
+              <div><h2 class="panel-title" id="supQueueTitle">Queue</h2><p class="panel-subtitle">Open tickets wait in a first-in, first-out queue. “Serve next” takes the front.</p></div>
+            </div>
+            <div class="panel-body">
+              <div class="queue-strip" id="supQueueStrip"></div>
+              <div class="mt-2" id="supServing"></div>
+            </div>
+          </section>
+          <div class="list-toolbar">
+            <div class="segmented" role="group" aria-label="Filter tickets" id="supFilter">
+              <button type="button" data-value="Open" aria-pressed="true">Open <span class="segment-count" data-count-for="Open"></span></button>
+              <button type="button" data-value="In progress" aria-pressed="false">In progress <span class="segment-count" data-count-for="In progress"></span></button>
+              <button type="button" data-value="Resolved" aria-pressed="false">Resolved <span class="segment-count" data-count-for="Resolved"></span></button>
+              <button type="button" data-value="all" aria-pressed="false">All <span class="segment-count" data-count-for="all"></span></button>
+            </div>
+            <div class="list-toolbar-right">
+              <div class="search-field">
+                <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+                <input class="search-input" type="search" id="supSearch" placeholder="Search tickets" aria-label="Search tickets">
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">Ticket</th>
+                  <th scope="col">Customer</th>
+                  <th scope="col">Topic</th>
+                  <th scope="col">Received</th>
+                  <th scope="col">Assigned to</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody id="supBody"></tbody>
+            </table>
+            <div id="supEmpty" hidden></div>
+          </div>
+          <p class="list-caption" id="supCaption"></p>
+        </section>
+
+        <!-- ------------------------------------------------------ Staff -->
+        <section data-view="admin-staff" hidden aria-labelledby="staffTitle">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="staffTitle">Staff</h1>
+              <p class="page-subtitle" id="staffSubtitle"></p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-accent" type="button" id="staffAdd"><svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>Add staff</button>
+            </div>
+          </div>
+          <div class="callout tone-blue mb-3" id="staffNotice" hidden>
+            <span class="icon-bubble tone-blue"><svg class="icon" aria-hidden="true"><use href="#i-info"></use></svg></span>
+            <div><p class="callout-title">View only</p><p class="callout-text">Only an Owner or Admin can add or change staff accounts.</p></div>
+          </div>
+          <div class="callout callout-action tone-orange mb-3" id="staffRequestsNotice" hidden>
+            <span class="icon-bubble tone-orange"><svg class="icon" aria-hidden="true"><use href="#i-key"></use></svg></span>
+            <div class="flex-grow-1 min-w-0"><p class="callout-title" id="staffRequestsTitle">Staff requests waiting</p><p class="callout-text">New employees asked for an account. Approving a request creates their sign-in.</p></div>
+            <a class="btn btn-tinted btn-sm" href="#/admin/registrations">Review requests</a>
+          </div>
+          <div class="list-toolbar">
+            <div class="segmented" role="group" aria-label="Filter staff" id="staffFilter">
+              <button type="button" data-value="all" aria-pressed="true">All <span class="segment-count" data-count-for="all"></span></button>
+              <button type="button" data-value="Active" aria-pressed="false">Active <span class="segment-count" data-count-for="Active"></span></button>
+              <button type="button" data-value="Suspended" aria-pressed="false">Suspended <span class="segment-count" data-count-for="Suspended"></span></button>
+              <button type="button" data-value="Deleted" aria-pressed="false">Deleted <span class="segment-count" data-count-for="Deleted"></span></button>
+            </div>
+            <div class="list-toolbar-right">
+              <div class="search-field">
+                <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+                <input class="search-input" type="search" id="staffSearch" placeholder="Search name, e-mail, role" aria-label="Search staff">
+              </div>
+              <select class="form-select select-compact" id="staffSort" aria-label="Sort staff">
+                <option value="roleRank-asc">Role</option>
+                <option value="fullName-asc">Name A–Z</option>
+                <option value="startDate-desc">Newest first</option>
+                <option value="lastSignIn-desc">Last signed in</option>
+              </select>
+              <select class="form-select select-compact" id="staffAlgorithm" aria-label="Sorting algorithm">
+                <option value="insertion">Insertion sort</option>
+                <option value="selection">Selection sort</option>
+                <option value="bubble">Bubble sort</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Role</th>
+                  <th scope="col">Last sign-in</th>
+                  <th scope="col">Status</th>
+                  <th scope="col"><span class="visually-hidden">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody id="staffBody"></tbody>
+            </table>
+            <div id="staffEmpty" hidden></div>
+          </div>
+          <p class="list-caption" id="staffCaption"></p>
+        </section>
+
+        <!-- ---------------------------------------------- Registrations -->
+        <section data-view="admin-registrations" hidden aria-labelledby="regTitle">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="regTitle">Staff registrations</h1>
+              <p class="page-subtitle" id="regSubtitle"></p>
+            </div>
+          </div>
+          <div class="callout tone-blue mb-3" id="regNotice" hidden>
+            <span class="icon-bubble tone-blue"><svg class="icon" aria-hidden="true"><use href="#i-info"></use></svg></span>
+            <div><p class="callout-title">View only</p><p class="callout-text">Only an Owner or Admin can approve or reject staff requests.</p></div>
+          </div>
+          <section class="panel mb-3" aria-labelledby="regQueueTitle">
+            <div class="panel-header">
+              <div><h2 class="panel-title" id="regQueueTitle">Approval queue</h2><p class="panel-subtitle">New requests join the back of a first-in, first-out queue. The one at the front is reviewed first.</p></div>
+            </div>
+            <div class="panel-body">
+              <div class="queue-strip" id="regQueueStrip"></div>
+              <div class="mt-2" id="regFront"></div>
+            </div>
+          </section>
+          <div class="list-toolbar">
+            <div class="segmented" role="group" aria-label="Filter requests" id="regFilter">
+              <button type="button" data-value="all" aria-pressed="true">All <span class="segment-count" data-count-for="all"></span></button>
+              <button type="button" data-value="Pending" aria-pressed="false">Pending <span class="segment-count" data-count-for="Pending"></span></button>
+              <button type="button" data-value="Approved" aria-pressed="false">Approved <span class="segment-count" data-count-for="Approved"></span></button>
+              <button type="button" data-value="Rejected" aria-pressed="false">Rejected <span class="segment-count" data-count-for="Rejected"></span></button>
+            </div>
+            <div class="list-toolbar-right">
+              <div class="search-field">
+                <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+                <input class="search-input" type="search" id="regSearch" placeholder="Search name, e-mail, request" aria-label="Search requests">
+              </div>
+              <select class="form-select select-compact" id="regSort" aria-label="Sort requests">
+                <option value="submittedAt-desc">Newest first</option>
+                <option value="submittedAt-asc">Oldest first</option>
+                <option value="fullName-asc">Name A–Z</option>
+                <option value="roleRank-asc">Access</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Request</th>
+                  <th scope="col">Access</th>
+                  <th scope="col" class="col-optional">Sent</th>
+                  <th scope="col">Status</th>
+                  <th scope="col"><span class="visually-hidden">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody id="regBody"></tbody>
+            </table>
+            <div id="regEmpty" hidden></div>
+          </div>
+          <p class="list-caption" id="regCaption"></p>
+        </section>
+
+        <!-- --------------------------------------------------- Activity -->
+        <section data-view="admin-activity" hidden aria-labelledby="actTitle">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="actTitle">Activity</h1>
+              <p class="page-subtitle">Everything that happened since the page was opened, plus the sample history.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-accent" type="button" id="actUndo"><svg class="icon" aria-hidden="true"><use href="#i-undo"></use></svg>Undo last action</button>
+            </div>
+          </div>
+          <div class="detail-grid">
+            <section class="panel" aria-labelledby="actLogTitle">
+              <div class="panel-header"><div><h2 class="panel-title" id="actLogTitle">Activity log</h2><p class="panel-subtitle">Newest first</p></div></div>
+              <div class="panel-body">
+                <ul class="row-list" id="actLog"></ul>
+                <button class="btn btn-gray btn-sm mt-3" type="button" id="actMore" hidden>Show more</button>
+              </div>
+            </section>
+            <section class="panel" aria-labelledby="actStackTitle">
+              <div class="panel-header"><div><h2 class="panel-title" id="actStackTitle">Undo stack</h2><p class="panel-subtitle" id="actStackCount"></p></div></div>
+              <div class="panel-body">
+                <p class="caption-text mb-3">Last in, first out: Undo always reverses the action on top. Only the latest 25 actions are kept — when the stack is full the bottom one is dropped.</p>
+                <ul class="row-list" id="actStack"></ul>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <!-- ------------------------------------------------- Algorithms -->
+        <section data-view="admin-algorithms" hidden aria-labelledby="algoTitle">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="algoTitle">Algorithms</h1>
+              <p class="page-subtitle">How this website stores and processes its data — every search, sort, stack and queue is written by hand.</p>
+            </div>
+          </div>
+          <div class="detail-stack">
+            <section class="panel" aria-labelledby="algoStructTitle">
+              <div class="panel-header"><div><h2 class="panel-title" id="algoStructTitle">Data structures in use right now</h2><p class="panel-subtitle">Live sizes from the running website</p></div></div>
+              <div class="panel-body"><div class="ds-grid" id="algoStructures"></div></div>
+            </section>
+
+            <section class="panel" aria-labelledby="algoTableTitle">
+              <div class="panel-header"><div><h2 class="panel-title" id="algoTableTitle">Time and space complexity</h2><p class="panel-subtitle">n = number of records; m = length of the search text</p></div></div>
+              <div class="panel-body pt-0">
+                <table class="data-table">
+                  <thead>
+                    <tr><th scope="col">Algorithm</th><th scope="col">Where it runs</th><th scope="col">Best</th><th scope="col">Average</th><th scope="col">Worst</th><th scope="col">Extra space</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td class="cell-main"><span class="cell-primary">Linear search</span></td><td data-label="Where">Plan look-up, search boxes, duplicate checks</td><td data-label="Best"><span class="big-o">O(1)</span></td><td data-label="Average"><span class="big-o">O(n)</span></td><td data-label="Worst"><span class="big-o">O(n)</span></td><td data-label="Space"><span class="big-o">O(1)</span></td></tr>
+                    <tr><td class="cell-main"><span class="cell-primary">Binary search</span></td><td data-label="Where">Reference, account, bill, ticket and staff look-ups; coverage</td><td data-label="Best"><span class="big-o">O(1)</span></td><td data-label="Average"><span class="big-o">O(log n)</span></td><td data-label="Worst"><span class="big-o">O(log n)</span></td><td data-label="Space"><span class="big-o">O(1)</span></td></tr>
+                    <tr><td class="cell-main"><span class="cell-primary">Naive string match</span></td><td data-label="Where">“Contains” searches, barangay suggestions</td><td data-label="Best"><span class="big-o">O(m)</span></td><td data-label="Average"><span class="big-o">O(n·m)</span></td><td data-label="Worst"><span class="big-o">O(n·m)</span></td><td data-label="Space"><span class="big-o">O(1)</span></td></tr>
+                    <tr><td class="cell-main"><span class="cell-primary">Insertion sort</span></td><td data-label="Where">Default for every list, schedules, bill groups</td><td data-label="Best"><span class="big-o">O(n)</span></td><td data-label="Average"><span class="big-o">O(n²)</span></td><td data-label="Worst"><span class="big-o">O(n²)</span></td><td data-label="Space"><span class="big-o">O(1)</span></td></tr>
+                    <tr><td class="cell-main"><span class="cell-primary">Selection sort</span></td><td data-label="Where">Any admin list (choose it in the sort menu)</td><td data-label="Best"><span class="big-o">O(n²)</span></td><td data-label="Average"><span class="big-o">O(n²)</span></td><td data-label="Worst"><span class="big-o">O(n²)</span></td><td data-label="Space"><span class="big-o">O(1)</span></td></tr>
+                    <tr><td class="cell-main"><span class="cell-primary">Bubble sort</span></td><td data-label="Where">Any admin list (choose it in the sort menu)</td><td data-label="Best"><span class="big-o">O(n)</span></td><td data-label="Average"><span class="big-o">O(n²)</span></td><td data-label="Worst"><span class="big-o">O(n²)</span></td><td data-label="Space"><span class="big-o">O(1)</span></td></tr>
+                    <tr><td class="cell-main"><span class="cell-primary">Stack push / pop / peek</span></td><td data-label="Where">Undo, Back button, open sheets</td><td data-label="Best"><span class="big-o">O(1)</span></td><td data-label="Average"><span class="big-o">O(1)</span></td><td data-label="Worst"><span class="big-o">O(1)</span></td><td data-label="Space"><span class="big-o">O(n)</span></td></tr>
+                    <tr><td class="cell-main"><span class="cell-primary">Queue enqueue / dequeue / peek</span></td><td data-label="Where">Review, support, payment and toast queues</td><td data-label="Best"><span class="big-o">O(1)</span></td><td data-label="Average"><span class="big-o">O(1)</span></td><td data-label="Worst"><span class="big-o">O(n)*</span></td><td data-label="Space"><span class="big-o">O(n)</span></td></tr>
+                    <tr><td class="cell-main"><span class="cell-primary">Hash table put / get</span></td><td data-label="Where">Staff e-mail index (sign-in, duplicate e-mails)</td><td data-label="Best"><span class="big-o">O(1)</span></td><td data-label="Average"><span class="big-o">O(1)</span></td><td data-label="Worst"><span class="big-o">O(n)</span></td><td data-label="Space"><span class="big-o">O(n)</span></td></tr>
+                    <tr><td class="cell-main"><span class="cell-primary">Sorted insert (“put”)</span></td><td data-label="Where">New subscribers and bills keep their tables in key order</td><td data-label="Best"><span class="big-o">O(log n)</span></td><td data-label="Average"><span class="big-o">O(n)</span></td><td data-label="Worst"><span class="big-o">O(n)</span></td><td data-label="Space"><span class="big-o">O(1)</span></td></tr>
+                  </tbody>
+                </table>
+                <p class="caption-text mt-2">* Only when the circular buffer is full and has to grow; amortised O(1).</p>
+              </div>
+            </section>
+
+            <section class="panel" aria-labelledby="benchTitle">
+              <div class="panel-header">
+                <div><h2 class="panel-title" id="benchTitle">Benchmark lab</h2><p class="panel-subtitle">Same random data for every algorithm; counts are exact, times depend on your computer.</p></div>
+              </div>
+              <div class="panel-body">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                  <span class="caption-text" id="benchSizeLabel">Records:</span>
+                  <div class="segmented" role="group" aria-labelledby="benchSizeLabel" id="benchSize">
+                    <button type="button" data-value="100" aria-pressed="false">100</button>
+                    <button type="button" data-value="1000" aria-pressed="true">1,000</button>
+                    <button type="button" data-value="3000" aria-pressed="false">3,000</button>
+                  </div>
+                  <button class="btn btn-accent btn-sm" type="button" id="benchRun"><svg class="icon" aria-hidden="true"><use href="#i-play"></use></svg>Run benchmark</button>
+                </div>
+                <div id="benchResults" aria-live="polite"></div>
+              </div>
+            </section>
+
+            <section class="panel" aria-labelledby="algoLogTitle">
+              <div class="panel-header"><div><h2 class="panel-title" id="algoLogTitle">Recent operations</h2><p class="panel-subtitle">The last 40 searches and sorts you triggered (a ring-buffer queue)</p></div></div>
+              <div class="panel-body pt-0">
+                <table class="data-table">
+                  <thead><tr><th scope="col">Algorithm</th><th scope="col">Where</th><th scope="col" class="num">n</th><th scope="col" class="num">Comparisons</th><th scope="col" class="num">Moves</th><th scope="col" class="num">Time</th></tr></thead>
+                  <tbody id="algoLog"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="panel" aria-labelledby="algoRulesTitle">
+              <div class="panel-header"><h2 class="panel-title" id="algoRulesTitle">House rules for the code</h2></div>
+              <div class="panel-body">
+                <ul class="row-list">
+                  <li class="row-item"><span class="icon-bubble tone-blue"><svg class="icon" aria-hidden="true"><use href="#i-layers"></use></svg></span><div class="row-main"><p class="row-title">Arrays are the database</p><p class="row-meta">Applications, subscribers, bills, payments, tickets and staff are plain arrays kept in memory. The site is a single page, so nothing has to be transferred between pages.</p></div></li>
+                  <li class="row-item"><span class="icon-bubble tone-purple"><svg class="icon" aria-hidden="true"><use href="#i-braces"></use></svg></span><div class="row-main"><p class="row-title">Procedural, not object-oriented</p><p class="row-meta">Only functions and plain records — no classes, no <code>this</code>, no methods on data.</p></div></li>
+                  <li class="row-item"><span class="icon-bubble tone-orange"><svg class="icon" aria-hidden="true"><use href="#i-xmark"></use></svg></span><div class="row-main"><p class="row-title">No built-in helpers for data</p><p class="row-meta">Never used: push, pop, shift, unshift, splice, slice, sort, reverse, indexOf, includes, find, filter, map, forEach, reduce, join, split, replace, trim, toLowerCase or regular expressions. Hand-written versions live in <code>assets/js/dsa/</code>.</p></div></li>
+                </ul>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <!-- ---------------------------------------------------- Account -->
+        <section data-view="admin-account" hidden aria-labelledby="accountTitle">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="accountTitle">Account</h1>
+              <p class="page-subtitle">Your profile and password.</p>
+            </div>
+          </div>
+          <div class="callout tone-orange mb-3" id="accountMustChange" hidden>
+            <span class="icon-bubble tone-orange"><svg class="icon" aria-hidden="true"><use href="#i-key"></use></svg></span>
+            <div><p class="callout-title">Choose a new password to continue</p><p class="callout-text">You signed in with a temporary password. Set your own password below to open the rest of the admin app.</p></div>
+          </div>
+          <div class="detail-grid">
+            <section class="panel" aria-labelledby="accountProfileTitle">
+              <div class="panel-header"><h2 class="panel-title" id="accountProfileTitle">Profile</h2></div>
+              <div class="panel-body"><dl class="kv-list" id="accountProfile"></dl></div>
+            </section>
+            <section class="panel" aria-labelledby="passwordTitle">
+              <div class="panel-header"><h2 class="panel-title" id="passwordTitle">Change password</h2></div>
+              <div class="panel-body">
+                <form id="passwordForm" novalidate>
+                  <div class="form-alert" id="passwordAlert" role="alert" hidden></div>
+                  <div class="field">
+                    <label class="form-label" for="currentPassword">Current password</label>
+                    <input class="form-control" id="currentPassword" type="password" autocomplete="current-password" maxlength="100" aria-describedby="currentPassword-error">
+                    <p class="field-error" id="currentPassword-error"></p>
+                  </div>
+                  <div class="field">
+                    <label class="form-label" for="newPassword">New password</label>
+                    <input class="form-control" id="newPassword" type="password" autocomplete="new-password" maxlength="100" aria-describedby="newPassword-hint newPassword-error">
+                    <p class="field-hint" id="newPassword-hint">At least 8 characters, with a letter and a number.</p>
+                    <p class="field-error" id="newPassword-error"></p>
+                  </div>
+                  <div class="field">
+                    <label class="form-label" for="confirmPassword">Confirm new password</label>
+                    <input class="form-control" id="confirmPassword" type="password" autocomplete="new-password" maxlength="100" aria-describedby="confirmPassword-error">
+                    <p class="field-error" id="confirmPassword-error"></p>
+                  </div>
+                  <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-accent" type="submit">Save password</button>
+                    <button class="btn btn-gray" type="button" id="accountSignOut">Sign out</button>
+                  </div>
+                </form>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       SHEETS (dialogs)
+       ================================================================ -->
+  <div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+
+  <section class="sheet" id="sheetReject" role="dialog" aria-modal="true" aria-labelledby="rejectTitle" tabindex="-1" hidden>
+    <div class="sheet-grabber" aria-hidden="true"></div>
+    <div class="sheet-header"><h2 class="sheet-title" id="rejectTitle">Reject application</h2><button class="sheet-close" type="button" data-close-sheet aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-xmark"></use></svg></button></div>
+    <form id="rejectForm" class="d-contents" novalidate>
+      <div class="sheet-body">
+        <p class="sheet-text" id="rejectText"></p>
+        <fieldset class="field">
+          <legend class="form-label">Reason</legend>
+          <div class="d-grid gap-2" id="rejectReasons" aria-describedby="rejectReasons-error"></div>
+          <p class="field-error" id="rejectReasons-error"></p>
+        </fieldset>
+        <div class="field mb-0">
+          <label class="form-label" for="rejectNote">Note for the applicant <span class="optional">(required for “Other”)</span></label>
+          <textarea class="form-control" id="rejectNote" rows="2" maxlength="200" aria-describedby="rejectNote-error"></textarea>
+          <p class="field-error" id="rejectNote-error"></p>
+        </div>
+      </div>
+      <div class="sheet-footer"><button class="btn btn-gray" type="button" data-close-sheet>Cancel</button><button class="btn btn-danger-solid" type="submit">Reject application</button></div>
+    </form>
+  </section>
+
+  <section class="sheet" id="sheetSchedule" role="dialog" aria-modal="true" aria-labelledby="scheduleTitle" tabindex="-1" hidden>
+    <div class="sheet-grabber" aria-hidden="true"></div>
+    <div class="sheet-header"><h2 class="sheet-title" id="scheduleTitle">Schedule installation</h2><button class="sheet-close" type="button" data-close-sheet aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-xmark"></use></svg></button></div>
+    <form id="scheduleForm" class="d-contents" novalidate>
+      <div class="sheet-body">
+        <p class="sheet-text" id="scheduleText"></p>
+        <div class="field">
+          <label class="form-label" for="scheduleDate">Installation date</label>
+          <input class="form-control" id="scheduleDate" type="date" aria-describedby="scheduleDate-error">
+          <p class="field-error" id="scheduleDate-error"></p>
+        </div>
+        <fieldset class="field mb-0">
+          <legend class="form-label">Time</legend>
+          <div class="d-grid gap-2" id="scheduleSlots" aria-describedby="scheduleSlots-error"></div>
+          <p class="field-error" id="scheduleSlots-error"></p>
+        </fieldset>
+      </div>
+      <div class="sheet-footer"><button class="btn btn-gray" type="button" data-close-sheet>Cancel</button><button class="btn btn-accent" type="submit" id="scheduleSubmit">Schedule</button></div>
+    </form>
+  </section>
+
+  <section class="sheet" id="sheetConfirm" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmText" tabindex="-1" hidden>
+    <div class="sheet-grabber" aria-hidden="true"></div>
+    <div class="sheet-header"><h2 class="sheet-title" id="confirmTitle">Are you sure?</h2><button class="sheet-close" type="button" data-close-sheet aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-xmark"></use></svg></button></div>
+    <div class="sheet-body"><p class="sheet-text mb-0" id="confirmText"></p></div>
+    <div class="sheet-footer"><button class="btn btn-gray" type="button" data-close-sheet>Cancel</button><button class="btn btn-accent" type="button" id="confirmButton">Confirm</button></div>
+  </section>
+
+  <section class="sheet" id="sheetChangePlan" role="dialog" aria-modal="true" aria-labelledby="changePlanTitle" tabindex="-1" hidden>
+    <div class="sheet-grabber" aria-hidden="true"></div>
+    <div class="sheet-header"><h2 class="sheet-title" id="changePlanTitle">Change plan</h2><button class="sheet-close" type="button" data-close-sheet aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-xmark"></use></svg></button></div>
+    <form id="changePlanForm" class="d-contents" novalidate>
+      <div class="sheet-body">
+        <p class="sheet-text" id="changePlanText">The next bill uses the new price. Bills already issued stay the same.</p>
+        <div class="form-alert" id="changePlanAlert" role="alert" hidden></div>
+        <div class="choice-grid" id="changePlanChoices" role="radiogroup" aria-labelledby="changePlanTitle"></div>
+        <div class="field mt-3 mb-0" id="changePlanCustomField" hidden>
+          <label class="form-label" for="changePlanCustomPrice">Custom monthly price (₱)</label>
+          <input class="form-control" id="changePlanCustomPrice" type="number" min="300" max="20000" step="50" inputmode="numeric">
+        </div>
+      </div>
+      <div class="sheet-footer"><button class="btn btn-gray" type="button" data-close-sheet>Cancel</button><button class="btn btn-accent" type="submit">Save plan</button></div>
+    </form>
+  </section>
+
+  <section class="sheet sheet-wide" id="sheetNewBill" role="dialog" aria-modal="true" aria-labelledby="newBillTitle" tabindex="-1" hidden>
+    <div class="sheet-grabber" aria-hidden="true"></div>
+    <div class="sheet-header"><h2 class="sheet-title" id="newBillTitle">New bill</h2><button class="sheet-close" type="button" data-close-sheet aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-xmark"></use></svg></button></div>
+    <form id="newBillForm" class="d-contents" novalidate>
+      <div class="sheet-body">
+        <div class="form-alert" id="newBillAlert" role="alert" hidden></div>
+        <div class="row gx-3">
+          <div class="col-6 field">
+            <label class="form-label" for="newBillMonth">Month</label>
+            <select class="form-select" id="newBillMonth"></select>
+          </div>
+          <div class="col-6 field">
+            <label class="form-label" for="newBillYear">Year</label>
+            <select class="form-select" id="newBillYear"></select>
+          </div>
+        </div>
+        <div class="search-field mb-3">
+          <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+          <input class="search-input" type="search" id="newBillSearch" placeholder="Search active subscribers" aria-label="Search active subscribers">
+        </div>
+        <fieldset>
+          <legend class="visually-hidden">Subscriber</legend>
+          <div class="d-grid gap-2" id="newBillList"></div>
+        </fieldset>
+      </div>
+      <div class="sheet-footer"><button class="btn btn-gray" type="button" data-close-sheet>Cancel</button><button class="btn btn-accent" type="submit">Create bill</button></div>
+    </form>
+  </section>
+
+  <section class="sheet" id="sheetAddStaff" role="dialog" aria-modal="true" aria-labelledby="addStaffTitle" tabindex="-1" hidden>
+    <div class="sheet-grabber" aria-hidden="true"></div>
+    <div class="sheet-header"><h2 class="sheet-title" id="addStaffTitle">Add staff</h2><button class="sheet-close" type="button" data-close-sheet aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-xmark"></use></svg></button></div>
+    <form id="addStaffForm" class="d-contents" novalidate>
+      <div class="sheet-body">
+        <div class="field">
+          <label class="form-label" for="addStaffName">Full name</label>
+          <input class="form-control" id="addStaffName" maxlength="80" aria-describedby="addStaffName-error">
+          <p class="field-error" id="addStaffName-error"></p>
+        </div>
+        <div class="field">
+          <label class="form-label" for="addStaffEmail">Work e-mail</label>
+          <input class="form-control" id="addStaffEmail" type="email" maxlength="254" placeholder="name@e3fiberconnect.ph" aria-describedby="addStaffEmail-error">
+          <p class="field-error" id="addStaffEmail-error"></p>
+        </div>
+        <div class="row gx-3">
+          <div class="col-md-6 field mb-0">
+            <label class="form-label" for="addStaffRole">Role</label>
+            <select class="form-select" id="addStaffRole" aria-describedby="addStaffRole-error"></select>
+            <p class="field-error" id="addStaffRole-error"></p>
+          </div>
+          <div class="col-md-6 field mb-0">
+            <label class="form-label" for="addStaffStart">Start date</label>
+            <input class="form-control" id="addStaffStart" type="date" aria-describedby="addStaffStart-error">
+            <p class="field-error" id="addStaffStart-error"></p>
+          </div>
+        </div>
+      </div>
+      <div class="sheet-footer"><button class="btn btn-gray" type="button" data-close-sheet>Cancel</button><button class="btn btn-accent" type="submit">Add staff</button></div>
+    </form>
+  </section>
+
+  <section class="sheet" id="sheetCredential" role="dialog" aria-modal="true" aria-labelledby="credentialTitle" tabindex="-1" hidden>
+    <div class="sheet-grabber" aria-hidden="true"></div>
+    <div class="sheet-header"><h2 class="sheet-title" id="credentialTitle">Temporary password</h2><button class="sheet-close" type="button" data-close-sheet aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-xmark"></use></svg></button></div>
+    <div class="sheet-body">
+      <p class="sheet-text" id="credentialText"></p>
+      <div class="credential-box">
+        <div class="credential-row"><span class="caption-text">E-mail</span><span class="credential-value" id="credentialEmail">—</span></div>
+        <div class="credential-row"><span class="caption-text">Password</span><span class="credential-value" id="credentialPassword">—</span></div>
+      </div>
+      <p class="caption-text mt-3">Share it privately. It is shown only once, and they’ll be asked to choose their own password when they first sign in.</p>
+    </div>
+    <div class="sheet-footer"><button class="btn btn-gray" type="button" id="credentialCopy"><svg class="icon" aria-hidden="true"><use href="#i-copy"></use></svg>Copy</button><button class="btn btn-accent" type="button" data-close-sheet>Done</button></div>
+  </section>
+
+  <section class="sheet" id="sheetDecline" role="dialog" aria-modal="true" aria-labelledby="declineTitle" tabindex="-1" hidden>
+    <div class="sheet-grabber" aria-hidden="true"></div>
+    <div class="sheet-header"><h2 class="sheet-title" id="declineTitle">Decline payment</h2><button class="sheet-close" type="button" data-close-sheet aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-xmark"></use></svg></button></div>
+    <form id="declineForm" class="d-contents" novalidate>
+      <div class="sheet-body">
+        <p class="sheet-text" id="declineText"></p>
+        <div class="field mb-0">
+          <label class="form-label" for="declineNote">Reason</label>
+          <textarea class="form-control" id="declineNote" rows="2" maxlength="200" placeholder="e.g. Reference number not found in GCash" aria-describedby="declineNote-error"></textarea>
+          <p class="field-error" id="declineNote-error"></p>
+        </div>
+      </div>
+      <div class="sheet-footer"><button class="btn btn-gray" type="button" data-close-sheet>Cancel</button><button class="btn btn-danger-solid" type="submit">Decline payment</button></div>
+    </form>
+  </section>
+
+  <section class="sheet sheet-wide" id="sheetPayment" role="dialog" aria-modal="true" aria-labelledby="paymentSheetTitle" tabindex="-1" hidden>
+    <div class="sheet-grabber" aria-hidden="true"></div>
+    <div class="sheet-header"><h2 class="sheet-title" id="paymentSheetTitle">Validate payment</h2><button class="sheet-close" type="button" data-close-sheet aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-xmark"></use></svg></button></div>
+    <div class="sheet-body" id="paymentSheetBody"></div>
+    <div class="sheet-footer" id="paymentSheetActions"></div>
+  </section>
+
+  <section class="sheet sheet-wide" id="sheetCreateAccount" role="dialog" aria-modal="true" aria-labelledby="createAccountTitle" tabindex="-1" hidden>
+    <div class="sheet-grabber" aria-hidden="true"></div>
+    <div class="sheet-header"><h2 class="sheet-title" id="createAccountTitle">Create subscriber account</h2><button class="sheet-close" type="button" data-close-sheet aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-xmark"></use></svg></button></div>
+    <form id="createAccountForm" class="d-contents" novalidate>
+      <div class="sheet-body">
+        <p class="sheet-text" id="createAccountText"></p>
+        <div class="form-alert" id="createAccountAlert" role="alert" hidden></div>
+        <dl class="kv-list mb-3" id="createAccountSummary"></dl>
+        <div class="insert-preview mb-3" id="createAccountInsert"></div>
+        <div class="field">
+          <label class="form-label" for="createAccountSerial">Modem (ONU) serial number <span class="optional">(optional)</span></label>
+          <input class="form-control mono" id="createAccountSerial" maxlength="24" spellcheck="false" autocapitalize="characters" placeholder="e.g. ZTEG-C8A1F2B7" aria-describedby="createAccountSerial-error">
+          <p class="field-error" id="createAccountSerial-error"></p>
+        </div>
+        <div class="field mb-0">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="createAccountTested" aria-describedby="createAccountTested-error">
+            <label class="form-check-label" for="createAccountTested">The fiber is installed and the connection was tested.</label>
+          </div>
+          <p class="field-error" id="createAccountTested-error"></p>
+        </div>
+      </div>
+      <div class="sheet-footer"><button class="btn btn-gray" type="button" data-close-sheet>Cancel</button><button class="btn btn-accent" type="submit" id="createAccountSubmit">Create account</button></div>
+    </form>
+  </section>
+
+  <section class="sheet" id="sheetRejectRegistration" role="dialog" aria-modal="true" aria-labelledby="rejectRegTitle" tabindex="-1" hidden>
+    <div class="sheet-grabber" aria-hidden="true"></div>
+    <div class="sheet-header"><h2 class="sheet-title" id="rejectRegTitle">Reject request</h2><button class="sheet-close" type="button" data-close-sheet aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-xmark"></use></svg></button></div>
+    <form id="rejectRegForm" class="d-contents" novalidate>
+      <div class="sheet-body">
+        <p class="sheet-text" id="rejectRegText"></p>
+        <fieldset class="field">
+          <legend class="form-label">Reason</legend>
+          <div class="d-grid gap-2" id="rejectRegReasons" aria-describedby="rejectRegReasons-error"></div>
+          <p class="field-error" id="rejectRegReasons-error"></p>
+        </fieldset>
+        <div class="field mb-0">
+          <label class="form-label" for="rejectRegNote">Note for the requester <span class="optional">(required for “Other”)</span></label>
+          <textarea class="form-control" id="rejectRegNote" rows="2" maxlength="150" aria-describedby="rejectRegNote-error"></textarea>
+          <p class="field-error" id="rejectRegNote-error"></p>
+        </div>
+      </div>
+      <div class="sheet-footer"><button class="btn btn-gray" type="button" data-close-sheet>Cancel</button><button class="btn btn-danger-solid" type="submit">Reject request</button></div>
+    </form>
+  </section>
+
+  <section class="sheet sheet-wide" id="sheetTicket" role="dialog" aria-modal="true" aria-labelledby="ticketSheetTitle" tabindex="-1" hidden>
+    <div class="sheet-grabber" aria-hidden="true"></div>
+    <div class="sheet-header"><h2 class="sheet-title" id="ticketSheetTitle">Ticket</h2><button class="sheet-close" type="button" data-close-sheet aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-xmark"></use></svg></button></div>
+    <div class="sheet-body">
+      <div id="ticketSheetBody"></div>
+      <div class="field mt-3 mb-0" id="ticketResolveField">
+        <label class="form-label" for="ticketResolution">Resolution note</label>
+        <textarea class="form-control" id="ticketResolution" rows="2" maxlength="300" placeholder="What was done to fix it?" aria-describedby="ticketResolution-error"></textarea>
+        <p class="field-error" id="ticketResolution-error"></p>
+      </div>
+    </div>
+    <div class="sheet-footer" id="ticketSheetActions"></div>
+  </section>
+
+  <div class="toast-host" id="toastHost" role="status" aria-live="polite" aria-atomic="false"></div>
+
+  <noscript>
+    <p style="padding:2rem;text-align:center;font:17px/1.5 system-ui,sans-serif">E3 Fiber Connect needs JavaScript to run — please turn it on and reload the page.</p>
+  </noscript>
+
+  <!-- Bootstrap (used only for the FAQ accordion) -->
+  <script src="assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+
+  <!-- 1. Data structures & algorithms, written by hand -->
+  <script src="assets/js/dsa/arrays.js"></script>
+  <script src="assets/js/dsa/strings.js"></script>
+  <script src="assets/js/dsa/stack.js"></script>
+  <script src="assets/js/dsa/queue.js"></script>
+  <script src="assets/js/dsa/hashtable.js"></script>
+  <script src="assets/js/dsa/stats.js"></script>
+  <script src="assets/js/dsa/search.js"></script>
+  <script src="assets/js/dsa/sort.js"></script>
+
+  <!-- 2. The "backend": arrays + business rules -->
+  <script src="assets/js/backend/utils.js"></script>
+  <script src="assets/js/backend/database.js"></script>
+  <script src="assets/js/backend/plans.js"></script>
+  <script src="assets/js/backend/coverage.js"></script>
+  <script src="assets/js/backend/history.js"></script>
+  <script src="assets/js/backend/applications.js"></script>
+  <script src="assets/js/backend/subscribers.js"></script>
+  <script src="assets/js/backend/billing.js"></script>
+  <script src="assets/js/backend/payments.js"></script>
+  <script src="assets/js/backend/tickets.js"></script>
+  <script src="assets/js/backend/staff.js"></script>
+  <script src="assets/js/backend/registrations.js"></script>
+  <script src="assets/js/backend/auth.js"></script>
+
+  <!-- 3. Page helpers -->
+  <script src="assets/js/ui/dom.js"></script>
+  <script src="assets/js/ui/theme.js"></script>
+  <script src="assets/js/ui/router.js"></script>
+  <script src="assets/js/ui/spring.js"></script>
+  <script src="assets/js/ui/sheets.js"></script>
+  <script src="assets/js/ui/toasts.js"></script>
+  <script src="assets/js/ui/forms.js"></script>
+  <script src="assets/js/ui/components.js"></script>
+
+  <!-- 4. Screens -->
+  <script src="assets/js/views/public/chrome.js"></script>
+  <script src="assets/js/views/public/home.js"></script>
+  <script src="assets/js/views/public/plans.js"></script>
+  <script src="assets/js/views/public/coverage.js"></script>
+  <script src="assets/js/views/public/apply.js"></script>
+  <script src="assets/js/views/public/submitted.js"></script>
+  <script src="assets/js/views/public/track.js"></script>
+  <script src="assets/js/views/public/pay.js"></script>
+  <script src="assets/js/views/public/support.js"></script>
+  <script src="assets/js/views/admin/shell.js"></script>
+  <script src="assets/js/views/admin/login.js"></script>
+  <script src="assets/js/views/admin/register.js"></script>
+  <script src="assets/js/views/admin/dashboard.js"></script>
+  <script src="assets/js/views/admin/applications.js"></script>
+  <script src="assets/js/views/admin/application-detail.js"></script>
+  <script src="assets/js/views/admin/new-application.js"></script>
+  <script src="assets/js/views/admin/subscribers.js"></script>
+  <script src="assets/js/views/admin/subscriber-detail.js"></script>
+  <script src="assets/js/views/admin/billing.js"></script>
+  <script src="assets/js/views/admin/payments.js"></script>
+  <script src="assets/js/views/admin/support.js"></script>
+  <script src="assets/js/views/admin/staff.js"></script>
+  <script src="assets/js/views/admin/registrations.js"></script>
+  <script src="assets/js/views/admin/activity.js"></script>
+  <script src="assets/js/views/admin/algorithms.js"></script>
+  <script src="assets/js/views/admin/account.js"></script>
+
+  <!-- 5. Start -->
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
