@@ -3011,6 +3011,261 @@ a.contact-card:hover {
   line-height: 1;
 }
 
+/* Data Privacy Act (RA 10173): privacy bar, form notes and the Privacy Notice page */
+.privacy-bar {
+  background: var(--accent-tint);
+  color: var(--label);
+  font-size: 0.8125rem;
+}
+
+.privacy-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.privacy-bar-inner > .icon {
+  color: var(--accent);
+}
+
+.privacy-bar-inner p {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+}
+
+.privacy-bar-close {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--label-2);
+  cursor: pointer;
+}
+
+.privacy-bar-close:hover {
+  background: var(--fill);
+}
+
+.privacy-bar-close:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+body:has([data-view="privacy"]:not([hidden])) .privacy-bar {
+  display: none;
+}
+
+.form-privacy,
+.login-privacy,
+.gfooter-privacy {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  color: var(--label-2);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.form-privacy .icon,
+.login-privacy .icon,
+.gfooter-privacy .icon {
+  margin-top: 0.1em;
+  color: var(--green);
+}
+
+.form-privacy {
+  margin: 0.25rem 0 1rem;
+}
+
+.login-privacy {
+  margin: 1rem 0 0;
+  text-align: left;
+}
+
+.gfooter-privacy {
+  margin: 0 0 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--separator);
+}
+
+.privacy-doc {
+  max-width: 820px;
+  padding-bottom: clamp(3rem, 7vw, 5rem);
+}
+
+.privacy-doc p,
+.privacy-doc li {
+  color: var(--label-2);
+}
+
+.privacy-doc strong,
+.privacy-doc em {
+  color: var(--label);
+}
+
+.privacy-callout {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.25rem 1.375rem;
+  border-radius: var(--radius-lg);
+  background: var(--bg-secondary);
+  margin-bottom: 2rem;
+}
+
+.privacy-callout p {
+  margin: 0;
+}
+
+.privacy-toc {
+  padding: 1.125rem 1.375rem;
+  border: 1px solid var(--separator);
+  border-radius: var(--radius-lg);
+  margin-bottom: 2.5rem;
+}
+
+.privacy-toc-title {
+  font-weight: 600;
+  color: var(--label) !important;
+  margin-bottom: 0.5rem;
+}
+
+.privacy-toc ol {
+  columns: 2 16rem;
+  column-gap: 2rem;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.privacy-toc button {
+  padding: 0.125rem 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.privacy-toc button:hover {
+  text-decoration: underline;
+}
+
+.privacy-h {
+  margin: 2.5rem 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  scroll-margin-top: calc(var(--nav-h) + 1rem);
+}
+
+.privacy-h:focus {
+  outline: none;
+}
+
+.privacy-contact {
+  list-style: none;
+  padding: 0;
+}
+
+.privacy-contact li {
+  display: flex;
+  gap: 0.625rem;
+  align-items: center;
+  margin: 0.375rem 0;
+}
+
+.privacy-contact .icon {
+  color: var(--label-3);
+}
+
+.privacy-table-wrap {
+  overflow-x: auto;
+  margin: 1rem 0;
+  border: 1px solid var(--separator);
+  border-radius: var(--radius-md);
+}
+
+.privacy-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.privacy-table th,
+.privacy-table td {
+  padding: 0.75rem 0.875rem;
+  border-bottom: 1px solid var(--separator);
+  text-align: left;
+  vertical-align: top;
+  color: var(--label-2);
+}
+
+.privacy-table thead th {
+  background: var(--bg-secondary);
+  color: var(--label);
+  font-weight: 600;
+}
+
+.privacy-table tbody th {
+  color: var(--label);
+  font-weight: 600;
+}
+
+.privacy-table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+.privacy-rights {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.privacy-rights > div {
+  padding: 1rem 1.125rem;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+}
+
+.privacy-rights h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.privacy-rights p {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.privacy-demo {
+  margin-top: 3rem;
+  padding: 1.25rem 1.375rem;
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--separator-strong);
+}
+
+.privacy-demo h2 {
+  margin: 0 0 0.375rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.privacy-demo p {
+  margin: 0;
+}
+
 /* ----------------------------------------------------------------------- 11 */
 .login-shell {
   position: relative;

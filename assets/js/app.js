@@ -22,6 +22,7 @@ function registerAllRoutes() {
   registerRoute('/track/:ref', 'track', 'public', renderTrackView, { title: 'Track', nav: 'track' });
   registerRoute('/pay', 'pay', 'public', renderPayView, { title: 'Pay bills', nav: 'pay' });
   registerRoute('/support', 'support', 'public', renderSupportView, { title: 'Support', nav: 'support' });
+  registerRoute('/privacy', 'privacy', 'public', renderPrivacyView, { title: 'Privacy Notice' });
 
   registerRoute('/admin/login', 'admin-login', 'login', renderLoginView, { title: 'Staff sign in', guestOnly: true });
   registerRoute('/admin/register', 'admin-register', 'login', renderRegisterView, { title: 'Request staff access', guestOnly: true });
@@ -55,6 +56,7 @@ function initAllScreens() {
   initTrackView();
   initPayView();
   initSupportView();
+  initPrivacyView();
   initAdminShell();
   initLoginView();
   initRegisterView();

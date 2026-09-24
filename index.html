@@ -115,6 +115,14 @@
       </ul>
     </div>
 
+    <div class="privacy-bar" id="privacyBar" role="region" aria-label="Privacy">
+      <div class="wrap privacy-bar-inner">
+        <svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg>
+        <p>We protect your personal data under the Data Privacy Act of 2012 (RA 10173). This site uses no cookies or trackers. <a href="#/privacy">Privacy Notice</a></p>
+        <button class="privacy-bar-close" type="button" id="privacyBarClose" aria-label="Dismiss the privacy message"><svg class="icon" aria-hidden="true"><use href="#i-xmark"></use></svg></button>
+      </div>
+    </div>
+
     <main id="publicMain">
 
       <!-- ---------------------------------------------------------- Home -->
@@ -461,7 +469,7 @@
                   <div class="col-12 field">
                     <div class="form-check">
                       <input class="form-check-input" type="checkbox" id="applyConsent" aria-describedby="applyConsent-error">
-                      <label class="form-check-label" for="applyConsent">I confirm these details are correct, and E3 Fiber may contact me about this application.</label>
+                      <label class="form-check-label" for="applyConsent">I have read the <a href="#/privacy" target="_blank" rel="noopener">Privacy Notice</a> and consent to E3 Fiber Connect collecting and using my personal data, including my ID, to process this application and provide the service, as allowed by the Data Privacy Act of 2012 (RA 10173). My details are correct.</label>
                     </div>
                     <p class="field-error" id="applyConsent-error"></p>
                   </div>
@@ -636,6 +644,7 @@
                   <p class="field-hint" id="payReference-hint">Printed on your receipt or payment confirmation.</p>
                   <p class="field-error" id="payReference-error"></p>
                 </div>
+                <p class="form-privacy"><svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg><span>We use these details only to verify your payment. See our <a href="#/privacy" target="_blank" rel="noopener">Privacy Notice</a>.</span></p>
                 <button class="btn btn-accent" type="submit">Send payment details</button>
               </form>
             </div>
@@ -764,6 +773,7 @@
                       <p class="field-error" id="ticketMessage-error"></p>
                     </div>
                   </div>
+                  <p class="form-privacy"><svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg><span>We use these details only to answer your message. See our <a href="#/privacy" target="_blank" rel="noopener">Privacy Notice</a>.</span></p>
                   <button class="btn btn-accent" type="submit">Send message</button>
                 </form>
                 <div class="form-card text-center" id="ticketSent" hidden>
@@ -796,6 +806,109 @@
         </section>
       </section>
 
+      <!-- -------------------------------------------------------- Privacy -->
+      <section data-view="privacy" hidden aria-labelledby="privacyTitle">
+        <div class="page-hero">
+          <div class="wrap">
+            <p class="eyebrow">Data privacy</p>
+            <h1 class="headline-1" id="privacyTitle">Privacy Notice</h1>
+            <p class="lead-text">How E3 Fiber Connect collects, uses and protects your personal data under the Data Privacy Act of 2012 (Republic Act No. 10173).</p>
+            <p class="caption-text mt-2">Effective September 24, 2026</p>
+          </div>
+        </div>
+
+        <div class="wrap privacy-doc">
+          <div class="privacy-callout">
+            <span class="icon-bubble tone-green"><svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg></span>
+            <p><strong>This site is designed to comply with the Data Privacy Act of 2012</strong>, its Implementing Rules and Regulations and the issuances of the National Privacy Commission (NPC). We process personal data only for the purposes declared below, only as much as those purposes need, and openly — the principles of <em>transparency</em>, <em>legitimate purpose</em> and <em>proportionality</em> (Section 11).</p>
+          </div>
+
+          <nav class="privacy-toc" aria-label="On this page">
+            <p class="privacy-toc-title">On this page</p>
+            <ol>
+              <li><button type="button" data-privacy-jump="privacyWho">Who we are</button></li>
+              <li><button type="button" data-privacy-jump="privacyCollect">What we collect and why</button></li>
+              <li><button type="button" data-privacy-jump="privacyProtect">How we protect it</button></li>
+              <li><button type="button" data-privacy-jump="privacyShare">Who we share it with</button></li>
+              <li><button type="button" data-privacy-jump="privacyKeep">How long we keep it</button></li>
+              <li><button type="button" data-privacy-jump="privacyRights">Your rights</button></li>
+              <li><button type="button" data-privacy-jump="privacyExercise">How to use your rights</button></li>
+              <li><button type="button" data-privacy-jump="privacyBreach">If something goes wrong</button></li>
+              <li><button type="button" data-privacy-jump="privacyChanges">Changes to this notice</button></li>
+            </ol>
+          </nav>
+
+          <h2 class="privacy-h" id="privacyWho" tabindex="-1">1. Who we are</h2>
+          <p>E3 Fiber Connect, a fiber internet provider in Santa Maria, Bulacan, is the <strong>personal information controller</strong> for the personal data described in this notice. Our <strong>Data Protection Officer (DPO)</strong> answers every privacy question and request:</p>
+          <ul class="privacy-contact">
+            <li><svg class="icon" aria-hidden="true"><use href="#i-mail"></use></svg><span><a href="mailto:e3fiberconnect@gmail.com?subject=Data%20Privacy">e3fiberconnect@gmail.com</a> — subject “Data Privacy”</span></li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-phone"></use></svg><a href="tel:+639218215399">0921 821 5399</a></li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-pin"></use></svg><span>Our office in Santa Maria, Bulacan</span></li>
+          </ul>
+
+          <h2 class="privacy-h" id="privacyCollect" tabindex="-1">2. What we collect and why</h2>
+          <p>We collect only what each service needs. We do not use your data for marketing without asking you separately, and we never sell it.</p>
+          <div class="privacy-table-wrap">
+            <table class="privacy-table">
+              <thead><tr><th scope="col">Where you give it</th><th scope="col">Personal data</th><th scope="col">Why we use it</th><th scope="col">Lawful basis (RA 10173)</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Application — online or at our office</th><td>Full name, e-mail, mobile number, birth date, complete address, barangay and landmark; the type, number and photo of a government-issued ID</td><td>To check coverage, review the application, schedule the installation and create your subscriber account</td><td>Your consent (Sec. 12(a)). A government-issued ID is <em>sensitive personal information</em> and is processed only with your consent (Sec. 13(a)).</td></tr>
+                <tr><th scope="row">Your subscriber account</th><td>Account number, plan, modem serial number, connection date, bills and payment history</td><td>To provide the service, bill you and keep receipts</td><td>Our service contract with you (Sec. 12(b)); legal duties such as keeping billing records (Sec. 12(c))</td></tr>
+                <tr><th scope="row">Pay Bills</th><td>Account number and the mobile number on the account (to confirm it’s you), payment method, reference number and amount</td><td>To verify your payment and mark your bill paid</td><td>Our service contract (Sec. 12(b))</td></tr>
+                <tr><th scope="row">Support messages</th><td>Name, mobile number, optional e-mail and account number, and your message</td><td>To answer and fix your concern</td><td>Our service contract (Sec. 12(b)); our legitimate interest in helping customers (Sec. 12(f))</td></tr>
+                <tr><th scope="row">Staff accounts and access requests</th><td>Name, work e-mail, mobile number, role, password (stored only as a salted hash) and a log of actions</td><td>To control who may see customer data and to trace every change to a person</td><td>Employment (Sec. 12(b)); our legitimate interest in keeping records secure (Sec. 12(f))</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="caption-text">Applicants must be at least 18 years old.</p>
+
+          <h2 class="privacy-h" id="privacyProtect" tabindex="-1">3. How we protect it</h2>
+          <p>We use organizational, physical and technical security measures (Sec. 20):</p>
+          <ul>
+            <li>Only signed-in staff can open customer records, and what each person can do depends on their role (Owner, Admin or Support).</li>
+            <li>Every staff action is written to an activity log, so each change can be traced to the person who made it.</li>
+            <li>Passwords are never stored as typed — only as salted hashes — and repeated wrong passwords pause sign-in.</li>
+            <li>Staff must keep personal data confidential, even after they leave E3 Fiber Connect (Sec. 20(e)).</li>
+            <li>Our messages never reveal whether someone else’s account, e-mail or reference number exists.</li>
+            <li>This site uses no cookies, trackers or advertising scripts.</li>
+          </ul>
+
+          <h2 class="privacy-h" id="privacyShare" tabindex="-1">4. Who we share it with</h2>
+          <p>We don’t sell or rent personal data. We share it only when needed: with the payment channel you choose (GCash, Maya, your bank or a payment center), which handles your payment under its own privacy policy; with our own technicians for your installation; or when a law, a court or a government agency requires it.</p>
+
+          <h2 class="privacy-h" id="privacyKeep" tabindex="-1">5. How long we keep it</h2>
+          <p>We keep personal data only as long as the purposes above need it: while you are our subscriber, and afterwards only for as long as the law requires for billing and tax records. Rejected applications are kept only as long as needed to answer questions about them, and are not used for anything else. Our policy is to securely delete or anonymize records once they are no longer needed.</p>
+
+          <h2 class="privacy-h" id="privacyRights" tabindex="-1">6. Your rights as a data subject</h2>
+          <p>Under Sections 16 to 18 of the Data Privacy Act, you have the right:</p>
+          <div class="privacy-rights">
+            <div><h3>To be informed</h3><p>Know what we collect, why and how — this notice.</p></div>
+            <div><h3>To access</h3><p>Get a copy of your personal data and how it is used.</p></div>
+            <div><h3>To object</h3><p>Refuse or withdraw consent to processing, such as marketing.</p></div>
+            <div><h3>To erasure or blocking</h3><p>Have data deleted or blocked when it is outdated, unlawful or no longer needed.</p></div>
+            <div><h3>To rectification</h3><p>Have wrong or incomplete data corrected.</p></div>
+            <div><h3>To data portability</h3><p>Receive your data in a common electronic format.</p></div>
+            <div><h3>To damages</h3><p>Be compensated for harm caused by inaccurate or unlawfully used data.</p></div>
+            <div><h3>To file a complaint</h3><p>Complain to the National Privacy Commission.</p></div>
+          </div>
+          <p>Your lawful heirs and assigns may use these rights on your behalf (Sec. 17).</p>
+
+          <h2 class="privacy-h" id="privacyExercise" tabindex="-1">7. How to use your rights</h2>
+          <p>Contact our Data Protection Officer (section 1) and tell us which right you want to use. We may first ask you to prove your identity, so that we never give your data to the wrong person. If you withdraw your consent, processing already done stays lawful, but we may no longer be able to provide the service. If you believe we mishandled your data, you may also file a complaint with the <a href="https://privacy.gov.ph" target="_blank" rel="noopener noreferrer">National Privacy Commission</a>.</p>
+
+          <h2 class="privacy-h" id="privacyBreach" tabindex="-1">8. If something goes wrong</h2>
+          <p>If a personal data breach may put you at real risk, we will notify the National Privacy Commission and you within 72 hours of learning about it, as NPC Circular No. 16-03 requires, and tell you what we are doing about it.</p>
+
+          <h2 class="privacy-h" id="privacyChanges" tabindex="-1">9. Changes to this notice</h2>
+          <p>We may update this notice. The date at the top shows the current version, and important changes will be announced on this site.</p>
+
+          <div class="privacy-demo">
+            <h2>About this demo website</h2>
+            <p>This site was built for a Data Structures &amp; Algorithms class. Everything you type stays in your own browser’s memory — nothing is sent to a server, saved on your computer or kept after you reload the page.</p>
+          </div>
+        </div>
+      </section>
+
       <!-- ------------------------------------------------------------ 404 -->
       <section data-view="not-found" hidden aria-labelledby="notFoundTitle">
         <div class="not-found">
@@ -813,6 +926,7 @@
     <footer class="gfooter">
       <div class="wrap">
         <p class="gfooter-note">This is a demo website for a Data Structures &amp; Algorithms project. Every record lives in JavaScript arrays in your browser’s memory, so the sample data starts fresh whenever the page is reloaded.</p>
+        <p class="gfooter-privacy"><svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg><span>This site is designed to comply with the <strong>Data Privacy Act of 2012 (Republic Act No. 10173)</strong>. We collect only what we need, never sell your data, and you may ask to see, correct or delete it at any time. <a href="#/privacy">Read our Privacy Notice</a></span></p>
         <div class="gfooter-cols">
           <div>
             <h2>Internet</h2>
@@ -843,12 +957,13 @@
               <li><a href="tel:+639218215399">0921 821 5399</a></li>
               <li><a href="mailto:e3fiberconnect@gmail.com">e3fiberconnect@gmail.com</a></li>
               <li>Santa Maria, Bulacan</li>
+              <li><a href="#/privacy">Privacy Notice</a></li>
               <li><a href="#/admin">Staff sign in</a></li>
             </ul>
           </div>
         </div>
         <div class="gfooter-legal">
-          <p>Copyright © <span id="footerYear">2026</span> E3 Fiber Connect. All rights reserved.</p>
+          <p>Copyright © <span id="footerYear">2026</span> E3 Fiber Connect. All rights reserved. · <a href="#/privacy">Privacy</a></p>
           <p>Triple the power. Limitless connection.</p>
         </div>
       </div>
@@ -884,6 +999,7 @@
             <button class="btn btn-accent btn-lg w-100 mt-2" type="submit" id="loginSubmit">Sign in</button>
           </form>
           <p class="login-switch">New to the team? <a href="#/admin/register">Request staff access</a></p>
+          <p class="login-privacy"><svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg><span>For authorized E3 staff only. Customer records are confidential under the Data Privacy Act of 2012 (RA 10173), and every action is recorded in the activity log.</span></p>
           <div class="demo-accounts">
             <p class="demo-accounts-title">Demo accounts — choose one to fill in the form</p>
             <div class="demo-chips" id="loginDemoChips">
@@ -954,6 +1070,7 @@
                 </div>
                 <p class="field-error" id="registerAgree-error"></p>
               </div>
+              <p class="form-privacy"><svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg><span>Your details are used only to review this request and manage your staff account, under the Data Privacy Act of 2012. See our <a href="#/privacy" target="_blank" rel="noopener">Privacy Notice</a>.</span></p>
               <button class="btn btn-accent btn-lg w-100 mt-1" type="submit" id="registerSubmit">Send request</button>
             </form>
           </div>
@@ -1023,7 +1140,7 @@
           <li><a class="sidebar-link" href="#/"><svg class="icon" aria-hidden="true"><use href="#i-globe"></use></svg>View website</a></li>
           <li><button class="sidebar-link" type="button" id="signOutButton"><svg class="icon" aria-hidden="true"><use href="#i-logout"></use></svg>Sign out</button></li>
         </ul>
-        <p class="sidebar-note">Demo data lives in memory and starts fresh when the page reloads.</p>
+        <p class="sidebar-note">Customer data is confidential under the Data Privacy Act of 2012. Demo data lives in memory and starts fresh when the page reloads.</p>
       </div>
     </aside>
     <div class="sidebar-scrim" id="sidebarScrim" hidden></div>
@@ -1310,12 +1427,19 @@
                         </label>
                         <p class="field-error" id="newAppIdPhoto-error"></p>
                       </div>
-                      <div class="col-12 field mb-0">
+                      <div class="col-12 field">
                         <div class="form-check">
                           <input class="form-check-input" type="checkbox" id="newAppIdChecked" aria-describedby="newAppIdChecked-error">
                           <label class="form-check-label" for="newAppIdChecked">I checked the customer’s original ID in person.</label>
                         </div>
                         <p class="field-error" id="newAppIdChecked-error"></p>
+                      </div>
+                      <div class="col-12 field mb-0">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="newAppConsent" aria-describedby="newAppConsent-error">
+                          <label class="form-check-label" for="newAppConsent">The customer was given our <a href="#/privacy" target="_blank" rel="noopener">Privacy Notice</a> and agreed to the processing of their personal data, including the ID (Data Privacy Act of 2012).</label>
+                        </div>
+                        <p class="field-error" id="newAppConsent-error"></p>
                       </div>
                     </div>
                   </div>
@@ -2170,6 +2294,7 @@
   <script src="assets/js/views/public/track.js"></script>
   <script src="assets/js/views/public/pay.js"></script>
   <script src="assets/js/views/public/support.js"></script>
+  <script src="assets/js/views/public/privacy.js"></script>
   <script src="assets/js/views/admin/shell.js"></script>
   <script src="assets/js/views/admin/login.js"></script>
   <script src="assets/js/views/admin/register.js"></script>

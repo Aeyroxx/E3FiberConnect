@@ -513,66 +513,67 @@
     </div>
     <figure class="fig-narrow"><img src="img/m2-submitted.jpg" alt="Application received"><figcaption>Output: the application is saved with reference number E3-2026-004887.</figcaption></figure>
     <h4>Trace — validation and saving (computed by our code)</h4>
-    <table class="t"><thead><tr><th>Field</th><th>What was typed</th><th>Validator result</th></tr></thead><tbody><tr><td>Full name</td><td><span class="mono">Ana</span></td><td><span class="no">✗ Enter the first and last name.</span></td></tr><tr><td>E-mail</td><td><span class="mono">ana.reyes@@gmail.com</span></td><td><span class="no">✗ Enter an e-mail like name@example.com.</span></td></tr><tr><td>Mobile</td><td><span class="mono">0917 555</span></td><td><span class="no">✗ Enter an 11-digit mobile number like 0917 555 0199.</span></td></tr><tr><td>Birth date</td><td><span class="mono">2012-05-10</span></td><td><span class="no">✗ The applicant must be at least 18 years old.</span></td></tr><tr><td>Barangay</td><td><span class="mono"></span></td><td><span class="no">✗ Choose a barangay in Santa Maria.</span></td></tr><tr><td>Street address</td><td><span class="mono"></span></td><td><span class="no">✗ Enter the house number and street.</span></td></tr><tr><td>ID type</td><td><span class="mono"></span></td><td><span class="no">✗ Choose an ID type.</span></td></tr><tr><td>ID number</td><td><span class="mono"></span></td><td><span class="no">✗ Enter the ID number.</span></td></tr><tr><td>ID photo</td><td><span class="mono">id.exe</span></td><td><span class="no">✗ Upload a JPG, PNG or PDF file.</span></td></tr><tr><td>Consent</td><td><span class="mono">false</span></td><td><span class="no">✗ Please confirm the details are correct.</span></td></tr></tbody></table><p>With the corrected data the validator returns <strong>0 errors</strong>, so <code>submitApplication</code> continues: duplicate check → next number → append.</p><div class="arr"><span class="cell">E3-2026-004884<small>[13]</small></span><span class="cell">E3-2026-004885<small>[14]</small></span><span class="cell">E3-2026-004886<small>[15]</small></span><span class="cell new">E3-2026-004887<small>[16]</small></span></div><p class="arrow-row">The new application <strong>E3-2026-004887</strong> (status Pending) is appended at index 16 — it has the largest number, so the table is still sorted: <span class="ok">✓ verified</span>.</p>
+    <table class="t"><thead><tr><th>Field</th><th>What was typed</th><th>Validator result</th></tr></thead><tbody><tr><td>Full name</td><td><span class="mono">Ana</span></td><td><span class="no">✗ Enter the first and last name.</span></td></tr><tr><td>E-mail</td><td><span class="mono">ana.reyes@@gmail.com</span></td><td><span class="no">✗ Enter an e-mail like name@example.com.</span></td></tr><tr><td>Mobile</td><td><span class="mono">0917 555</span></td><td><span class="no">✗ Enter an 11-digit mobile number like 0917 555 0199.</span></td></tr><tr><td>Birth date</td><td><span class="mono">2012-05-10</span></td><td><span class="no">✗ The applicant must be at least 18 years old.</span></td></tr><tr><td>Barangay</td><td><span class="mono"></span></td><td><span class="no">✗ Choose a barangay in Santa Maria.</span></td></tr><tr><td>Street address</td><td><span class="mono"></span></td><td><span class="no">✗ Enter the house number and street.</span></td></tr><tr><td>ID type</td><td><span class="mono"></span></td><td><span class="no">✗ Choose an ID type.</span></td></tr><tr><td>ID number</td><td><span class="mono"></span></td><td><span class="no">✗ Enter the ID number.</span></td></tr><tr><td>ID photo</td><td><span class="mono">id.exe</span></td><td><span class="no">✗ Upload a JPG, PNG or PDF file.</span></td></tr><tr><td>Consent</td><td><span class="mono">false</span></td><td><span class="no">✗ Please read the Privacy Notice and give your consent to continue.</span></td></tr></tbody></table><p>With the corrected data the validator returns <strong>0 errors</strong>, so <code>submitApplication</code> continues: duplicate check → next number → append.</p><div class="arr"><span class="cell">E3-2026-004884<small>[13]</small></span><span class="cell">E3-2026-004885<small>[14]</small></span><span class="cell">E3-2026-004886<small>[15]</small></span><span class="cell new">E3-2026-004887<small>[16]</small></span></div><p class="arrow-row">The new application <strong>E3-2026-004887</strong> (status Pending) is appended at index 16 — it has the largest number, so the table is still sorted: <span class="ok">✓ verified</span>.</p>
   </div>
 
   <h3>Code walkthrough</h3>
-  <p class="code-head"><span class="mono">assets/js/backend/applications.js</span> · lines 183–238</p><pre class="code"><span class="ln">183</span><span class="cm">/**</span>
-<span class="ln">184</span><span class="cm"> * submitApplication — validate, then add a new application with the next</span>
-<span class="ln">185</span><span class="cm"> * reference number. Online applications come from customers; walk-ins are</span>
-<span class="ln">186</span><span class="cm"> * typed by staff (and can be undone).</span>
-<span class="ln">187</span><span class="cm"> * Time O(n) (duplicate check) + O(1) append · Space O(1)</span>
-<span class="ln">188</span><span class="cm"> */</span>
-<span class="ln">189</span><span class="kw">function</span> submitApplication(data, source, actor) {
-<span class="ln">190</span>  <span class="kw">const</span> errors = validateApplication(data, source);                        <span class="cm">// 1. check every field</span>
-<span class="ln">191</span>  <span class="kw">if</span> (hasAnyErrors(errors)) {
-<span class="ln">192</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: errors };
-<span class="ln">193</span>  }
-<span class="ln">194</span>  <span class="kw">const</span> duplicate = findOpenApplicationFor(data.email, data.contactNumber); <span class="cm">// 2. one open application per person</span>
-<span class="ln">195</span>  <span class="kw">if</span> (duplicate) {
-<span class="ln">196</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: { email: <span class="st">'An application for this e-mail or mobile number is already in progress ('</span> + duplicate.referenceNo + <span class="st">').'</span> } };
-<span class="ln">197</span>  }
-<span class="ln">198</span>
-<span class="ln">199</span>  counters.reference = counters.reference + 1;                             <span class="cm">// 3. the next reference number</span>
-<span class="ln">200</span>  <span class="kw">const</span> now = nowISO();
-<span class="ln">201</span>  <span class="kw">const</span> referenceNo = formatReferenceNo(readClock().year, counters.reference);
-<span class="ln">202</span>  <span class="kw">const</span> barangay = findBarangay(data.barangay);
-<span class="ln">203</span>  <span class="kw">const</span> byName = source === <span class="st">'online'</span> ? <span class="st">'Online form'</span> : nameOfActor(actor) + <span class="st">' (walk-in)'</span>;
-<span class="ln">204</span>  <span class="kw">const</span> application = {
-<span class="ln">205</span>    referenceNo: referenceNo,
-<span class="ln">206</span>    fullName: collapseSpaces(data.fullName),
-<span class="ln">207</span>    email: trimText(data.email),
-<span class="ln">208</span>    contactNumber: normalizeMobile(data.contactNumber),
-<span class="ln">209</span>    birthDate: data.birthDate,
-<span class="ln">210</span>    city: SERVICE_CITY,
-<span class="ln">211</span>    barangay: barangay.name,
-<span class="ln">212</span>    completeAddress: collapseSpaces(data.completeAddress),
-<span class="ln">213</span>    landmark: collapseSpaces(data.landmark),
-<span class="ln">214</span>    planId: data.planId,
-<span class="ln">215</span>    customPrice: data.planId === <span class="st">'custom'</span> ? Number(data.customPrice) : <span class="kw">null</span>,
-<span class="ln">216</span>    idType: data.idType,
-<span class="ln">217</span>    idNumber: trimText(data.idNumber),
-<span class="ln">218</span>    idPhotoName: textOf(data.idPhotoName),
-<span class="ln">219</span>    status: <span class="st">'Pending'</span>,
-<span class="ln">220</span>    submittedAt: now,
-<span class="ln">221</span>    source: source,
-<span class="ln">222</span>    notes: <span class="st">''</span>,
-<span class="ln">223</span>    installDate: <span class="kw">null</span>,
-<span class="ln">224</span>    installSlot: <span class="kw">null</span>,
-<span class="ln">225</span>    rejectReason: <span class="st">''</span>,
-<span class="ln">226</span>    history: [{ status: <span class="st">'Pending'</span>, at: now, by: byName, note: source === <span class="st">'online'</span> ? <span class="st">'Application received online'</span> : <span class="st">'Walk-in application at the office'</span> }],
-<span class="ln">227</span>  };
-<span class="ln">228</span>  arrayAppend(applications, application); <span class="cm">// 4. the new number is the largest → the table stays sorted</span>
-<span class="ln">229</span>
-<span class="ln">230</span>  <span class="kw">if</span> (source === <span class="st">'online'</span>) {              <span class="cm">// 5. log it (walk-ins typed by staff can also be undone)</span>
-<span class="ln">231</span>    logActivity(<span class="st">'application'</span>, <span class="st">'New online application '</span> + referenceNo + <span class="st">' from '</span> + application.fullName, <span class="st">'Customer'</span>);
-<span class="ln">232</span>  } <span class="kw">else</span> {
-<span class="ln">233</span>    logActivity(<span class="st">'application'</span>, <span class="st">'Walk-in application '</span> + referenceNo + <span class="st">' for '</span> + application.fullName, nameOfActor(actor));
-<span class="ln">234</span>    pushUndo(<span class="st">'Create walk-in application '</span> + referenceNo, [insertOperation(<span class="st">'applications'</span>, referenceNo)], nameOfActor(actor));
-<span class="ln">235</span>  }
-<span class="ln">236</span>  markDataChanged();
-<span class="ln">237</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, application: application };
-<span class="ln">238</span>}
+  <p class="code-head"><span class="mono">assets/js/backend/applications.js</span> · lines 186–242</p><pre class="code"><span class="ln">186</span><span class="cm">/**</span>
+<span class="ln">187</span><span class="cm"> * submitApplication — validate, then add a new application with the next</span>
+<span class="ln">188</span><span class="cm"> * reference number. Online applications come from customers; walk-ins are</span>
+<span class="ln">189</span><span class="cm"> * typed by staff (and can be undone).</span>
+<span class="ln">190</span><span class="cm"> * Time O(n) (duplicate check) + O(1) append · Space O(1)</span>
+<span class="ln">191</span><span class="cm"> */</span>
+<span class="ln">192</span><span class="kw">function</span> submitApplication(data, source, actor) {
+<span class="ln">193</span>  <span class="kw">const</span> errors = validateApplication(data, source);                        <span class="cm">// 1. check every field</span>
+<span class="ln">194</span>  <span class="kw">if</span> (hasAnyErrors(errors)) {
+<span class="ln">195</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: errors };
+<span class="ln">196</span>  }
+<span class="ln">197</span>  <span class="kw">const</span> duplicate = findOpenApplicationFor(data.email, data.contactNumber); <span class="cm">// 2. one open application per person</span>
+<span class="ln">198</span>  <span class="kw">if</span> (duplicate) {
+<span class="ln">199</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: { email: <span class="st">'An application for this e-mail or mobile number is already in progress ('</span> + duplicate.referenceNo + <span class="st">').'</span> } };
+<span class="ln">200</span>  }
+<span class="ln">201</span>
+<span class="ln">202</span>  counters.reference = counters.reference + 1;                             <span class="cm">// 3. the next reference number</span>
+<span class="ln">203</span>  <span class="kw">const</span> now = nowISO();
+<span class="ln">204</span>  <span class="kw">const</span> referenceNo = formatReferenceNo(readClock().year, counters.reference);
+<span class="ln">205</span>  <span class="kw">const</span> barangay = findBarangay(data.barangay);
+<span class="ln">206</span>  <span class="kw">const</span> byName = source === <span class="st">'online'</span> ? <span class="st">'Online form'</span> : nameOfActor(actor) + <span class="st">' (walk-in)'</span>;
+<span class="ln">207</span>  <span class="kw">const</span> application = {
+<span class="ln">208</span>    referenceNo: referenceNo,
+<span class="ln">209</span>    fullName: collapseSpaces(data.fullName),
+<span class="ln">210</span>    email: trimText(data.email),
+<span class="ln">211</span>    contactNumber: normalizeMobile(data.contactNumber),
+<span class="ln">212</span>    birthDate: data.birthDate,
+<span class="ln">213</span>    city: SERVICE_CITY,
+<span class="ln">214</span>    barangay: barangay.name,
+<span class="ln">215</span>    completeAddress: collapseSpaces(data.completeAddress),
+<span class="ln">216</span>    landmark: collapseSpaces(data.landmark),
+<span class="ln">217</span>    planId: data.planId,
+<span class="ln">218</span>    customPrice: data.planId === <span class="st">'custom'</span> ? Number(data.customPrice) : <span class="kw">null</span>,
+<span class="ln">219</span>    idType: data.idType,
+<span class="ln">220</span>    idNumber: trimText(data.idNumber),
+<span class="ln">221</span>    idPhotoName: textOf(data.idPhotoName),
+<span class="ln">222</span>    status: <span class="st">'Pending'</span>,
+<span class="ln">223</span>    submittedAt: now,
+<span class="ln">224</span>    consentAt: now,                       <span class="cm">// proof of consent (Data Privacy Act, RA 10173)</span>
+<span class="ln">225</span>    source: source,
+<span class="ln">226</span>    notes: <span class="st">''</span>,
+<span class="ln">227</span>    installDate: <span class="kw">null</span>,
+<span class="ln">228</span>    installSlot: <span class="kw">null</span>,
+<span class="ln">229</span>    rejectReason: <span class="st">''</span>,
+<span class="ln">230</span>    history: [{ status: <span class="st">'Pending'</span>, at: now, by: byName, note: source === <span class="st">'online'</span> ? <span class="st">'Application received online'</span> : <span class="st">'Walk-in application at the office'</span> }],
+<span class="ln">231</span>  };
+<span class="ln">232</span>  arrayAppend(applications, application); <span class="cm">// 4. the new number is the largest → the table stays sorted</span>
+<span class="ln">233</span>
+<span class="ln">234</span>  <span class="kw">if</span> (source === <span class="st">'online'</span>) {              <span class="cm">// 5. log it (walk-ins typed by staff can also be undone)</span>
+<span class="ln">235</span>    logActivity(<span class="st">'application'</span>, <span class="st">'New online application '</span> + referenceNo + <span class="st">' from '</span> + application.fullName, <span class="st">'Customer'</span>);
+<span class="ln">236</span>  } <span class="kw">else</span> {
+<span class="ln">237</span>    logActivity(<span class="st">'application'</span>, <span class="st">'Walk-in application '</span> + referenceNo + <span class="st">' for '</span> + application.fullName, nameOfActor(actor));
+<span class="ln">238</span>    pushUndo(<span class="st">'Create walk-in application '</span> + referenceNo, [insertOperation(<span class="st">'applications'</span>, referenceNo)], nameOfActor(actor));
+<span class="ln">239</span>  }
+<span class="ln">240</span>  markDataChanged();
+<span class="ln">241</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, application: application };
+<span class="ln">242</span>}
 </pre>
   <ol class="explain">
     <li>Step 1 calls the validator; if any field has a message, the errors are returned to the form and nothing is saved.</li>
@@ -844,7 +845,7 @@
   <div class="qa"><p class="qq">Why offer three sorting algorithms?</p><p class="aa">To compare them on real data: the caption shows each one’s comparisons and moves. Insertion sort is the default because our lists are almost sorted (best case O(n)); selection sort makes the fewest swaps; bubble sort stops early when a pass has no swap.</p></div>
   <div class="qa"><p class="qq">Isn’t O(n²) too slow?</p><p class="aa">For the size of E3’s lists (tens to a few hundred records) it takes well under a millisecond — the Algorithms page benchmark sorts 1,000 records in a few milliseconds. We also filter and search first, so only the matching rows are sorted.</p></div>
   <div class="qa"><p class="qq">Why a queue for reviewing?</p><p class="aa">Fairness: applications are reviewed first come, first served. Our queue is a circular buffer, so taking the front is O(1) — no shifting like <span class="mono">shift()</span> would do.</p></div>
-  <div class="qa"><p class="qq">What exactly does the walk-in “override”?</p><p class="aa">Three online rules: staff may set a custom monthly price (₱300–₱20,000), the ID photo is optional because the original ID is checked in person (a required checkbox), and the application is marked “walk-in”. Every other rule is the same validator.</p></div>
+  <div class="qa"><p class="qq">What exactly does the walk-in “override”?</p><p class="aa">Three online rules: staff may set a custom monthly price (₱300–₱20,000), the ID photo is optional because the original ID is checked in person (a required checkbox), and the application is marked “walk-in”. Consent under the Data Privacy Act is still required: staff tick that the customer agreed to the Privacy Notice. Every other rule is the same validator.</p></div>
   <div class="qa"><p class="qq">Why not just append the new subscriber at the end?</p><p class="aa">Installations don’t finish in reference-number order. Appending could break the sorted order and binary search would give wrong answers. The sorted insert keeps the array sorted.</p></div>
   <div class="qa"><p class="qq">How does Undo remove the account again?</p><p class="aa">Create account pushes one undo entry with two operations (restore the application, remove the subscriber). Undo pops it and reverses both — finding the records by binary search.</p></div>
 </section>
@@ -956,27 +957,27 @@
   </div>
 
   <h3>Code walkthrough</h3>
-  <p class="code-head"><span class="mono">assets/js/backend/applications.js</span> · lines 258–278</p><pre class="code"><span class="ln">258</span><span class="cm">/**</span>
-<span class="ln">259</span><span class="cm"> * listApplications — filter by status (linear search), search the text</span>
-<span class="ln">260</span><span class="cm"> * (naive string matching), then sort with the chosen algorithm.</span>
-<span class="ln">261</span><span class="cm"> * options: { status, query, sortField, sortOrder, algorithm }</span>
-<span class="ln">262</span><span class="cm"> * Time O(n · L · m) search + O(n²) sort · Space O(n)</span>
-<span class="ln">263</span><span class="cm"> */</span>
-<span class="ln">264</span><span class="kw">function</span> listApplications(options) {
-<span class="ln">265</span>  <span class="kw">const</span> status = options.status || <span class="st">'all'</span>;
-<span class="ln">266</span>  <span class="kw">const</span> base = status === <span class="st">'all'</span> ? applications : linearSearchAll(applications, <span class="st">'status'</span>, status);  <span class="cm">// 1. filter by status</span>
-<span class="ln">267</span>  <span class="kw">const</span> found = textSearchRecords(base, [<span class="st">'fullName'</span>, <span class="st">'email'</span>, <span class="st">'referenceNo'</span>, <span class="st">'barangay'</span>, <span class="st">'contactNumber'</span>], options.query || <span class="st">''</span>); <span class="cm">// 2. search box</span>
-<span class="ln">268</span>  <span class="kw">const</span> rows = [];
-<span class="ln">269</span>  <span class="kw">for</span> (<span class="kw">let</span> i = 0; i &lt; found.length; i++) {                  <span class="cm">// 3. add the plan name and price to each row</span>
-<span class="ln">270</span>    arrayAppend(rows, applicationRow(found[i]));
-<span class="ln">271</span>  }
-<span class="ln">272</span>  <span class="kw">const</span> started = stopwatchStart();
-<span class="ln">273</span>  <span class="kw">const</span> sorted = sortRecords(rows, options.sortField || <span class="st">'submittedAt'</span>, options.sortOrder || <span class="st">'desc'</span>, options.algorithm || <span class="st">'insertion'</span>); <span class="cm">// 4. sort</span>
-<span class="ln">274</span>  <span class="kw">const</span> ms = stopwatchMs(started);
-<span class="ln">275</span>  <span class="kw">const</span> stats = { algorithm: dsaLastRun.algorithm, comparisons: dsaLastRun.comparisons, moves: dsaLastRun.moves, ms: ms, n: rows.length };
-<span class="ln">276</span>  logOperation(stats.algorithm, <span class="st">'Applications list'</span>, rows.length, stats.comparisons, stats.moves, ms); <span class="cm">// 5. show the cost</span>
-<span class="ln">277</span>  <span class="kw">return</span> { rows: sorted, total: applications.length, stats: stats };
-<span class="ln">278</span>}
+  <p class="code-head"><span class="mono">assets/js/backend/applications.js</span> · lines 262–282</p><pre class="code"><span class="ln">262</span><span class="cm">/**</span>
+<span class="ln">263</span><span class="cm"> * listApplications — filter by status (linear search), search the text</span>
+<span class="ln">264</span><span class="cm"> * (naive string matching), then sort with the chosen algorithm.</span>
+<span class="ln">265</span><span class="cm"> * options: { status, query, sortField, sortOrder, algorithm }</span>
+<span class="ln">266</span><span class="cm"> * Time O(n · L · m) search + O(n²) sort · Space O(n)</span>
+<span class="ln">267</span><span class="cm"> */</span>
+<span class="ln">268</span><span class="kw">function</span> listApplications(options) {
+<span class="ln">269</span>  <span class="kw">const</span> status = options.status || <span class="st">'all'</span>;
+<span class="ln">270</span>  <span class="kw">const</span> base = status === <span class="st">'all'</span> ? applications : linearSearchAll(applications, <span class="st">'status'</span>, status);  <span class="cm">// 1. filter by status</span>
+<span class="ln">271</span>  <span class="kw">const</span> found = textSearchRecords(base, [<span class="st">'fullName'</span>, <span class="st">'email'</span>, <span class="st">'referenceNo'</span>, <span class="st">'barangay'</span>, <span class="st">'contactNumber'</span>], options.query || <span class="st">''</span>); <span class="cm">// 2. search box</span>
+<span class="ln">272</span>  <span class="kw">const</span> rows = [];
+<span class="ln">273</span>  <span class="kw">for</span> (<span class="kw">let</span> i = 0; i &lt; found.length; i++) {                  <span class="cm">// 3. add the plan name and price to each row</span>
+<span class="ln">274</span>    arrayAppend(rows, applicationRow(found[i]));
+<span class="ln">275</span>  }
+<span class="ln">276</span>  <span class="kw">const</span> started = stopwatchStart();
+<span class="ln">277</span>  <span class="kw">const</span> sorted = sortRecords(rows, options.sortField || <span class="st">'submittedAt'</span>, options.sortOrder || <span class="st">'desc'</span>, options.algorithm || <span class="st">'insertion'</span>); <span class="cm">// 4. sort</span>
+<span class="ln">278</span>  <span class="kw">const</span> ms = stopwatchMs(started);
+<span class="ln">279</span>  <span class="kw">const</span> stats = { algorithm: dsaLastRun.algorithm, comparisons: dsaLastRun.comparisons, moves: dsaLastRun.moves, ms: ms, n: rows.length };
+<span class="ln">280</span>  logOperation(stats.algorithm, <span class="st">'Applications list'</span>, rows.length, stats.comparisons, stats.moves, ms); <span class="cm">// 5. show the cost</span>
+<span class="ln">281</span>  <span class="kw">return</span> { rows: sorted, total: applications.length, stats: stats };
+<span class="ln">282</span>}
 </pre>
   <ol class="explain">
     <li>If a status is chosen, <span class="mono">linearSearchAll</span> keeps only those applications.</li>
@@ -1054,20 +1055,20 @@
     <li>For each record, each field is lower-cased and <span class="mono">textContains</span> (naive string matching) looks for the query.</li>
     <li><span class="mono">break</span> stops checking the other fields as soon as one matches, so a record is added only once.</li>
   </ol>
-  <p class="code-head"><span class="mono">assets/js/backend/applications.js</span> · lines 292–305</p><pre class="code"><span class="ln">292</span><span class="cm">/**</span>
-<span class="ln">293</span><span class="cm"> * buildReviewQueue — a QUEUE of pending applications, oldest first.</span>
-<span class="ln">294</span><span class="cm"> * The table is already in submission order, so one pass enqueues them FIFO.</span>
-<span class="ln">295</span><span class="cm"> * Time O(n) · Space O(p) for p pending applications</span>
-<span class="ln">296</span><span class="cm"> */</span>
-<span class="ln">297</span><span class="kw">function</span> buildReviewQueue() {
-<span class="ln">298</span>  <span class="kw">const</span> queue = createQueue(8);
-<span class="ln">299</span>  <span class="kw">for</span> (<span class="kw">let</span> i = 0; i &lt; applications.length; i++) {
-<span class="ln">300</span>    <span class="kw">if</span> (applications[i].status === <span class="st">'Pending'</span>) {
-<span class="ln">301</span>      enqueue(queue, applications[i]);
-<span class="ln">302</span>    }
-<span class="ln">303</span>  }
-<span class="ln">304</span>  <span class="kw">return</span> queue;
-<span class="ln">305</span>}
+  <p class="code-head"><span class="mono">assets/js/backend/applications.js</span> · lines 296–309</p><pre class="code"><span class="ln">296</span><span class="cm">/**</span>
+<span class="ln">297</span><span class="cm"> * buildReviewQueue — a QUEUE of pending applications, oldest first.</span>
+<span class="ln">298</span><span class="cm"> * The table is already in submission order, so one pass enqueues them FIFO.</span>
+<span class="ln">299</span><span class="cm"> * Time O(n) · Space O(p) for p pending applications</span>
+<span class="ln">300</span><span class="cm"> */</span>
+<span class="ln">301</span><span class="kw">function</span> buildReviewQueue() {
+<span class="ln">302</span>  <span class="kw">const</span> queue = createQueue(8);
+<span class="ln">303</span>  <span class="kw">for</span> (<span class="kw">let</span> i = 0; i &lt; applications.length; i++) {
+<span class="ln">304</span>    <span class="kw">if</span> (applications[i].status === <span class="st">'Pending'</span>) {
+<span class="ln">305</span>      enqueue(queue, applications[i]);
+<span class="ln">306</span>    }
+<span class="ln">307</span>  }
+<span class="ln">308</span>  <span class="kw">return</span> queue;
+<span class="ln">309</span>}
 </pre>
   <ol class="explain">
     <li>A new circular-buffer queue is created.</li>
@@ -1104,6 +1105,7 @@
         <tr><td>Name, e-mail, mobile, birth date, barangay, address, ID type and number</td><td>same rules as the online form (Module 2)</td></tr>
         <tr><td>Scanned ID</td><td><strong>optional</strong> (JPG, PNG or PDF if given)</td></tr>
         <tr><td>“I checked the original ID”</td><td><strong>required</strong> checkbox</td></tr>
+        <tr><td>Customer agreed to the Privacy Notice (RA 10173)</td><td><strong>required</strong> checkbox</td></tr>
         <tr><td>Signed-in staff member</td><td>recorded as the author (“Juan Dela Cruz (walk-in)”)</td></tr>
       </tbody>
     </table>
@@ -1174,7 +1176,7 @@
     </div>
     <figure class="fig-narrow"><img src="img/m5-walkin-created.jpg" alt="Walk-in created"><figcaption>Output: the walk-in application, ready for review.</figcaption></figure>
     <h4>Trace — walk-in rules, queue and Undo (computed by our code)</h4>
-    <table class="t"><thead><tr><th>Field</th><th>Walk-in rule</th><th>Result for the first try</th></tr></thead><tbody><tr><td>Plan</td><td>Plan “custom” allowed; price must be ₱300 – ₱20,000</td><td><span class="no">✗ Enter a monthly price from ₱300 to ₱20,000.</span></td></tr><tr><td>Scanned ID</td><td>Optional (the ID is seen in person)</td><td><span class="ok">✓ no photo needed</span></td></tr><tr><td>“I checked the original ID”</td><td>Required</td><td><span class="no">✗ Confirm that you checked the original ID.</span></td></tr></tbody></table><p>The same data through the <em>online</em> rules would fail on: <span class="mono">idPhoto</span>, <span class="mono">consent</span> — that is the “override”.</p><p>After fixing the price (₱950) and ticking the box: <strong class="mono">E3-2026-004887</strong>, source <strong>walk-in</strong>, monthly price ₱950, first history step “Walk-in application at the office” by Juan Dela Cruz (walk-in). Review queue: 4 → <strong>5</strong> (it joined at the rear).</p><p>Undo stack top: “Create walk-in application E3-2026-004887” (1 step). Pressing Undo pops it and removes the record: <span class="ok">✓ application removed</span>.</p>
+    <table class="t"><thead><tr><th>Field</th><th>Walk-in rule</th><th>Result for the first try</th></tr></thead><tbody><tr><td>Plan</td><td>Plan “custom” allowed; price must be ₱300 – ₱20,000</td><td><span class="no">✗ Enter a monthly price from ₱300 to ₱20,000.</span></td></tr><tr><td>Scanned ID</td><td>Optional (the ID is seen in person)</td><td><span class="ok">✓ no photo needed</span></td></tr><tr><td>“I checked the original ID”</td><td>Required</td><td><span class="no">✗ Confirm that you checked the original ID.</span></td></tr><tr><td>Customer consent (Data Privacy Act)</td><td>Required</td><td><span class="no">✗ Confirm the customer agreed to the Privacy Notice.</span></td></tr></tbody></table><p>The same data through the <em>online</em> rules would fail on: <span class="mono">idPhoto</span>, <span class="mono">consent</span> — that is the “override”.</p><p>After fixing the price (₱950) and ticking both boxes: <strong class="mono">E3-2026-004887</strong>, source <strong>walk-in</strong>, monthly price ₱950, first history step “Walk-in application at the office” by Juan Dela Cruz (walk-in). Review queue: 4 → <strong>5</strong> (it joined at the rear).</p><p>Undo stack top: “Create walk-in application E3-2026-004887” (1 step). Pressing Undo pops it and removes the record: <span class="ok">✓ application removed</span>.</p>
   </div>
 
   <h3>Code walkthrough</h3>
@@ -1190,7 +1192,7 @@
     <li>For a walk-in with the “Custom” plan, <span class="mono">Number(...)</span> reads the typed price and it must be from 300 to 20,000.</li>
     <li>Everyone else must choose a real plan (<span class="mono">findPlan</span>, linear search).</li>
   </ol>
-  <p class="code-head"><span class="mono">assets/js/backend/applications.js</span> · lines 161–177 (part of <span class="mono">validateApplication</span>)</p><pre class="code"><span class="ln">161</span>  <span class="kw">if</span> (source === <span class="st">'online'</span>) {
+  <p class="code-head"><span class="mono">assets/js/backend/applications.js</span> · lines 161–180 (part of <span class="mono">validateApplication</span>)</p><pre class="code"><span class="ln">161</span>  <span class="kw">if</span> (source === <span class="st">'online'</span>) {
 <span class="ln">162</span>    <span class="kw">if</span> (!data.idPhotoName) {
 <span class="ln">163</span>      errors.idPhoto = <span class="st">'Upload a photo of the ID.'</span>;
 <span class="ln">164</span>    } <span class="kw">else</span> <span class="kw">if</span> (!isAllowedIdPhoto(data.idPhotoName, data.idPhotoType)) {
@@ -1199,7 +1201,7 @@
 <span class="ln">167</span>      errors.idPhoto = <span class="st">'The file must be 10 MB or smaller.'</span>;
 <span class="ln">168</span>    }
 <span class="ln">169</span>    <span class="kw">if</span> (!data.consent) {
-<span class="ln">170</span>      errors.consent = <span class="st">'Please confirm the details are correct.'</span>;
+<span class="ln">170</span>      errors.consent = <span class="st">'Please read the Privacy Notice and give your consent to continue.'</span>;
 <span class="ln">171</span>    }
 <span class="ln">172</span>  } <span class="kw">else</span> {
 <span class="ln">173</span>    <span class="kw">if</span> (data.idPhotoName &amp;&amp; !isAllowedIdPhoto(data.idPhotoName, data.idPhotoType)) {
@@ -1207,10 +1209,13 @@
 <span class="ln">175</span>    }
 <span class="ln">176</span>    <span class="kw">if</span> (!data.idChecked) {
 <span class="ln">177</span>      errors.idChecked = <span class="st">'Confirm that you checked the original ID.'</span>;
+<span class="ln">178</span>    }
+<span class="ln">179</span>    <span class="kw">if</span> (!data.consent) {                  <span class="cm">// Data Privacy Act: walk-in customers consent too</span>
+<span class="ln">180</span>      errors.consent = <span class="st">'Confirm the customer agreed to the Privacy Notice.'</span>;
 </pre>
   <ol class="explain">
     <li>Online: the ID photo and the consent box are required.</li>
-    <li>Walk-in (the <span class="mono">else</span>): a photo is optional but must be a JPG, PNG or PDF if given, and staff must confirm they checked the original ID.</li>
+    <li>Walk-in (the <span class="mono">else</span>): a photo is optional but must be a JPG, PNG or PDF if given, and staff must confirm they checked the original ID and that the customer agreed to the Privacy Notice (Data Privacy Act).</li>
   </ol>
   <p class="code-head"><span class="mono">assets/js/backend/history.js</span> · lines 66–76</p><pre class="code"><span class="ln">66</span><span class="cm">/**</span>
 <span class="ln">67</span><span class="cm"> * pushUndo — remember an action so it can be reversed. When the stack already</span>
@@ -2033,7 +2038,7 @@
     </div>
     <figure class="fig-narrow"><img src="img/m9-list-after.jpg" alt="Staff list"><figcaption>The staff list with the new member (“Temporary password”).</figcaption></figure>
     <h4>Trace — adding a member and the role rules (computed by our code)</h4>
-    <table class="t"><thead><tr><th>Step</th><th>Result</th></tr></thead><tbody><tr><td>Validate (hash-table look-up for the e-mail)</td><td><span class="ok">✓ no errors</span></td></tr><tr><td>New id (counter + 1, appended → ids stay sorted)</td><td><strong>STF-0006</strong></td></tr><tr><td>E-mail stored in lower case</td><td><span class="mono">paula.ignacio@e3fiberconnect.ph</span></td></tr><tr><td>Temporary password</td><td>10 random characters, shown once; stored only as hash <span class="mono">b895cc85</span></td></tr><tr><td>Must change it at first sign-in</td><td><span class="ok">✓ yes</span></td></tr><tr><td>hashPut(e-mail → id)</td><td>bucket <strong>1</strong>: paula.ignacio@e3fiberconnect.ph → STF-0006</td></tr><tr><td>Hash table size</td><td>5 → 6 keys in 17 buckets (load 0.35 ≤ 0.75, so no resize)</td></tr></tbody></table><table class="t"><thead><tr><th>Rule checked</th><th>Message</th></tr></thead><tbody><tr><td>Same e-mail in capitals</td><td><span class="no">✗ That e-mail already has an account.</span></td></tr><tr><td>An Admin adding an Owner</td><td><span class="no">✗ Only the Owner can add another Owner.</span></td></tr><tr><td>Changing your own account</td><td><span class="no">✗ You can’t change this account.</span></td></tr><tr><td>An Admin changing the Owner</td><td><span class="no">✗ You can’t change this account.</span></td></tr></tbody></table>
+    <table class="t"><thead><tr><th>Step</th><th>Result</th></tr></thead><tbody><tr><td>Validate (hash-table look-up for the e-mail)</td><td><span class="ok">✓ no errors</span></td></tr><tr><td>New id (counter + 1, appended → ids stay sorted)</td><td><strong>STF-0006</strong></td></tr><tr><td>E-mail stored in lower case</td><td><span class="mono">paula.ignacio@e3fiberconnect.ph</span></td></tr><tr><td>Temporary password</td><td>10 random characters, shown once; stored only as hash <span class="mono">f3aac235</span></td></tr><tr><td>Must change it at first sign-in</td><td><span class="ok">✓ yes</span></td></tr><tr><td>hashPut(e-mail → id)</td><td>bucket <strong>1</strong>: paula.ignacio@e3fiberconnect.ph → STF-0006</td></tr><tr><td>Hash table size</td><td>5 → 6 keys in 17 buckets (load 0.35 ≤ 0.75, so no resize)</td></tr></tbody></table><table class="t"><thead><tr><th>Rule checked</th><th>Message</th></tr></thead><tbody><tr><td>Same e-mail in capitals</td><td><span class="no">✗ That e-mail already has an account.</span></td></tr><tr><td>An Admin adding an Owner</td><td><span class="no">✗ Only the Owner can add another Owner.</span></td></tr><tr><td>Changing your own account</td><td><span class="no">✗ You can’t change this account.</span></td></tr><tr><td>An Admin changing the Owner</td><td><span class="no">✗ You can’t change this account.</span></td></tr></tbody></table>
   </div>
 
   <h3>Code walkthrough</h3>

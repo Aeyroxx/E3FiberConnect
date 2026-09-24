@@ -167,7 +167,7 @@ function validateApplication(data, source) {
       errors.idPhoto = 'The file must be 10 MB or smaller.';
     }
     if (!data.consent) {
-      errors.consent = 'Please confirm the details are correct.';
+      errors.consent = 'Please read the Privacy Notice and give your consent to continue.';
     }
   } else {
     if (data.idPhotoName && !isAllowedIdPhoto(data.idPhotoName, data.idPhotoType)) {
@@ -175,6 +175,9 @@ function validateApplication(data, source) {
     }
     if (!data.idChecked) {
       errors.idChecked = 'Confirm that you checked the original ID.';
+    }
+    if (!data.consent) {                  // Data Privacy Act: walk-in customers consent too
+      errors.consent = 'Confirm the customer agreed to the Privacy Notice.';
     }
   }
   return errors;
@@ -218,6 +221,7 @@ function submitApplication(data, source, actor) {
     idPhotoName: textOf(data.idPhotoName),
     status: 'Pending',
     submittedAt: now,
+    consentAt: now,                       // proof of consent (Data Privacy Act, RA 10173)
     source: source,
     notes: '',
     installDate: null,

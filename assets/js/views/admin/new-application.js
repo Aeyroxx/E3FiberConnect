@@ -14,6 +14,7 @@ const NEW_APP_FIELDS = {
   fullName: 'newAppFullName', email: 'newAppEmail', contactNumber: 'newAppMobile', birthDate: 'newAppBirthDate',
   barangay: 'newAppBarangay', completeAddress: 'newAppAddress', landmark: 'newAppLandmark',
   idType: 'newAppIdType', idNumber: 'newAppIdNumber', idPhoto: 'newAppIdPhoto', idChecked: 'newAppIdChecked',
+  consent: 'newAppConsent',
 };
 
 function readNewApplicationForm() {
@@ -34,6 +35,7 @@ function readNewApplicationForm() {
     idPhotoType: photo ? photo.type : '',
     idPhotoSize: photo ? photo.size : 0,
     idChecked: isChecked('newAppIdChecked'),
+    consent: isChecked('newAppConsent'),
   };
 }
 
@@ -100,6 +102,9 @@ function initNewApplicationView() {
   });
   byId('newAppIdChecked').addEventListener('change', function () {
     setFieldError('newAppIdChecked', newApplicationFieldError('idChecked'));
+  });
+  byId('newAppConsent').addEventListener('change', function () {
+    setFieldError('newAppConsent', newApplicationFieldError('consent'));
   });
   byId('newAppIdType').addEventListener('change', function () {
     setFieldError('newAppIdType', newApplicationFieldError('idType'));

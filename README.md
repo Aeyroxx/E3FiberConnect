@@ -123,6 +123,20 @@ Scripts are plain `<script>` files loaded in order (DSA → backend → UI → s
   reload starts light again. Respects *reduce motion*, *reduce transparency* and *increase contrast*.
   Tables turn into cards on phones and tablets.
 
+## Data privacy (RA 10173)
+
+The site is designed to comply with the **Data Privacy Act of 2012 (Republic Act No. 10173)**:
+
+- A full **Privacy Notice** (`#/privacy`, linked from the footer and every form): who controls the data and how to reach
+  the Data Protection Officer, what each form collects and why, the lawful basis for each (Sec. 12–13), security
+  measures (Sec. 20), sharing, retention, the rights of data subjects (Sec. 16–18), breach notification within
+  72 hours (NPC Circular 16-03) and the National Privacy Commission.
+- **Consent**: the online application asks for informed consent (with a link to the notice); walk-in applications
+  require staff to confirm the customer agreed. The time of consent is stored with each application (`consentAt`).
+- Short privacy notes on the support, payment and staff-request forms, a dismissible privacy bar, a compliance
+  statement in the footer, and a confidentiality reminder for staff at sign-in and in the staff sidebar.
+- No cookies, trackers or storage — as a class demo, everything stays in the browser’s memory.
+
 ## Security notes (it's a demo)
 
 User text is always escaped before it reaches the page. Passwords are stored as a salted hash, but the hash
