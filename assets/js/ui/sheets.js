@@ -52,10 +52,20 @@ function openSheet(id, opener) {
   sheet.classList.add('is-open');
   setBackgroundInert(true);
   document.documentElement.classList.add('has-sheet');
-  const first = visibleFocusables(qs('.sheet-body', sheet) || sheet)[0];
+  const body = qs('.sheet-body', sheet) || sheet;
+  const first = visibleFocusables(body)[0];
   setTimeout(function () {
-    focusElement(first || sheet);
+    // Focus the first field only when it can be seen; on a short phone screen it may sit
+    // below the fold, and focusing it there would open the keyboard for a hidden field.
+    focusElement(first && isInsideBox(first, body) ? first : sheet);
   }, 40);
+}
+
+/** isInsideBox — is the element fully inside the visible part of the box? O(1) */
+function isInsideBox(element, box) {
+  const a = element.getBoundingClientRect();
+  const b = box.getBoundingClientRect();
+  return a.top >= b.top && a.bottom <= b.bottom;
 }
 
 /**

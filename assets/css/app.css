@@ -3265,8 +3265,15 @@ body:has([data-view="privacy"]:not([hidden])) .privacy-bar {
     var(--bg-secondary);
 }
 
+/* Each sign-in screen fills the row and centres its card (a grid item sized to its
+   content would otherwise grow to the longest unwrapped line and leave the card left). */
+.login-shell > section {
+  width: 100%;
+}
+
 .login-card {
   width: min(420px, 100%);
+  margin-inline: auto;
   padding: 2.5rem 2rem 2rem;
   border-radius: var(--radius-xl);
   background: var(--material-card);
@@ -3762,6 +3769,7 @@ a.kpi:hover {
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--label-2);
+  padding-right: 2.25rem; /* room for the icon in the corner — long labels wrap instead of running under it */
 }
 
 .kpi-value {
