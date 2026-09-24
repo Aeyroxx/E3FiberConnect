@@ -8,16 +8,6 @@
 
 'use strict';
 
-/** sampleReference — the newest pending application, for the "Try the sample" link. O(n) */
-function sampleReference() {
-  for (let i = applications.length - 1; i >= 0; i--) {
-    if (applications[i].status === 'Pending') {
-      return applications[i].referenceNo;
-    }
-  }
-  return applications.length > 0 ? applications[applications.length - 1].referenceNo : 'E3-2026-004879';
-}
-
 function trackCallout(app) {
   if (app.status === 'Rejected') {
     return '<div class="callout tone-red mt-3"><span class="icon-bubble tone-red">' + iconHTML('info') + '</span><div>'
@@ -76,7 +66,6 @@ function showTrackResult(input) {
 }
 
 function renderTrackView(params) {
-  setText('trackExample', sampleReference());
   if (params.ref) {
     setFieldValue('trackInput', params.ref);
     showTrackResult(params.ref);
@@ -95,8 +84,5 @@ function initTrackView() {
     } else {
       showTrackResult(referenceNo);
     }
-  });
-  onClick('trackExample', function () {
-    navigate('/track/' + byId('trackExample').textContent);
   });
 }

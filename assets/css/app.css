@@ -3249,23 +3249,6 @@ body:has([data-view="privacy"]:not([hidden])) .privacy-bar {
   font-size: 0.875rem;
 }
 
-.privacy-demo {
-  margin-top: 3rem;
-  padding: 1.25rem 1.375rem;
-  border-radius: var(--radius-lg);
-  border: 1px dashed var(--separator-strong);
-}
-
-.privacy-demo h2 {
-  margin: 0 0 0.375rem;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.privacy-demo p {
-  margin: 0;
-}
-
 /* ----------------------------------------------------------------------- 11 */
 .login-shell {
   position: relative;
@@ -3335,26 +3318,6 @@ body:has([data-view="privacy"]:not([hidden])) .privacy-bar {
 
 .login-card.is-shaking {
   animation: shake 0.42s ease;
-}
-
-.demo-accounts {
-  margin-top: 1.5rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--separator);
-}
-
-.demo-accounts-title {
-  font-size: 0.8125rem;
-  color: var(--label-2);
-  margin-bottom: 0.625rem;
-  text-align: center;
-}
-
-.demo-chips {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
 }
 
 .login-back {

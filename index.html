@@ -552,10 +552,9 @@
             <label class="visually-hidden" for="trackInput">Reference number</label>
             <div class="big-search">
               <svg class="icon" aria-hidden="true"><use href="#i-doc"></use></svg>
-              <input id="trackInput" type="text" placeholder="E3-2026-004879" autocapitalize="characters" spellcheck="false" maxlength="20" aria-describedby="trackHint">
+              <input id="trackInput" type="text" placeholder="E3-2026-004879" autocapitalize="characters" spellcheck="false" maxlength="20">
               <button class="btn btn-accent" type="submit">Track</button>
             </div>
-            <p class="caption-text text-center mt-2" id="trackHint">Try the sample <button type="button" class="btn btn-plain btn-xs align-baseline" id="trackExample">—</button></p>
           </form>
           <div class="track-result wrap-narrow px-0 mt-4" id="trackResult" aria-live="polite"></div>
         </div>
@@ -586,7 +585,6 @@
               </div>
             </div>
             <button class="btn btn-accent" type="submit">Show my bill</button>
-            <p class="caption-text mt-3" id="payDemoHint"></p>
           </form>
 
           <div id="payAccountView" hidden>
@@ -902,10 +900,6 @@
           <h2 class="privacy-h" id="privacyChanges" tabindex="-1">9. Changes to this notice</h2>
           <p>We may update this notice. The date at the top shows the current version, and important changes will be announced on this site.</p>
 
-          <div class="privacy-demo">
-            <h2>About this demo website</h2>
-            <p>This site was built for a Data Structures &amp; Algorithms class. Everything you type stays in your own browser’s memory — nothing is sent to a server, saved on your computer or kept after you reload the page.</p>
-          </div>
         </div>
       </section>
 
@@ -925,7 +919,6 @@
 
     <footer class="gfooter">
       <div class="wrap">
-        <p class="gfooter-note">This is a demo website for a Data Structures &amp; Algorithms project. Every record lives in JavaScript arrays in your browser’s memory, so the sample data starts fresh whenever the page is reloaded.</p>
         <p class="gfooter-privacy"><svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg><span>This site is designed to comply with the <strong>Data Privacy Act of 2012 (Republic Act No. 10173)</strong>. We collect only what we need, never sell your data, and you may ask to see, correct or delete it at any time. <a href="#/privacy">Read our Privacy Notice</a></span></p>
         <div class="gfooter-cols">
           <div>
@@ -1000,14 +993,6 @@
           </form>
           <p class="login-switch">New to the team? <a href="#/admin/register">Request staff access</a></p>
           <p class="login-privacy"><svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg><span>For authorized E3 staff only. Customer records are confidential under the Data Privacy Act of 2012 (RA 10173), and every action is recorded in the activity log.</span></p>
-          <div class="demo-accounts">
-            <p class="demo-accounts-title">Demo accounts — choose one to fill in the form</p>
-            <div class="demo-chips" id="loginDemoChips">
-              <button type="button" class="btn btn-gray btn-sm" data-demo-email="maria.santos@e3fiberconnect.ph" data-demo-password="owner123">Owner</button>
-              <button type="button" class="btn btn-gray btn-sm" data-demo-email="juan.delacruz@e3fiberconnect.ph" data-demo-password="e3admin">Admin</button>
-              <button type="button" class="btn btn-gray btn-sm" data-demo-email="paolo.reyes@e3fiberconnect.ph" data-demo-password="support123">Support</button>
-            </div>
-          </div>
           <a class="login-back" href="#/">← Back to the website</a>
         </div>
       </section>
@@ -1140,7 +1125,7 @@
           <li><a class="sidebar-link" href="#/"><svg class="icon" aria-hidden="true"><use href="#i-globe"></use></svg>View website</a></li>
           <li><button class="sidebar-link" type="button" id="signOutButton"><svg class="icon" aria-hidden="true"><use href="#i-logout"></use></svg>Sign out</button></li>
         </ul>
-        <p class="sidebar-note">Customer data is confidential under the Data Privacy Act of 2012. Demo data lives in memory and starts fresh when the page reloads.</p>
+        <p class="sidebar-note">Customer data is confidential under the Data Privacy Act of 2012.</p>
       </div>
     </aside>
     <div class="sidebar-scrim" id="sidebarScrim" hidden></div>
@@ -1856,7 +1841,7 @@
           <div class="page-header">
             <div>
               <h1 class="page-title" id="actTitle">Activity</h1>
-              <p class="page-subtitle">Everything that happened since the page was opened, plus the sample history.</p>
+              <p class="page-subtitle">Every staff and customer action, newest first.</p>
             </div>
             <div class="page-actions">
               <button class="btn btn-accent" type="button" id="actUndo"><svg class="icon" aria-hidden="true"><use href="#i-undo"></use></svg>Undo last action</button>

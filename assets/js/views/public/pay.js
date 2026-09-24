@@ -24,26 +24,6 @@ function updateReferenceHint() {
   byId('payReference').placeholder = 'e.g. ' + (rule ? rule.example : '5012 873 246 119');
 }
 
-/** demoSubscriber — an active account that owes money, for the demo hint. O(n · b) */
-function demoSubscriber() {
-  for (let i = 0; i < subscribers.length; i++) {
-    if (subscribers[i].status === 'Active' && subscriberBalance(subscribers[i].accountNo) > 0) {
-      return subscribers[i];
-    }
-  }
-  return subscribers.length > 0 ? subscribers[0] : null;
-}
-
-function renderPayDemoHint() {
-  const sample = demoSubscriber();
-  if (!sample) {
-    setHTML('payDemoHint', '');
-    return;
-  }
-  setHTML('payDemoHint', 'Demo account: <span class="mono">' + escapeHTML(sample.accountNo) + '</span> with mobile <span class="mono">' + escapeHTML(sample.contactNumber) + '</span>. '
-    + '<button type="button" class="btn btn-plain btn-xs align-baseline" id="payFillDemo" data-account="' + escapeHTML(sample.accountNo) + '" data-mobile="' + escapeHTML(sample.contactNumber) + '">Fill in</button>');
-}
-
 function payBillLabel(bill) {
   return formatMonthYear(bill.billingYear, bill.billingMonth);
 }
@@ -116,8 +96,6 @@ function renderPayView() {
   toggleElement(byId('payAccountView'), signedIn);
   if (signedIn) {
     renderPayAccount();
-  } else {
-    renderPayDemoHint();
   }
 }
 
@@ -134,13 +112,6 @@ function initPayView() {
     payState.accountNo = result.subscriber.accountNo;
     renderPayView();
     focusElement(byId('payName'));
-  });
-  byId('payLookupForm').addEventListener('click', function (event) {
-    const fill = findAncestorWith(event.target, 'data-account', byId('payLookupForm'));
-    if (fill) {
-      setFieldValue('payAccount', fill.getAttribute('data-account'));
-      setFieldValue('payMobile', fill.getAttribute('data-mobile'));
-    }
   });
   onClick('payLeave', function () {
     payState.accountNo = '';

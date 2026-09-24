@@ -68,7 +68,7 @@ function renderApplicationDetailView(params) {
     + (app.installDate ? kvRow(app.status === 'Completed' ? 'Installed on' : 'Installation', escapeHTML(formatDate(app.installDate) + (app.installSlot && app.status !== 'Completed' ? ' · ' + app.installSlot : ''))) : '')
     + (app.rejectReason ? kvRow('Reason not approved', escapeHTML(app.rejectReason)) : ''));
   setHTML('appIdFile', '<div class="id-file">' + iconHTML('doc')
-    + '<span>' + (app.idPhotoName ? escapeHTML(app.idPhotoName) + ' <span class="caption-text">(file name only — the demo does not store images)</span>' : 'No file — the ID was checked in person') + '</span></div>');
+    + '<span>' + (app.idPhotoName ? escapeHTML(app.idPhotoName) + '' : 'No file — the ID was checked in person') + '</span></div>');
 
   setFieldValue('appNotes', app.notes);
   setText('appNotesCount', formatNumber(app.notes.length) + ' / 500');

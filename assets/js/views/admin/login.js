@@ -63,19 +63,6 @@ function initLoginView() {
     toggle.innerHTML = iconHTML(showing ? 'eye' : 'eye-off');
   });
 
-  byId('loginDemoChips').addEventListener('click', function (event) {
-    const chip = findAncestorWith(event.target, 'data-demo-email', byId('loginDemoChips'));
-    if (!chip) {
-      return;
-    }
-    setFieldValue('loginEmail', chip.getAttribute('data-demo-email'));
-    setFieldValue('loginPassword', chip.getAttribute('data-demo-password'));
-    setFieldError('loginEmail', '');
-    setFieldError('loginPassword', '');
-    setFormAlert('loginAlert', '');
-    focusElement(byId('loginSubmit'));
-  });
-
   byId('loginCard').addEventListener('animationend', function () {
     byId('loginCard').classList.remove('is-shaking');
   });

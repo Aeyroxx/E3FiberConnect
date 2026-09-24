@@ -10,7 +10,7 @@ rounded surfaces, sheets and a dark mode.
 Double-click **`index.html`**. That's it — no server, no install, and it works offline.
 (A local server such as VS Code *Live Server* works too.)
 
-**Staff demo accounts** (also one tap away on the sign-in screen):
+**Staff accounts** (type them on the sign-in screen — the site never displays them):
 
 | Role | E-mail | Password |
 |---|---|---|
@@ -30,8 +30,8 @@ the sample requests already waiting for approval:
 Signing in with a pending or rejected request explains its status. After an Owner or Admin approves it on
 **Registrations**, the same e-mail and password open the admin app.
 
-**Customer demo:** the Pay Bills page shows a sample account number and mobile number with a *Fill in* button;
-the Track page has a *Try the sample* link. **Payments** starts with four reports in the validation queue: the
+**Sample customer:** on Pay Bills use account `E3-2026-004872` with mobile `0918 555 0172` (Ramon Villareal);
+on Track use reference `E3-2026-004886`. **Payments** starts with four reports in the validation queue: the
 first passes all five checks, and each of the other three fails one (bill already paid, amount short, reference
 number already used).
 
