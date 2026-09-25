@@ -182,6 +182,10 @@ function registrationChecks(request, actor) {
  * Time O(log n) + O(1) append + O(1) average hash put · Space O(1)
  */
 function approveRegistration(registrationId, actor) {
+  const stepUp = stepUpRequired();                            // 0. two-step verification: a Google Authenticator code in the last 5 minutes
+  if (stepUp) {
+    return stepUp;
+  }
   const request = findRegistration(registrationId);           // 1. binary search by request id
   if (!request) {
     return { ok: false, error: 'Registration not found.' };

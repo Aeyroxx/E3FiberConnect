@@ -1234,30 +1234,37 @@
     <li>If the stack already holds 25 steps, the oldest (the bottom) is dropped first.</li>
     <li><span class="mono">stackPush</span> puts the new step on top: its label (“Create walk-in application …”), the operations to reverse, the time and who did it.</li>
   </ol>
-  <p class="code-head"><span class="mono">assets/js/backend/history.js</span> · lines 157–180</p><pre class="code"><span class="ln">157</span><span class="cm">/**</span>
-<span class="ln">158</span><span class="cm"> * undoLastAction — pop the newest entry and reverse its operations, last one</span>
-<span class="ln">159</span><span class="cm"> * first (an action that changed two tables is unwound in reverse order).</span>
-<span class="ln">160</span><span class="cm"> * Returns the entry, null when there is nothing to undo, or</span>
-<span class="ln">161</span><span class="cm"> * { blocked: true, label, error } when it can't be undone (it stays on the stack).</span>
-<span class="ln">162</span><span class="cm"> * Time O(k · n) for k operations · Space O(1)</span>
-<span class="ln">163</span><span class="cm"> */</span>
-<span class="ln">164</span><span class="kw">function</span> undoLastAction(actorName) {
-<span class="ln">165</span>  <span class="kw">const</span> top = stackPeek(undoStack);                   <span class="cm">// 1. look at the newest entry first</span>
-<span class="ln">166</span>  <span class="kw">if</span> (!top) {
-<span class="ln">167</span>    <span class="kw">return</span> <span class="kw">null</span>;
-<span class="ln">168</span>  }
-<span class="ln">169</span>  <span class="kw">const</span> blocked = undoBlockedReason(top);             <span class="cm">// 2. would reversing it break a customer's report or request?</span>
-<span class="ln">170</span>  <span class="kw">if</span> (blocked !== <span class="st">''</span>) {
-<span class="ln">171</span>    <span class="kw">return</span> { blocked: <span class="kw">true</span>, label: top.label, error: <span class="st">'Can’t undo “'</span> + top.label + <span class="st">'”: '</span> + blocked };
-<span class="ln">172</span>  }
-<span class="ln">173</span>  <span class="kw">const</span> entry = stackPop(undoStack);                  <span class="cm">// 3. pop it and reverse its operations, newest first</span>
-<span class="ln">174</span>  <span class="kw">for</span> (<span class="kw">let</span> i = entry.operations.length - 1; i &gt;= 0; i--) {
-<span class="ln">175</span>    revertOperation(entry.operations[i]);
-<span class="ln">176</span>  }
-<span class="ln">177</span>  logActivity(<span class="st">'undo'</span>, <span class="st">'Undid: '</span> + entry.label, actorName);
-<span class="ln">178</span>  markDataChanged();
-<span class="ln">179</span>  <span class="kw">return</span> entry;
-<span class="ln">180</span>}
+  <p class="code-head"><span class="mono">assets/js/backend/history.js</span> · lines 171–201</p><pre class="code"><span class="ln">171</span><span class="cm">/**</span>
+<span class="ln">172</span><span class="cm"> * undoLastAction — pop the newest entry and reverse its operations, last one</span>
+<span class="ln">173</span><span class="cm"> * first (an action that changed two tables is unwound in reverse order).</span>
+<span class="ln">174</span><span class="cm"> * Returns the entry, null when there is nothing to undo, a step-up error when</span>
+<span class="ln">175</span><span class="cm"> * it changes an account and no code was verified, or</span>
+<span class="ln">176</span><span class="cm"> * { blocked: true, label, error } when it can't be undone (it stays on the stack).</span>
+<span class="ln">177</span><span class="cm"> * Time O(k · n) for k operations · Space O(1)</span>
+<span class="ln">178</span><span class="cm"> */</span>
+<span class="ln">179</span><span class="kw">function</span> undoLastAction(actorName) {
+<span class="ln">180</span>  <span class="kw">const</span> top = stackPeek(undoStack);                   <span class="cm">// 1. look at the newest entry first</span>
+<span class="ln">181</span>  <span class="kw">if</span> (!top) {
+<span class="ln">182</span>    <span class="kw">return</span> <span class="kw">null</span>;
+<span class="ln">183</span>  }
+<span class="ln">184</span>  <span class="kw">const</span> blocked = undoBlockedReason(top);             <span class="cm">// 2. would reversing it break a customer's report or request?</span>
+<span class="ln">185</span>  <span class="kw">if</span> (blocked !== <span class="st">''</span>) {
+<span class="ln">186</span>    <span class="kw">return</span> { blocked: <span class="kw">true</span>, label: top.label, error: <span class="st">'Can’t undo “'</span> + top.label + <span class="st">'”: '</span> + blocked };
+<span class="ln">187</span>  }
+<span class="ln">188</span>  <span class="kw">if</span> (undoTouchesAccounts(top)) {                     <span class="cm">// 3. account changes need a code, also when undone</span>
+<span class="ln">189</span>    <span class="kw">const</span> stepUp = stepUpRequired();
+<span class="ln">190</span>    <span class="kw">if</span> (stepUp) {
+<span class="ln">191</span>      <span class="kw">return</span> stepUp;
+<span class="ln">192</span>    }
+<span class="ln">193</span>  }
+<span class="ln">194</span>  <span class="kw">const</span> entry = stackPop(undoStack);                  <span class="cm">// 4. pop it and reverse its operations, newest first</span>
+<span class="ln">195</span>  <span class="kw">for</span> (<span class="kw">let</span> i = entry.operations.length - 1; i &gt;= 0; i--) {
+<span class="ln">196</span>    revertOperation(entry.operations[i]);
+<span class="ln">197</span>  }
+<span class="ln">198</span>  logActivity(<span class="st">'undo'</span>, <span class="st">'Undid: '</span> + entry.label, actorName);
+<span class="ln">199</span>  markDataChanged();
+<span class="ln">200</span>  <span class="kw">return</span> entry;
+<span class="ln">201</span>}
 </pre>
   <ol class="explain">
     <li><span class="mono">stackPop</span> takes the newest step (last in, first out); nothing to undo → <span class="mono">null</span>.</li>
@@ -1366,7 +1373,7 @@
     </div>
     <figure class="fig-narrow"><img src="img/m6-subscriber.jpg" alt="New subscriber"><figcaption>Output: the new subscriber account.</figcaption></figure>
     <h4>Trace — the sorted insert (computed by our code)</h4>
-    <p>Maricel Dizon (<span class="mono">E3-2026-004881</span>) was installed first, so her account is already at the end. Now Noel Garcia’s account <strong class="mono">E3-2026-004880</strong> — an <em>older</em> number — must go in front of it.</p><h4>1 · Where does it go? (lowerBound = binary search for the first key ≥ 004880)</h4><table class="t"><thead><tr><th class="num">Step</th><th class="num">low</th><th class="num">high</th><th class="num">middle</th><th>Account at middle</th><th>Decision</th></tr></thead><tbody><tr><td class="num">1</td><td class="num">0</td><td class="num">9</td><td class="num">4</td><td><span class="mono">E3-2026-004875</span></td><td>smaller → low = 5</td></tr><tr><td class="num">2</td><td class="num">5</td><td class="num">9</td><td class="num">7</td><td><span class="mono">E3-2026-004878</span></td><td>smaller → low = 8</td></tr><tr><td class="num">3</td><td class="num">8</td><td class="num">9</td><td class="num">8</td><td><span class="mono">E3-2026-004881</span></td><td>not smaller → high = 8</td></tr></tbody></table><p>Position <strong>8</strong> (the sheet shows it as “position 9 of 10”), found in 3 comparisons; the real preview reported 3. Neighbours: E3-2026-004878 before, E3-2026-004881 after.</p><h4>2 · Insert (arrayInsertAt shifts the later records one slot right)</h4><div class="arr"><span class="cell">004871<small>[0]</small></span><span class="cell">004872<small>[1]</small></span><span class="cell">004873<small>[2]</small></span><span class="cell">004874<small>[3]</small></span><span class="cell">004875<small>[4]</small></span><span class="cell">004876<small>[5]</small></span><span class="cell">004877<small>[6]</small></span><span class="cell">004878<small>[7]</small></span><span class="cell moved">004881<small>[8]</small></span></div><p class="arrow-row">Before: 9 accounts. The yellow record moves one slot to the right (1 shift).</p><div class="arr"><span class="cell">004871<small>[0]</small></span><span class="cell">004872<small>[1]</small></span><span class="cell">004873<small>[2]</small></span><span class="cell">004874<small>[3]</small></span><span class="cell">004875<small>[4]</small></span><span class="cell">004876<small>[5]</small></span><span class="cell">004877<small>[6]</small></span><span class="cell">004878<small>[7]</small></span><span class="cell new">004880<small>[8]</small></span><span class="cell moved">004881<small>[9]</small></span></div><p class="arrow-row">After: 10 accounts, still sorted — Noel at index 8, application status now Completed, modem serial saved as ZTEG-C8A1F2B7.</p><h4>3 · The account details</h4><table class="t"><thead><tr><th>Item</th><th>Value</th></tr></thead><tbody><tr><td>Account number</td><td><span class="mono">E3-2026-004880</span> (same as the reference number)</td></tr><tr><td>Billing day</td><td>day 24 of every month — the day the account was created (anniversary billing)</td></tr><tr><td>First bill</td><td>2026-09-24 → 2026-10-23, due 2026-10-09, ₱2,000</td></tr><tr><td>Form errors if left wrong</td><td>Use 6–24 letters, digits or dashes, as printed on the modem.<br>Confirm that the fiber is installed and the connection was tested.</td></tr></tbody></table>
+    <p>Maricel Dizon (<span class="mono">E3-2026-004881</span>) was installed first, so her account is already at the end. Now Noel Garcia’s account <strong class="mono">E3-2026-004880</strong> — an <em>older</em> number — must go in front of it.</p><h4>1 · Where does it go? (lowerBound = binary search for the first key ≥ 004880)</h4><table class="t"><thead><tr><th class="num">Step</th><th class="num">low</th><th class="num">high</th><th class="num">middle</th><th>Account at middle</th><th>Decision</th></tr></thead><tbody><tr><td class="num">1</td><td class="num">0</td><td class="num">9</td><td class="num">4</td><td><span class="mono">E3-2026-004875</span></td><td>smaller → low = 5</td></tr><tr><td class="num">2</td><td class="num">5</td><td class="num">9</td><td class="num">7</td><td><span class="mono">E3-2026-004878</span></td><td>smaller → low = 8</td></tr><tr><td class="num">3</td><td class="num">8</td><td class="num">9</td><td class="num">8</td><td><span class="mono">E3-2026-004881</span></td><td>not smaller → high = 8</td></tr></tbody></table><p>Position <strong>8</strong> (the sheet shows it as “position 9 of 10”), found in 3 comparisons; the real preview reported 3. Neighbours: E3-2026-004878 before, E3-2026-004881 after.</p><h4>2 · Insert (arrayInsertAt shifts the later records one slot right)</h4><div class="arr"><span class="cell">004871<small>[0]</small></span><span class="cell">004872<small>[1]</small></span><span class="cell">004873<small>[2]</small></span><span class="cell">004874<small>[3]</small></span><span class="cell">004875<small>[4]</small></span><span class="cell">004876<small>[5]</small></span><span class="cell">004877<small>[6]</small></span><span class="cell">004878<small>[7]</small></span><span class="cell moved">004881<small>[8]</small></span></div><p class="arrow-row">Before: 9 accounts. The yellow record moves one slot to the right (1 shift).</p><div class="arr"><span class="cell">004871<small>[0]</small></span><span class="cell">004872<small>[1]</small></span><span class="cell">004873<small>[2]</small></span><span class="cell">004874<small>[3]</small></span><span class="cell">004875<small>[4]</small></span><span class="cell">004876<small>[5]</small></span><span class="cell">004877<small>[6]</small></span><span class="cell">004878<small>[7]</small></span><span class="cell new">004880<small>[8]</small></span><span class="cell moved">004881<small>[9]</small></span></div><p class="arrow-row">After: 10 accounts, still sorted — Noel at index 8, application status now Completed, modem serial saved as ZTEG-C8A1F2B7.</p><h4>3 · The account details</h4><table class="t"><thead><tr><th>Item</th><th>Value</th></tr></thead><tbody><tr><td>Account number</td><td><span class="mono">E3-2026-004880</span> (same as the reference number)</td></tr><tr><td>Billing day</td><td>day 25 of every month — the day the account was created (anniversary billing)</td></tr><tr><td>First bill</td><td>2026-09-25 → 2026-10-24, due 2026-10-10, ₱2,000</td></tr><tr><td>Form errors if left wrong</td><td>Use 6–24 letters, digits or dashes, as printed on the modem.<br>Confirm that the fiber is installed and the connection was tested.</td></tr></tbody></table>
   </div>
 
   <h3>Code walkthrough</h3>
@@ -1627,7 +1634,7 @@
   </div>
 
   <h3>Code walkthrough</h3>
-  <p class="code-head"><span class="mono">assets/js/backend/auth.js</span> · lines 27–69</p><pre class="code"><span class="ln">27</span><span class="cm">/**</span>
+  <p class="code-head"><span class="mono">assets/js/backend/auth.js</span> · lines 27–70</p><pre class="code"><span class="ln">27</span><span class="cm">/**</span>
 <span class="ln">28</span><span class="cm"> * signIn — check the e-mail (hash-table look-up) and the password hash.</span>
 <span class="ln">29</span><span class="cm"> * Only Active accounts may sign in.</span>
 <span class="ln">30</span><span class="cm"> * Time O(1) average + one password hash (400 fixed rounds, O(k) for k characters)</span>
@@ -1666,10 +1673,11 @@
 <span class="ln">63</span>  hashPut(authState.failedByEmail, emailKey, 0);              <span class="cm">// 6. success: this e-mail's count starts again; remember who is signed in</span>
 <span class="ln">64</span>  authState.staffId = member.id;
 <span class="ln">65</span>  clearUndoHistory(); <span class="cm">// Undo only ever reverses your own actions from this sign-in</span>
-<span class="ln">66</span>  member.lastSignIn = nowISO();
-<span class="ln">67</span>  logActivity(<span class="st">'auth'</span>, member.fullName + <span class="st">' signed in'</span>, member.fullName);
-<span class="ln">68</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, staff: member };
-<span class="ln">69</span>}
+<span class="ln">66</span>  endStepUp();        <span class="cm">// a new sign-in must verify its own Google Authenticator code</span>
+<span class="ln">67</span>  member.lastSignIn = nowISO();
+<span class="ln">68</span>  logActivity(<span class="st">'auth'</span>, member.fullName + <span class="st">' signed in'</span>, member.fullName);
+<span class="ln">69</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, staff: member };
+<span class="ln">70</span>}
 </pre>
   <ol class="explain">
     <li>Step 1 checks the pause time; <span class="mono">Math.ceil</span> turns milliseconds into whole seconds for the message.</li>
@@ -1816,38 +1824,42 @@
     </div>
     <figure class="fig-half"><img src="img/m8-change-plan.jpg" alt="Change plan"><figcaption>Change plan — the next bill uses the new price.</figcaption></figure>
     <h4>Trace — sorting, searching and the bill queue (computed by our code)</h4>
-    <p>Sorting the 8 subscribers by balance, high to low (each row’s balance is summed from the bills first):</p><table class="t"><thead><tr><th>Algorithm</th><th class="num">Comparisons</th><th class="num">Moves</th></tr></thead><tbody><tr><td>Insertion sort</td><td class="num">19</td><td class="num">15</td></tr><tr><td>Selection sort</td><td class="num">28</td><td class="num">3</td></tr><tr><td>Bubble sort</td><td class="num">27</td><td class="num">15</td></tr></tbody></table><table class="t"><thead><tr><th>Top rows</th><th>Account</th><th class="num">Balance</th><th>Status</th></tr></thead><tbody><tr><td>Patricia Gonzales</td><td><span class="mono">E3-2026-004876</span></td><td class="num">₱2,400</td><td>Suspended</td></tr><tr><td>Kristine Ramos</td><td><span class="mono">E3-2026-004874</span></td><td class="num">₱1,600</td><td>Active</td></tr><tr><td>Carlo Mendoza</td><td><span class="mono">E3-2026-004877</span></td><td class="num">₱1,500</td><td>Active</td></tr><tr><td>Ramon Villareal</td><td><span class="mono">E3-2026-004872</span></td><td class="num">₱1,200</td><td>Active</td></tr></tbody></table><p>Counts by status (one pass): 6 Active · 1 Suspended · 1 Terminated. Opening Patricia’s page finds <span class="mono">E3-2026-004876</span> by binary search in 2 comparisons.</p><p><strong>Her unpaid bills as a queue (oldest due date at the front):</strong></p><div class="arr"><span class="cell front">202607-004876 · ₱1,200<small>FRONT · due 2026-08-11</small></span><span class="cell">202608-004876 · ₱1,200<small>due 2026-09-11</small></span></div><p class="arrow-row">“Mark oldest bill paid” dequeues the front bill, so the oldest debt is always settled first (FIFO).</p>
+    <p>Sorting the 8 subscribers by balance, high to low (each row’s balance is summed from the bills first):</p><table class="t"><thead><tr><th>Algorithm</th><th class="num">Comparisons</th><th class="num">Moves</th></tr></thead><tbody><tr><td>Insertion sort</td><td class="num">19</td><td class="num">15</td></tr><tr><td>Selection sort</td><td class="num">28</td><td class="num">3</td></tr><tr><td>Bubble sort</td><td class="num">27</td><td class="num">15</td></tr></tbody></table><table class="t"><thead><tr><th>Top rows</th><th>Account</th><th class="num">Balance</th><th>Status</th></tr></thead><tbody><tr><td>Patricia Gonzales</td><td><span class="mono">E3-2026-004876</span></td><td class="num">₱2,400</td><td>Suspended</td></tr><tr><td>Kristine Ramos</td><td><span class="mono">E3-2026-004874</span></td><td class="num">₱1,600</td><td>Active</td></tr><tr><td>Carlo Mendoza</td><td><span class="mono">E3-2026-004877</span></td><td class="num">₱1,500</td><td>Active</td></tr><tr><td>Ramon Villareal</td><td><span class="mono">E3-2026-004872</span></td><td class="num">₱1,200</td><td>Active</td></tr></tbody></table><p>Counts by status (one pass): 6 Active · 1 Suspended · 1 Terminated. Opening Patricia’s page finds <span class="mono">E3-2026-004876</span> by binary search in 2 comparisons.</p><p><strong>Her unpaid bills as a queue (oldest due date at the front):</strong></p><div class="arr"><span class="cell front">202607-004876 · ₱1,200<small>FRONT · due 2026-08-12</small></span><span class="cell">202608-004876 · ₱1,200<small>due 2026-09-12</small></span></div><p class="arrow-row">“Mark oldest bill paid” dequeues the front bill, so the oldest debt is always settled first (FIFO).</p>
   </div>
 
   <h3>Code walkthrough</h3>
-  <p class="code-head"><span class="mono">assets/js/backend/subscribers.js</span> · lines 214–241</p><pre class="code"><span class="ln">214</span><span class="cm">/**</span>
+  <p class="code-head"><span class="mono">assets/js/backend/subscribers.js</span> · lines 214–245</p><pre class="code"><span class="ln">214</span><span class="cm">/**</span>
 <span class="ln">215</span><span class="cm"> * setSubscriberStatus — suspend, reactivate or terminate an account.</span>
 <span class="ln">216</span><span class="cm"> * Allowed: Active → Suspended, Suspended → Active, Active/Suspended → Terminated.</span>
 <span class="ln">217</span><span class="cm"> * Time O(log n)</span>
 <span class="ln">218</span><span class="cm"> */</span>
 <span class="ln">219</span><span class="kw">function</span> setSubscriberStatus(accountNo, status, actor) {
-<span class="ln">220</span>  <span class="kw">const</span> subscriber = findSubscriber(accountNo);                 <span class="cm">// 1. binary search by account number</span>
-<span class="ln">221</span>  <span class="kw">if</span> (!subscriber) {
-<span class="ln">222</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'Subscriber not found.'</span> };
+<span class="ln">220</span>  <span class="kw">const</span> stepUp = stepUpRequired();            <span class="cm">// 0. two-step verification: a Google Authenticator code in the last 5 minutes</span>
+<span class="ln">221</span>  <span class="kw">if</span> (stepUp) {
+<span class="ln">222</span>    <span class="kw">return</span> stepUp;
 <span class="ln">223</span>  }
-<span class="ln">224</span>  <span class="kw">if</span> (subscriber.status === <span class="st">'Terminated'</span>) {
-<span class="ln">225</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'This account is already terminated.'</span> };
-<span class="ln">226</span>  }
-<span class="ln">227</span>  <span class="kw">const</span> allowed = (subscriber.status === <span class="st">'Active'</span> &amp;&amp; (status === <span class="st">'Suspended'</span> || status === <span class="st">'Terminated'</span>))
-<span class="ln">228</span>    || (subscriber.status === <span class="st">'Suspended'</span> &amp;&amp; (status === <span class="st">'Active'</span> || status === <span class="st">'Terminated'</span>));
-<span class="ln">229</span>  <span class="kw">if</span> (!allowed) {                                               <span class="cm">// 2. only the allowed moves</span>
-<span class="ln">230</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'That change is not allowed.'</span> };
-<span class="ln">231</span>  }
-<span class="ln">232</span>  <span class="kw">const</span> verbs = { Active: <span class="st">'Reactivate'</span>, Suspended: <span class="st">'Suspend'</span>, Terminated: <span class="st">'Terminate'</span> };
-<span class="ln">233</span>  <span class="kw">const</span> before = snapshotFields(subscriber, [<span class="st">'status'</span>, <span class="st">'statusChangedAt'</span>]);   <span class="cm">// 3. remember the old values</span>
-<span class="ln">234</span>  subscriber.status = status;                                   <span class="cm">// 4. change the status</span>
-<span class="ln">235</span>  subscriber.statusChangedAt = nowISO();
-<span class="ln">236</span>  <span class="cm">// 5. one undo step (stack push)</span>
-<span class="ln">237</span>  pushUndo(verbs[status] + <span class="st">' '</span> + subscriber.fullName, [updateOperation(<span class="st">'subscribers'</span>, accountNo, before)], nameOfActor(actor));
-<span class="ln">238</span>  logActivity(<span class="st">'subscriber'</span>, verbs[status] + <span class="st">'d '</span> + subscriber.fullName + <span class="st">' ('</span> + accountNo + <span class="st">')'</span>, nameOfActor(actor));
-<span class="ln">239</span>  markDataChanged();
-<span class="ln">240</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, subscriber: subscriber };
-<span class="ln">241</span>}
+<span class="ln">224</span>  <span class="kw">const</span> subscriber = findSubscriber(accountNo);                 <span class="cm">// 1. binary search by account number</span>
+<span class="ln">225</span>  <span class="kw">if</span> (!subscriber) {
+<span class="ln">226</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'Subscriber not found.'</span> };
+<span class="ln">227</span>  }
+<span class="ln">228</span>  <span class="kw">if</span> (subscriber.status === <span class="st">'Terminated'</span>) {
+<span class="ln">229</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'This account is already terminated.'</span> };
+<span class="ln">230</span>  }
+<span class="ln">231</span>  <span class="kw">const</span> allowed = (subscriber.status === <span class="st">'Active'</span> &amp;&amp; (status === <span class="st">'Suspended'</span> || status === <span class="st">'Terminated'</span>))
+<span class="ln">232</span>    || (subscriber.status === <span class="st">'Suspended'</span> &amp;&amp; (status === <span class="st">'Active'</span> || status === <span class="st">'Terminated'</span>));
+<span class="ln">233</span>  <span class="kw">if</span> (!allowed) {                                               <span class="cm">// 2. only the allowed moves</span>
+<span class="ln">234</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'That change is not allowed.'</span> };
+<span class="ln">235</span>  }
+<span class="ln">236</span>  <span class="kw">const</span> verbs = { Active: <span class="st">'Reactivate'</span>, Suspended: <span class="st">'Suspend'</span>, Terminated: <span class="st">'Terminate'</span> };
+<span class="ln">237</span>  <span class="kw">const</span> before = snapshotFields(subscriber, [<span class="st">'status'</span>, <span class="st">'statusChangedAt'</span>]);   <span class="cm">// 3. remember the old values</span>
+<span class="ln">238</span>  subscriber.status = status;                                   <span class="cm">// 4. change the status</span>
+<span class="ln">239</span>  subscriber.statusChangedAt = nowISO();
+<span class="ln">240</span>  <span class="cm">// 5. one undo step (stack push)</span>
+<span class="ln">241</span>  pushUndo(verbs[status] + <span class="st">' '</span> + subscriber.fullName, [updateOperation(<span class="st">'subscribers'</span>, accountNo, before)], nameOfActor(actor));
+<span class="ln">242</span>  logActivity(<span class="st">'subscriber'</span>, verbs[status] + <span class="st">'d '</span> + subscriber.fullName + <span class="st">' ('</span> + accountNo + <span class="st">')'</span>, nameOfActor(actor));
+<span class="ln">243</span>  markDataChanged();
+<span class="ln">244</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, subscriber: subscriber };
+<span class="ln">245</span>}
 </pre>
   <ol class="explain">
     <li>Binary search for the account; a terminated account can never change again.</li>
@@ -1855,40 +1867,44 @@
     <li><span class="mono">snapshotFields</span> copies the old status and date so Undo can restore them.</li>
     <li>The change is made, one Undo step is pushed and the activity log records who did it.</li>
   </ol>
-  <p class="code-head"><span class="mono">assets/js/backend/subscribers.js</span> · lines 243–276</p><pre class="code"><span class="ln">243</span><span class="cm">/**</span>
-<span class="ln">244</span><span class="cm"> * changeSubscriberPlan — move an account to another plan (or a custom price).</span>
-<span class="ln">245</span><span class="cm"> * Bills already issued keep their amount; the next bill uses the new price.</span>
-<span class="ln">246</span><span class="cm"> * Time O(log n)</span>
-<span class="ln">247</span><span class="cm"> */</span>
-<span class="ln">248</span><span class="kw">function</span> changeSubscriberPlan(accountNo, planId, customPrice, actor) {
-<span class="ln">249</span>  <span class="kw">const</span> subscriber = findSubscriber(accountNo);
-<span class="ln">250</span>  <span class="kw">if</span> (!subscriber) {
-<span class="ln">251</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'Subscriber not found.'</span> };
-<span class="ln">252</span>  }
-<span class="ln">253</span>  <span class="kw">if</span> (subscriber.status === <span class="st">'Terminated'</span>) {
-<span class="ln">254</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'A terminated account can’t change plans.'</span> };
-<span class="ln">255</span>  }
-<span class="ln">256</span>  <span class="kw">let</span> price = <span class="kw">null</span>;
-<span class="ln">257</span>  <span class="kw">if</span> (planId === <span class="st">'custom'</span>) {
-<span class="ln">258</span>    price = Number(customPrice);
-<span class="ln">259</span>    <span class="kw">if</span> (!(price &gt;= 300 &amp;&amp; price &lt;= 20000)) {
-<span class="ln">260</span>      <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'Enter a monthly price from ₱300 to ₱20,000.'</span> };
-<span class="ln">261</span>    }
-<span class="ln">262</span>  } <span class="kw">else</span> <span class="kw">if</span> (!findPlan(planId)) {
-<span class="ln">263</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'Choose a plan.'</span> };
-<span class="ln">264</span>  }
-<span class="ln">265</span>  <span class="kw">if</span> (planId === subscriber.planId &amp;&amp; price === subscriber.customPrice) {
-<span class="ln">266</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'That is already the current plan.'</span> };
-<span class="ln">267</span>  }
-<span class="ln">268</span>  <span class="kw">const</span> before = snapshotFields(subscriber, [<span class="st">'planId'</span>, <span class="st">'customPrice'</span>]);
-<span class="ln">269</span>  <span class="kw">const</span> oldLabel = planName(subscriber.planId);
-<span class="ln">270</span>  subscriber.planId = planId;
-<span class="ln">271</span>  subscriber.customPrice = price;
-<span class="ln">272</span>  pushUndo(<span class="st">'Change '</span> + subscriber.fullName + <span class="st">' to '</span> + planName(planId), [updateOperation(<span class="st">'subscribers'</span>, accountNo, before)], nameOfActor(actor));
-<span class="ln">273</span>  logActivity(<span class="st">'subscriber'</span>, <span class="st">'Changed '</span> + subscriber.fullName + <span class="st">' from '</span> + oldLabel + <span class="st">' to '</span> + planName(planId), nameOfActor(actor));
-<span class="ln">274</span>  markDataChanged();
-<span class="ln">275</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, subscriber: subscriber };
-<span class="ln">276</span>}
+  <p class="code-head"><span class="mono">assets/js/backend/subscribers.js</span> · lines 247–284</p><pre class="code"><span class="ln">247</span><span class="cm">/**</span>
+<span class="ln">248</span><span class="cm"> * changeSubscriberPlan — move an account to another plan (or a custom price).</span>
+<span class="ln">249</span><span class="cm"> * Bills already issued keep their amount; the next bill uses the new price.</span>
+<span class="ln">250</span><span class="cm"> * Time O(log n)</span>
+<span class="ln">251</span><span class="cm"> */</span>
+<span class="ln">252</span><span class="kw">function</span> changeSubscriberPlan(accountNo, planId, customPrice, actor) {
+<span class="ln">253</span>  <span class="kw">const</span> stepUp = stepUpRequired();            <span class="cm">// 0. two-step verification: a Google Authenticator code in the last 5 minutes</span>
+<span class="ln">254</span>  <span class="kw">if</span> (stepUp) {
+<span class="ln">255</span>    <span class="kw">return</span> stepUp;
+<span class="ln">256</span>  }
+<span class="ln">257</span>  <span class="kw">const</span> subscriber = findSubscriber(accountNo);
+<span class="ln">258</span>  <span class="kw">if</span> (!subscriber) {
+<span class="ln">259</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'Subscriber not found.'</span> };
+<span class="ln">260</span>  }
+<span class="ln">261</span>  <span class="kw">if</span> (subscriber.status === <span class="st">'Terminated'</span>) {
+<span class="ln">262</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'A terminated account can’t change plans.'</span> };
+<span class="ln">263</span>  }
+<span class="ln">264</span>  <span class="kw">let</span> price = <span class="kw">null</span>;
+<span class="ln">265</span>  <span class="kw">if</span> (planId === <span class="st">'custom'</span>) {
+<span class="ln">266</span>    price = Number(customPrice);
+<span class="ln">267</span>    <span class="kw">if</span> (!(price &gt;= 300 &amp;&amp; price &lt;= 20000)) {
+<span class="ln">268</span>      <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'Enter a monthly price from ₱300 to ₱20,000.'</span> };
+<span class="ln">269</span>    }
+<span class="ln">270</span>  } <span class="kw">else</span> <span class="kw">if</span> (!findPlan(planId)) {
+<span class="ln">271</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'Choose a plan.'</span> };
+<span class="ln">272</span>  }
+<span class="ln">273</span>  <span class="kw">if</span> (planId === subscriber.planId &amp;&amp; price === subscriber.customPrice) {
+<span class="ln">274</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'That is already the current plan.'</span> };
+<span class="ln">275</span>  }
+<span class="ln">276</span>  <span class="kw">const</span> before = snapshotFields(subscriber, [<span class="st">'planId'</span>, <span class="st">'customPrice'</span>]);
+<span class="ln">277</span>  <span class="kw">const</span> oldLabel = planName(subscriber.planId);
+<span class="ln">278</span>  subscriber.planId = planId;
+<span class="ln">279</span>  subscriber.customPrice = price;
+<span class="ln">280</span>  pushUndo(<span class="st">'Change '</span> + subscriber.fullName + <span class="st">' to '</span> + planName(planId), [updateOperation(<span class="st">'subscribers'</span>, accountNo, before)], nameOfActor(actor));
+<span class="ln">281</span>  logActivity(<span class="st">'subscriber'</span>, <span class="st">'Changed '</span> + subscriber.fullName + <span class="st">' from '</span> + oldLabel + <span class="st">' to '</span> + planName(planId), nameOfActor(actor));
+<span class="ln">282</span>  markDataChanged();
+<span class="ln">283</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, subscriber: subscriber };
+<span class="ln">284</span>}
 </pre>
   <ol class="explain">
     <li>A custom price must be ₱300–₱20,000; a normal plan must exist (<span class="mono">findPlan</span>).</li>
@@ -2039,76 +2055,84 @@
     </div>
     <figure class="fig-narrow"><img src="img/m9-list-after.jpg" alt="Staff list"><figcaption>The staff list with the new member (“Temporary password”).</figcaption></figure>
     <h4>Trace — adding a member and the role rules (computed by our code)</h4>
-    <table class="t"><thead><tr><th>Step</th><th>Result</th></tr></thead><tbody><tr><td>Validate (hash-table look-up for the e-mail)</td><td><span class="ok">✓ no errors</span></td></tr><tr><td>New id (counter + 1, appended → ids stay sorted)</td><td><strong>STF-0006</strong></td></tr><tr><td>E-mail stored in lower case</td><td><span class="mono">paula.ignacio@e3fiberconnect.ph</span></td></tr><tr><td>Temporary password</td><td>10 random characters, shown once; stored only as hash <span class="mono">b06cbab5</span></td></tr><tr><td>Must change it at first sign-in</td><td><span class="ok">✓ yes</span></td></tr><tr><td>hashPut(e-mail → id)</td><td>bucket <strong>1</strong>: paula.ignacio@e3fiberconnect.ph → STF-0006</td></tr><tr><td>Hash table size</td><td>5 → 6 keys in 17 buckets (load 0.35 ≤ 0.75, so no resize)</td></tr></tbody></table><table class="t"><thead><tr><th>Rule checked</th><th>Message</th></tr></thead><tbody><tr><td>Same e-mail in capitals</td><td><span class="no">✗ That e-mail already has an account.</span></td></tr><tr><td>An Admin adding an Owner</td><td><span class="no">✗ Only the Owner can add another Owner.</span></td></tr><tr><td>Changing your own account</td><td><span class="no">✗ You can’t change this account.</span></td></tr><tr><td>An Admin changing the Owner</td><td><span class="no">✗ You can’t change this account.</span></td></tr></tbody></table>
+    <table class="t"><thead><tr><th>Step</th><th>Result</th></tr></thead><tbody><tr><td>Validate (hash-table look-up for the e-mail)</td><td><span class="ok">✓ no errors</span></td></tr><tr><td>New id (counter + 1, appended → ids stay sorted)</td><td><strong>STF-0006</strong></td></tr><tr><td>E-mail stored in lower case</td><td><span class="mono">paula.ignacio@e3fiberconnect.ph</span></td></tr><tr><td>Temporary password</td><td>10 random characters, shown once; stored only as hash <span class="mono">a9d05965</span></td></tr><tr><td>Must change it at first sign-in</td><td><span class="ok">✓ yes</span></td></tr><tr><td>hashPut(e-mail → id)</td><td>bucket <strong>1</strong>: paula.ignacio@e3fiberconnect.ph → STF-0006</td></tr><tr><td>Hash table size</td><td>5 → 6 keys in 17 buckets (load 0.35 ≤ 0.75, so no resize)</td></tr></tbody></table><table class="t"><thead><tr><th>Rule checked</th><th>Message</th></tr></thead><tbody><tr><td>Same e-mail in capitals</td><td><span class="no">✗ That e-mail already has an account.</span></td></tr><tr><td>An Admin adding an Owner</td><td><span class="no">✗ Only the Owner can add another Owner.</span></td></tr><tr><td>Changing your own account</td><td><span class="no">✗ You can’t change this account.</span></td></tr><tr><td>An Admin changing the Owner</td><td><span class="no">✗ You can’t change this account.</span></td></tr></tbody></table>
   </div>
 
   <h3>Code walkthrough</h3>
-  <p class="code-head"><span class="mono">assets/js/backend/staff.js</span> · lines 124–158</p><pre class="code"><span class="ln">124</span><span class="cm">/**</span>
+  <p class="code-head"><span class="mono">assets/js/backend/staff.js</span> · lines 124–162</p><pre class="code"><span class="ln">124</span><span class="cm">/**</span>
 <span class="ln">125</span><span class="cm"> * addStaff — create an account with a temporary password. Returns the password</span>
 <span class="ln">126</span><span class="cm"> * once, so it can be shown to the admin (it is only stored as a hash).</span>
 <span class="ln">127</span><span class="cm"> * Time O(1) append + O(1) hash put · Space O(1)</span>
 <span class="ln">128</span><span class="cm"> */</span>
 <span class="ln">129</span><span class="kw">function</span> addStaff(data, actor) {
-<span class="ln">130</span>  <span class="kw">if</span> (!canManageStaff(actor)) {                     <span class="cm">// 1. only Owners and Admins add staff</span>
-<span class="ln">131</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: { fullName: <span class="st">'Only an Owner or Admin can add staff.'</span> } };
-<span class="ln">132</span>  }
-<span class="ln">133</span>  <span class="kw">const</span> errors = validateNewStaff(data, actor);     <span class="cm">// 2. check the fields (e-mail through the hash table)</span>
-<span class="ln">134</span>  <span class="kw">if</span> (hasAnyErrors(errors)) {
-<span class="ln">135</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: errors };
+<span class="ln">130</span>  <span class="kw">const</span> stepUp = stepUpRequired();                  <span class="cm">// 0. two-step verification: a Google Authenticator code in the last 5 minutes</span>
+<span class="ln">131</span>  <span class="kw">if</span> (stepUp) {
+<span class="ln">132</span>    <span class="kw">return</span> stepUp;
+<span class="ln">133</span>  }
+<span class="ln">134</span>  <span class="kw">if</span> (!canManageStaff(actor)) {                     <span class="cm">// 1. only Owners and Admins add staff</span>
+<span class="ln">135</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: { fullName: <span class="st">'Only an Owner or Admin can add staff.'</span> } };
 <span class="ln">136</span>  }
-<span class="ln">137</span>  counters.staff = counters.staff + 1;              <span class="cm">// 3. the next staff id, e.g. STF-0006</span>
-<span class="ln">138</span>  <span class="kw">const</span> id = formatStaffId(counters.staff);
-<span class="ln">139</span>  <span class="kw">const</span> tempPassword = generateTempPassword();      <span class="cm">// 4. a random temporary password</span>
-<span class="ln">140</span>  <span class="kw">const</span> member = {
-<span class="ln">141</span>    id: id,
-<span class="ln">142</span>    fullName: collapseSpaces(data.fullName),
-<span class="ln">143</span>    email: toLowerText(trimText(data.email)),
-<span class="ln">144</span>    role: data.role,
-<span class="ln">145</span>    status: <span class="st">'Active'</span>,
-<span class="ln">146</span>    startDate: data.startDate,
-<span class="ln">147</span>    lastSignIn: <span class="kw">null</span>,
-<span class="ln">148</span>    passwordHash: hashPassword(tempPassword, id),
-<span class="ln">149</span>    passwordSalt: id,
-<span class="ln">150</span>    mustChangePassword: <span class="kw">true</span>,
-<span class="ln">151</span>  };
-<span class="ln">152</span>  arrayAppend(staffMembers, member);          <span class="cm">// 5. ids increase → the table stays sorted</span>
-<span class="ln">153</span>  hashPut(staffEmailIndex, member.email, id); <span class="cm">// 6. index the e-mail for sign-in</span>
-<span class="ln">154</span>  pushUndo(<span class="st">'Add staff '</span> + member.fullName, [insertOperation(<span class="st">'staffMembers'</span>, id)], nameOfActor(actor)); <span class="cm">// 7. undo step</span>
-<span class="ln">155</span>  logActivity(<span class="st">'staff'</span>, <span class="st">'Added '</span> + member.fullName + <span class="st">' as '</span> + member.role, nameOfActor(actor));
-<span class="ln">156</span>  markDataChanged();
-<span class="ln">157</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, staff: member, tempPassword: tempPassword };
-<span class="ln">158</span>}
+<span class="ln">137</span>  <span class="kw">const</span> errors = validateNewStaff(data, actor);     <span class="cm">// 2. check the fields (e-mail through the hash table)</span>
+<span class="ln">138</span>  <span class="kw">if</span> (hasAnyErrors(errors)) {
+<span class="ln">139</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: errors };
+<span class="ln">140</span>  }
+<span class="ln">141</span>  counters.staff = counters.staff + 1;              <span class="cm">// 3. the next staff id, e.g. STF-0006</span>
+<span class="ln">142</span>  <span class="kw">const</span> id = formatStaffId(counters.staff);
+<span class="ln">143</span>  <span class="kw">const</span> tempPassword = generateTempPassword();      <span class="cm">// 4. a random temporary password</span>
+<span class="ln">144</span>  <span class="kw">const</span> member = {
+<span class="ln">145</span>    id: id,
+<span class="ln">146</span>    fullName: collapseSpaces(data.fullName),
+<span class="ln">147</span>    email: toLowerText(trimText(data.email)),
+<span class="ln">148</span>    role: data.role,
+<span class="ln">149</span>    status: <span class="st">'Active'</span>,
+<span class="ln">150</span>    startDate: data.startDate,
+<span class="ln">151</span>    lastSignIn: <span class="kw">null</span>,
+<span class="ln">152</span>    passwordHash: hashPassword(tempPassword, id),
+<span class="ln">153</span>    passwordSalt: id,
+<span class="ln">154</span>    mustChangePassword: <span class="kw">true</span>,
+<span class="ln">155</span>  };
+<span class="ln">156</span>  arrayAppend(staffMembers, member);          <span class="cm">// 5. ids increase → the table stays sorted</span>
+<span class="ln">157</span>  hashPut(staffEmailIndex, member.email, id); <span class="cm">// 6. index the e-mail for sign-in</span>
+<span class="ln">158</span>  pushUndo(<span class="st">'Add staff '</span> + member.fullName, [insertOperation(<span class="st">'staffMembers'</span>, id)], nameOfActor(actor)); <span class="cm">// 7. undo step</span>
+<span class="ln">159</span>  logActivity(<span class="st">'staff'</span>, <span class="st">'Added '</span> + member.fullName + <span class="st">' as '</span> + member.role, nameOfActor(actor));
+<span class="ln">160</span>  markDataChanged();
+<span class="ln">161</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, staff: member, tempPassword: tempPassword };
+<span class="ln">162</span>}
 </pre>
   <ol class="explain">
     <li>Steps 1–2: permission, then field checks (the e-mail goes through the hash table).</li>
     <li>Steps 3–4: next id and a random temporary password; the record stores only <span class="mono">hashPassword(tempPassword, id)</span>.</li>
     <li>Steps 5–7: append (sorted by id), index the e-mail, push one Undo step, log it, and return the temporary password once so the screen can show it.</li>
   </ol>
-  <p class="code-head"><span class="mono">assets/js/backend/staff.js</span> · lines 160–184</p><pre class="code"><span class="ln">160</span><span class="cm">/**</span>
-<span class="ln">161</span><span class="cm"> * setStaffStatus — suspend, reactivate or delete a staff account.</span>
-<span class="ln">162</span><span class="cm"> * Time O(log n)</span>
-<span class="ln">163</span><span class="cm"> */</span>
-<span class="ln">164</span><span class="kw">function</span> setStaffStatus(id, status, actor) {
-<span class="ln">165</span>  <span class="kw">const</span> member = findStaffById(id);
-<span class="ln">166</span>  <span class="kw">if</span> (!member) {
-<span class="ln">167</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'Staff member not found.'</span> };
-<span class="ln">168</span>  }
-<span class="ln">169</span>  <span class="kw">if</span> (!canManageMember(actor, member)) {
-<span class="ln">170</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'You can’t change this account.'</span> };
-<span class="ln">171</span>  }
-<span class="ln">172</span>  <span class="kw">const</span> allowed = (member.status === <span class="st">'Active'</span> &amp;&amp; (status === <span class="st">'Suspended'</span> || status === <span class="st">'Deleted'</span>))
-<span class="ln">173</span>    || (member.status === <span class="st">'Suspended'</span> &amp;&amp; (status === <span class="st">'Active'</span> || status === <span class="st">'Deleted'</span>));
-<span class="ln">174</span>  <span class="kw">if</span> (!allowed) {
-<span class="ln">175</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'That change is not allowed.'</span> };
+  <p class="code-head"><span class="mono">assets/js/backend/staff.js</span> · lines 164–192</p><pre class="code"><span class="ln">164</span><span class="cm">/**</span>
+<span class="ln">165</span><span class="cm"> * setStaffStatus — suspend, reactivate or delete a staff account.</span>
+<span class="ln">166</span><span class="cm"> * Time O(log n)</span>
+<span class="ln">167</span><span class="cm"> */</span>
+<span class="ln">168</span><span class="kw">function</span> setStaffStatus(id, status, actor) {
+<span class="ln">169</span>  <span class="kw">const</span> stepUp = stepUpRequired();            <span class="cm">// 0. two-step verification: a Google Authenticator code in the last 5 minutes</span>
+<span class="ln">170</span>  <span class="kw">if</span> (stepUp) {
+<span class="ln">171</span>    <span class="kw">return</span> stepUp;
+<span class="ln">172</span>  }
+<span class="ln">173</span>  <span class="kw">const</span> member = findStaffById(id);
+<span class="ln">174</span>  <span class="kw">if</span> (!member) {
+<span class="ln">175</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'Staff member not found.'</span> };
 <span class="ln">176</span>  }
-<span class="ln">177</span>  <span class="kw">const</span> verbs = { Active: <span class="st">'Reactivate'</span>, Suspended: <span class="st">'Suspend'</span>, Deleted: <span class="st">'Delete'</span> };
-<span class="ln">178</span>  <span class="kw">const</span> before = snapshotFields(member, [<span class="st">'status'</span>]);
-<span class="ln">179</span>  member.status = status;
-<span class="ln">180</span>  pushUndo(verbs[status] + <span class="st">' '</span> + member.fullName, [updateOperation(<span class="st">'staffMembers'</span>, id, before)], nameOfActor(actor));
-<span class="ln">181</span>  logActivity(<span class="st">'staff'</span>, verbs[status] + <span class="st">'d '</span> + member.fullName, nameOfActor(actor));
-<span class="ln">182</span>  markDataChanged();
-<span class="ln">183</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, staff: member };
-<span class="ln">184</span>}
+<span class="ln">177</span>  <span class="kw">if</span> (!canManageMember(actor, member)) {
+<span class="ln">178</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'You can’t change this account.'</span> };
+<span class="ln">179</span>  }
+<span class="ln">180</span>  <span class="kw">const</span> allowed = (member.status === <span class="st">'Active'</span> &amp;&amp; (status === <span class="st">'Suspended'</span> || status === <span class="st">'Deleted'</span>))
+<span class="ln">181</span>    || (member.status === <span class="st">'Suspended'</span> &amp;&amp; (status === <span class="st">'Active'</span> || status === <span class="st">'Deleted'</span>));
+<span class="ln">182</span>  <span class="kw">if</span> (!allowed) {
+<span class="ln">183</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'That change is not allowed.'</span> };
+<span class="ln">184</span>  }
+<span class="ln">185</span>  <span class="kw">const</span> verbs = { Active: <span class="st">'Reactivate'</span>, Suspended: <span class="st">'Suspend'</span>, Deleted: <span class="st">'Delete'</span> };
+<span class="ln">186</span>  <span class="kw">const</span> before = snapshotFields(member, [<span class="st">'status'</span>]);
+<span class="ln">187</span>  member.status = status;
+<span class="ln">188</span>  pushUndo(verbs[status] + <span class="st">' '</span> + member.fullName, [updateOperation(<span class="st">'staffMembers'</span>, id, before)], nameOfActor(actor));
+<span class="ln">189</span>  logActivity(<span class="st">'staff'</span>, verbs[status] + <span class="st">'d '</span> + member.fullName, nameOfActor(actor));
+<span class="ln">190</span>  markDataChanged();
+<span class="ln">191</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, staff: member };
+<span class="ln">192</span>}
 </pre>
   <ol class="explain">
     <li>Binary search for the member; <span class="mono">canManageMember</span> applies the role rules (not yourself, Admins can’t change the Owner, not a deleted account).</li>
@@ -2351,53 +2375,57 @@
     <li>Three checks, each with a plain-language detail for the reviewer; the second is the hash-table look-up.</li>
     <li>The first failed check becomes the reason the Approve button is disabled.</li>
   </ol>
-  <p class="code-head"><span class="mono">assets/js/backend/registrations.js</span> · lines 178–224</p><pre class="code"><span class="ln">178</span><span class="cm">/**</span>
+  <p class="code-head"><span class="mono">assets/js/backend/registrations.js</span> · lines 178–228</p><pre class="code"><span class="ln">178</span><span class="cm">/**</span>
 <span class="ln">179</span><span class="cm"> * approveRegistration — Pending → Approved. Creates the staff account with the</span>
 <span class="ln">180</span><span class="cm"> * role and the (hashed) password from the request, and puts the e-mail in the</span>
 <span class="ln">181</span><span class="cm"> * hash table. One undo step removes the account and re-opens the request.</span>
 <span class="ln">182</span><span class="cm"> * Time O(log n) + O(1) append + O(1) average hash put · Space O(1)</span>
 <span class="ln">183</span><span class="cm"> */</span>
 <span class="ln">184</span><span class="kw">function</span> approveRegistration(registrationId, actor) {
-<span class="ln">185</span>  <span class="kw">const</span> request = findRegistration(registrationId);           <span class="cm">// 1. binary search by request id</span>
-<span class="ln">186</span>  <span class="kw">if</span> (!request) {
-<span class="ln">187</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'Registration not found.'</span> };
+<span class="ln">185</span>  <span class="kw">const</span> stepUp = stepUpRequired();                            <span class="cm">// 0. two-step verification: a Google Authenticator code in the last 5 minutes</span>
+<span class="ln">186</span>  <span class="kw">if</span> (stepUp) {
+<span class="ln">187</span>    <span class="kw">return</span> stepUp;
 <span class="ln">188</span>  }
-<span class="ln">189</span>  <span class="kw">if</span> (request.status !== <span class="st">'Pending'</span>) {
-<span class="ln">190</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'This request was already '</span> + toLowerText(request.status) + <span class="st">'.'</span> };
-<span class="ln">191</span>  }
-<span class="ln">192</span>  <span class="kw">const</span> review = registrationChecks(request, actor);          <span class="cm">// 2. work e-mail, e-mail free (hash table), reviewer allowed</span>
-<span class="ln">193</span>  <span class="kw">if</span> (!review.passed) {
-<span class="ln">194</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'Can’t approve — '</span> + review.firstFailure.text };
+<span class="ln">189</span>  <span class="kw">const</span> request = findRegistration(registrationId);           <span class="cm">// 1. binary search by request id</span>
+<span class="ln">190</span>  <span class="kw">if</span> (!request) {
+<span class="ln">191</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'Registration not found.'</span> };
+<span class="ln">192</span>  }
+<span class="ln">193</span>  <span class="kw">if</span> (request.status !== <span class="st">'Pending'</span>) {
+<span class="ln">194</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'This request was already '</span> + toLowerText(request.status) + <span class="st">'.'</span> };
 <span class="ln">195</span>  }
-<span class="ln">196</span>  counters.staff = counters.staff + 1;                        <span class="cm">// 3. build the staff account with the chosen password hash</span>
-<span class="ln">197</span>  <span class="kw">const</span> id = formatStaffId(counters.staff);
-<span class="ln">198</span>  <span class="kw">const</span> member = {
-<span class="ln">199</span>    id: id,
-<span class="ln">200</span>    fullName: request.fullName,
-<span class="ln">201</span>    email: request.email,
-<span class="ln">202</span>    role: request.role,
-<span class="ln">203</span>    status: <span class="st">'Active'</span>,
-<span class="ln">204</span>    startDate: todayISO(),
-<span class="ln">205</span>    lastSignIn: <span class="kw">null</span>,
-<span class="ln">206</span>    passwordHash: request.passwordHash,
-<span class="ln">207</span>    passwordSalt: request.passwordSalt,
-<span class="ln">208</span>    mustChangePassword: <span class="kw">false</span>,
-<span class="ln">209</span>  };
-<span class="ln">210</span>  arrayAppend(staffMembers, member);          <span class="cm">// 4. ids increase → the table stays sorted</span>
-<span class="ln">211</span>  hashPut(staffEmailIndex, member.email, id); <span class="cm">// 5. index the e-mail so the new member can sign in</span>
-<span class="ln">212</span>  <span class="kw">const</span> before = snapshotFields(request, [<span class="st">'status'</span>, <span class="st">'reviewedBy'</span>, <span class="st">'reviewedAt'</span>, <span class="st">'staffId'</span>]);
-<span class="ln">213</span>  request.status = <span class="st">'Approved'</span>;                <span class="cm">// 6. mark the request approved (it leaves the queue)</span>
-<span class="ln">214</span>  request.reviewedBy = nameOfActor(actor);
-<span class="ln">215</span>  request.reviewedAt = nowISO();
-<span class="ln">216</span>  request.staffId = id;
-<span class="ln">217</span>  pushUndo(<span class="st">'Approve '</span> + request.fullName + <span class="st">' as '</span> + request.role, [
-<span class="ln">218</span>    updateOperation(<span class="st">'registrations'</span>, registrationId, before),
-<span class="ln">219</span>    insertOperation(<span class="st">'staffMembers'</span>, id),
-<span class="ln">220</span>  ], nameOfActor(actor));
-<span class="ln">221</span>  logActivity(<span class="st">'staff'</span>, <span class="st">'Approved registration '</span> + registrationId + <span class="st">' — '</span> + request.fullName + <span class="st">' joined as '</span> + request.role + <span class="st">' ('</span> + id + <span class="st">')'</span>, nameOfActor(actor));
-<span class="ln">222</span>  markDataChanged();
-<span class="ln">223</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, registration: request, staff: member };
-<span class="ln">224</span>}
+<span class="ln">196</span>  <span class="kw">const</span> review = registrationChecks(request, actor);          <span class="cm">// 2. work e-mail, e-mail free (hash table), reviewer allowed</span>
+<span class="ln">197</span>  <span class="kw">if</span> (!review.passed) {
+<span class="ln">198</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'Can’t approve — '</span> + review.firstFailure.text };
+<span class="ln">199</span>  }
+<span class="ln">200</span>  counters.staff = counters.staff + 1;                        <span class="cm">// 3. build the staff account with the chosen password hash</span>
+<span class="ln">201</span>  <span class="kw">const</span> id = formatStaffId(counters.staff);
+<span class="ln">202</span>  <span class="kw">const</span> member = {
+<span class="ln">203</span>    id: id,
+<span class="ln">204</span>    fullName: request.fullName,
+<span class="ln">205</span>    email: request.email,
+<span class="ln">206</span>    role: request.role,
+<span class="ln">207</span>    status: <span class="st">'Active'</span>,
+<span class="ln">208</span>    startDate: todayISO(),
+<span class="ln">209</span>    lastSignIn: <span class="kw">null</span>,
+<span class="ln">210</span>    passwordHash: request.passwordHash,
+<span class="ln">211</span>    passwordSalt: request.passwordSalt,
+<span class="ln">212</span>    mustChangePassword: <span class="kw">false</span>,
+<span class="ln">213</span>  };
+<span class="ln">214</span>  arrayAppend(staffMembers, member);          <span class="cm">// 4. ids increase → the table stays sorted</span>
+<span class="ln">215</span>  hashPut(staffEmailIndex, member.email, id); <span class="cm">// 5. index the e-mail so the new member can sign in</span>
+<span class="ln">216</span>  <span class="kw">const</span> before = snapshotFields(request, [<span class="st">'status'</span>, <span class="st">'reviewedBy'</span>, <span class="st">'reviewedAt'</span>, <span class="st">'staffId'</span>]);
+<span class="ln">217</span>  request.status = <span class="st">'Approved'</span>;                <span class="cm">// 6. mark the request approved (it leaves the queue)</span>
+<span class="ln">218</span>  request.reviewedBy = nameOfActor(actor);
+<span class="ln">219</span>  request.reviewedAt = nowISO();
+<span class="ln">220</span>  request.staffId = id;
+<span class="ln">221</span>  pushUndo(<span class="st">'Approve '</span> + request.fullName + <span class="st">' as '</span> + request.role, [
+<span class="ln">222</span>    updateOperation(<span class="st">'registrations'</span>, registrationId, before),
+<span class="ln">223</span>    insertOperation(<span class="st">'staffMembers'</span>, id),
+<span class="ln">224</span>  ], nameOfActor(actor));
+<span class="ln">225</span>  logActivity(<span class="st">'staff'</span>, <span class="st">'Approved registration '</span> + registrationId + <span class="st">' — '</span> + request.fullName + <span class="st">' joined as '</span> + request.role + <span class="st">' ('</span> + id + <span class="st">')'</span>, nameOfActor(actor));
+<span class="ln">226</span>  markDataChanged();
+<span class="ln">227</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, registration: request, staff: member };
+<span class="ln">228</span>}
 </pre>
   <ol class="explain">
     <li>Binary search, then refuse anything not pending or not passing the checks.</li>
@@ -2738,7 +2766,7 @@
       <figure class="fig-narrow"><img src="img/m12-new-bill.jpg" alt="New bill sheet"><figcaption>“New bill” — already-billed accounts are disabled.</figcaption></figure>
     </div>
     <h4>Trace — periods and a generation run (computed by our code)</h4>
-    <table class="t"><thead><tr><th>Connected on</th><th>Bill for</th><th>Period</th><th>Due (start + 15 days)</th><th>Why</th></tr></thead><tbody><tr><td>2026-08-15</td><td>September 2026</td><td>2026-09-15 → 2026-10-14</td><td>2026-09-30</td><td>normal month: same day each month</td></tr><tr><td>2026-01-31</td><td>February 2026</td><td>2026-02-28 → 2026-03-30</td><td>2026-03-15</td><td>February has no 31st → its last day is used</td></tr></tbody></table><p><strong>Generate bills for 2026-10:</strong> 6 bills created, total ₱6,300. Bills table: 21 → 27 records, still sorted by id: <span class="ok">✓ verified</span>. Skipped (not active): Jerome Santiago (Terminated), Patricia Gonzales (Suspended).</p><table class="t"><thead><tr><th>Example bill</th><th>Value</th></tr></thead><tbody><tr><td>Subscriber (connected on)</td><td>Liza Fernandez (2026-07-12)</td></tr><tr><td>Bill id</td><td><span class="mono">BILL-202610-004871</span></td></tr><tr><td>Period</td><td>2026-10-12 → 2026-11-11</td></tr><tr><td>Due date</td><td>2026-10-27</td></tr><tr><td>Amount (plan price)</td><td>₱800</td></tr></tbody></table><p>Clicking <em>Generate</em> again: “Every active subscriber already has a bill for October 2026.” (each bill id was found by binary search). Undo stack top: “Generate 6 bills for October 2026” holding <strong>6 insert operations</strong> — one Undo removes all of them.</p>
+    <table class="t"><thead><tr><th>Connected on</th><th>Bill for</th><th>Period</th><th>Due (start + 15 days)</th><th>Why</th></tr></thead><tbody><tr><td>2026-08-15</td><td>September 2026</td><td>2026-09-15 → 2026-10-14</td><td>2026-09-30</td><td>normal month: same day each month</td></tr><tr><td>2026-01-31</td><td>February 2026</td><td>2026-02-28 → 2026-03-30</td><td>2026-03-15</td><td>February has no 31st → its last day is used</td></tr></tbody></table><p><strong>Generate bills for 2026-10:</strong> 6 bills created, total ₱6,300. Bills table: 21 → 27 records, still sorted by id: <span class="ok">✓ verified</span>. Skipped (not active): Jerome Santiago (Terminated), Patricia Gonzales (Suspended).</p><table class="t"><thead><tr><th>Example bill</th><th>Value</th></tr></thead><tbody><tr><td>Subscriber (connected on)</td><td>Liza Fernandez (2026-07-13)</td></tr><tr><td>Bill id</td><td><span class="mono">BILL-202610-004871</span></td></tr><tr><td>Period</td><td>2026-10-13 → 2026-11-12</td></tr><tr><td>Due date</td><td>2026-10-28</td></tr><tr><td>Amount (plan price)</td><td>₱800</td></tr></tbody></table><p>Clicking <em>Generate</em> again: “Every active subscriber already has a bill for October 2026.” (each bill id was found by binary search). Undo stack top: “Generate 6 bills for October 2026” holding <strong>6 insert operations</strong> — one Undo removes all of them.</p>
   </div>
 
   <h3>Code walkthrough</h3>
@@ -2987,7 +3015,7 @@
       <figure><img src="img/m13-decline.jpg" alt="Decline with reason"><figcaption>Decline: the reason is suggested from the failed check.</figcaption></figure>
     </div>
     <h4>Trace — the queue, the five checks and the hash table (computed by our code)</h4>
-    <p>The validation queue (circular buffer, front = oldest report):</p><div class="arr"><span class="cell front">PAY-000002<small>[0] front</small></span><span class="cell">PAY-000003<small>[1]</small></span><span class="cell">PAY-000004<small>[2]</small></span><span class="cell">PAY-000005<small>[3]</small></span></div><table class="t"><thead><tr><th>Payment</th><th>1. Bill belongs to the account</th><th>2. Bill is still unpaid</th><th>3. Amount matches the bill</th><th>4. Reference number format</th><th>5. Reference number not used before</th><th>Verdict</th></tr></thead><tbody><tr><td><strong>PAY-000002</strong><br>Kristine Ramos<br><span class="muted">GCash · ₱800</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ Confirm</span></td></tr><tr><td><strong>PAY-000003</strong><br>Liza Fernandez<br><span class="muted">Maya · ₱800</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ no</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ Decline</span></td></tr><tr><td><strong>PAY-000004</strong><br>Patricia Gonzales<br><span class="muted">GCash · ₱1,000</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ no</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ Decline</span></td></tr><tr><td><strong>PAY-000005</strong><br>Mark Bautista<br><span class="muted">GCash · ₱1,000</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ no</span></td><td><span class="no">✗ Decline</span></td></tr></tbody></table><table class="t"><thead><tr><th>Payment</th><th>The failed check says</th><th>Suggested reason for the customer</th></tr></thead><tbody><tr><td>PAY-000003 Liza Fernandez</td><td>Already paid on Sep 24, 2026 (Office payment).</td><td>“This bill was already paid, so this payment was not applied. Please contact us if you paid twice.”</td></tr><tr><td>PAY-000004 Patricia Gonzales</td><td>Paid ₱1,000 for a ₱1,200 bill — ₱200 short.</td><td>“You sent ₱1,000 but the bill is ₱1,200. Please visit our office so we can settle the difference.”</td></tr><tr><td>PAY-000005 Mark Bautista</td><td>Already used by PAY-000001 (Angelica Cruz, confirmed).</td><td>“This reference number was already used for another payment. Please check your receipt.”</td></tr></tbody></table><p><strong>The reference hash table</strong> (key <span class="mono">METHOD:REFERENCE</span> → payment ids):</p><table class="t"><thead><tr><th class="num">Bucket</th><th>Key</th><th>Payment ids</th></tr></thead><tbody><tr><td class="num">3</td><td><span class="mono">GCASH:7204519833102</span></td><td>PAY-000002</td></tr><tr><td class="num">12</td><td><span class="mono">MAYA:4F7K2M9Q1T8B</span></td><td>PAY-000003</td></tr><tr><td class="num">13</td><td><span class="mono">GCASH:8830146527015</span></td><td>PAY-000004</td></tr><tr><td class="num">15</td><td><span class="mono">GCASH:5012873246119</span></td><td>PAY-000001, PAY-000005 <span class="no">✗ used twice</span></td></tr></tbody></table><p><strong>Reference formats (check 4):</strong> GCash — 13 digits (e.g. <span class="mono">5012 873 246 119</span>); Maya — 12 letters or digits (e.g. <span class="mono">4F7K 2M9Q 1T8B</span>); Bank transfer — 8–20 letters or digits (e.g. <span class="mono">FT26 0918 8830</span>); Over the counter — 8–20 letters or digits (e.g. <span class="mono">BC26 0918 0457</span>).</p>
+    <p>The validation queue (circular buffer, front = oldest report):</p><div class="arr"><span class="cell front">PAY-000002<small>[0] front</small></span><span class="cell">PAY-000003<small>[1]</small></span><span class="cell">PAY-000004<small>[2]</small></span><span class="cell">PAY-000005<small>[3]</small></span></div><table class="t"><thead><tr><th>Payment</th><th>1. Bill belongs to the account</th><th>2. Bill is still unpaid</th><th>3. Amount matches the bill</th><th>4. Reference number format</th><th>5. Reference number not used before</th><th>Verdict</th></tr></thead><tbody><tr><td><strong>PAY-000002</strong><br>Kristine Ramos<br><span class="muted">GCash · ₱800</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ Confirm</span></td></tr><tr><td><strong>PAY-000003</strong><br>Liza Fernandez<br><span class="muted">Maya · ₱800</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ no</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ Decline</span></td></tr><tr><td><strong>PAY-000004</strong><br>Patricia Gonzales<br><span class="muted">GCash · ₱1,000</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ no</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ Decline</span></td></tr><tr><td><strong>PAY-000005</strong><br>Mark Bautista<br><span class="muted">GCash · ₱1,000</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ no</span></td><td><span class="no">✗ Decline</span></td></tr></tbody></table><table class="t"><thead><tr><th>Payment</th><th>The failed check says</th><th>Suggested reason for the customer</th></tr></thead><tbody><tr><td>PAY-000003 Liza Fernandez</td><td>Already paid on Sep 25, 2026 (Office payment).</td><td>“This bill was already paid, so this payment was not applied. Please contact us if you paid twice.”</td></tr><tr><td>PAY-000004 Patricia Gonzales</td><td>Paid ₱1,000 for a ₱1,200 bill — ₱200 short.</td><td>“You sent ₱1,000 but the bill is ₱1,200. Please visit our office so we can settle the difference.”</td></tr><tr><td>PAY-000005 Mark Bautista</td><td>Already used by PAY-000001 (Angelica Cruz, confirmed).</td><td>“This reference number was already used for another payment. Please check your receipt.”</td></tr></tbody></table><p><strong>The reference hash table</strong> (key <span class="mono">METHOD:REFERENCE</span> → payment ids):</p><table class="t"><thead><tr><th class="num">Bucket</th><th>Key</th><th>Payment ids</th></tr></thead><tbody><tr><td class="num">3</td><td><span class="mono">GCASH:7204519833102</span></td><td>PAY-000002</td></tr><tr><td class="num">12</td><td><span class="mono">MAYA:4F7K2M9Q1T8B</span></td><td>PAY-000003</td></tr><tr><td class="num">13</td><td><span class="mono">GCASH:8830146527015</span></td><td>PAY-000004</td></tr><tr><td class="num">15</td><td><span class="mono">GCASH:5012873246119</span></td><td>PAY-000001, PAY-000005 <span class="no">✗ used twice</span></td></tr></tbody></table><p><strong>Reference formats (check 4):</strong> GCash — 13 digits (e.g. <span class="mono">5012 873 246 119</span>); Maya — 12 letters or digits (e.g. <span class="mono">4F7K 2M9Q 1T8B</span>); Bank transfer — 8–20 letters or digits (e.g. <span class="mono">FT26 0918 8830</span>); Over the counter — 8–20 letters or digits (e.g. <span class="mono">BC26 0918 0457</span>).</p>
   </div>
 
   <h3>Code walkthrough</h3>

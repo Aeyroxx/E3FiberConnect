@@ -123,6 +123,23 @@ Scripts are plain `<script>` files loaded in order (DSA → backend → UI → s
   reload starts light again. Respects *reduce motion*, *reduce transparency* and *increase contrast*.
   Tables turn into cards on phones and tablets.
 
+## Two-step verification (Google Authenticator)
+
+Password changes and every change to an account — adding staff, approving a staff request, staff suspend /
+reactivate / delete / password reset, subscriber suspend / reactivate / terminate / plan change, and **undoing** any
+of these — ask for a 6-digit code from **Google Authenticator** (or any TOTP app). The first time, the “Set up
+Google Authenticator” sheet asks for the account **password** (so a session left signed in can’t link someone else’s
+phone), then shows a QR code (and a setup key / an “Add to Google Authenticator” button on phones). Moving to a new
+phone needs the password and a code from the old one. A correct code covers further changes for 5 minutes; the
+window ends at sign-out. Wrong codes shake the boxes; five in a row pause entry for 30 seconds, and each further
+pause doubles (up to 15 minutes); a code can’t be used twice; an unfinished setup expires after 10 minutes. An Owner
+(or an Admin, for Support staff) can **reset** a colleague’s authenticator from the Staff page (lost phone). The
+backend functions themselves refuse the change without a recent code.
+
+Everything is written by hand, without libraries: **SHA-1**, **HMAC-SHA1**, **Base32**, **TOTP** (RFC 6238) in
+`assets/js/backend/twofactor.js`, and a **QR code encoder** (Reed–Solomon error correction, masks) in
+`assets/js/backend/qrcode.js`. The sheet is `assets/js/views/admin/twofactor.js`.
+
 ## Data privacy (RA 10173)
 
 The site is designed to comply with the **Data Privacy Act of 2012 (Republic Act No. 10173)**:

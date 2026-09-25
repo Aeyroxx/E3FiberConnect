@@ -865,6 +865,7 @@
           <ul>
             <li>Only signed-in staff can open customer records, and what each person can do depends on their role (Owner, Admin or Support).</li>
             <li>Every staff action is written to an activity log, so each change can be traced to the person who made it.</li>
+            <li>Password and account changes need two-step verification: a 6-digit code from Google Authenticator on the staff member’s phone.</li>
             <li>Passwords are never stored as typed — only as salted hashes — and repeated wrong passwords pause sign-in.</li>
             <li>Staff must keep personal data confidential, even after they leave E3 Fiber Connect (Sec. 20(e)).</li>
             <li>Our messages never reveal whether someone else’s account, e-mail or reference number exists.</li>
@@ -1949,7 +1950,7 @@
           <div class="page-header">
             <div>
               <h1 class="page-title" id="accountTitle">Account</h1>
-              <p class="page-subtitle">Your profile and password.</p>
+              <p class="page-subtitle">Your profile, password and two-step verification.</p>
             </div>
           </div>
           <div class="callout tone-orange mb-3" id="accountMustChange" hidden>
@@ -1988,6 +1989,10 @@
                   </div>
                 </form>
               </div>
+            </section>
+            <section class="panel" aria-labelledby="twoFactorTitle">
+              <div class="panel-header"><h2 class="panel-title" id="twoFactorTitle">Two-step verification</h2></div>
+              <div class="panel-body" id="accountTwoFactor"></div>
             </section>
           </div>
         </section>
@@ -2127,6 +2132,59 @@
     </form>
   </section>
 
+  <section class="sheet otp-sheet" id="sheetOtp" role="dialog" aria-modal="true" aria-labelledby="otpTitle" aria-describedby="otpText" tabindex="-1" hidden>
+    <div class="sheet-grabber" aria-hidden="true"></div>
+    <div class="sheet-header"><h2 class="sheet-title" id="otpTitle">Verify it’s you</h2><button class="sheet-close" type="button" data-close-sheet aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-xmark"></use></svg></button></div>
+    <div class="sheet-body">
+      <div class="otp-hero">
+        <span class="otp-badge" aria-hidden="true"><svg class="icon otp-badge-shield"><use href="#i-shield"></use></svg><svg class="icon otp-badge-check"><use href="#i-check"></use></svg></span>
+        <p class="otp-text" id="otpText">Enter the 6-digit code from Google Authenticator.</p>
+      </div>
+      <form class="otp-password" id="otpPasswordForm" novalidate hidden>
+        <div class="field">
+          <label class="form-label" for="otpPassword">Confirm your password</label>
+          <input class="form-control" id="otpPassword" type="password" autocomplete="new-password" maxlength="100" aria-describedby="otpPassword-hint otpPassword-error">
+          <p class="caption-text mt-1" id="otpPassword-hint">So only you can link a phone to this account.</p>
+          <p class="field-error" id="otpPassword-error"></p>
+        </div>
+        <button class="btn btn-accent btn-lg w-100" type="submit">Continue</button>
+      </form>
+      <div class="otp-setup" id="otpSetup" hidden>
+        <ol class="otp-steps">
+          <li>Open <strong>Google Authenticator</strong> on your phone.</li>
+          <li>Tap <strong>+</strong>, choose <strong>Scan a QR code</strong> and scan this code.</li>
+          <li>Type the 6-digit code it shows for <strong>E3 Fiber Connect</strong>.</li>
+        </ol>
+        <div class="otp-qr" id="otpQr" role="img" aria-label="QR code to add E3 Fiber Connect to Google Authenticator"></div>
+        <a class="btn btn-accent otp-open-app" id="otpOpenApp" href="#"><svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg>Add to Google Authenticator</a>
+        <div class="otp-key">
+          <div class="min-w-0">
+            <p class="otp-key-label">Can’t scan it? Enter this setup key</p>
+            <p class="otp-key-value" id="otpKey">—</p>
+          </div>
+          <button class="btn btn-gray btn-sm" type="button" id="otpCopyKey"><svg class="icon" aria-hidden="true"><use href="#i-copy"></use></svg>Copy</button>
+        </div>
+      </div>
+      <form class="otp-form" id="otpForm" novalidate autocomplete="off">
+        <div class="otp-code" id="otpCode" role="group" aria-labelledby="otpCodeLabel" aria-describedby="otpStatus">
+          <p class="visually-hidden" id="otpCodeLabel">6-digit code from Google Authenticator</p>
+            <input class="otp-digit" id="otpDigit1" data-index="0" type="text" inputmode="numeric" autocomplete="one-time-code" aria-label="Digit 1 of 6">
+            <input class="otp-digit" id="otpDigit2" data-index="1" type="text" inputmode="numeric" autocomplete="off" aria-label="Digit 2 of 6">
+            <input class="otp-digit" id="otpDigit3" data-index="2" type="text" inputmode="numeric" autocomplete="off" aria-label="Digit 3 of 6">
+            <input class="otp-digit" id="otpDigit4" data-index="3" type="text" inputmode="numeric" autocomplete="off" aria-label="Digit 4 of 6">
+            <input class="otp-digit" id="otpDigit5" data-index="4" type="text" inputmode="numeric" autocomplete="off" aria-label="Digit 5 of 6">
+            <input class="otp-digit" id="otpDigit6" data-index="5" type="text" inputmode="numeric" autocomplete="off" aria-label="Digit 6 of 6">
+        </div>
+        <div class="otp-meta">
+          <svg class="otp-timer" viewBox="0 0 20 20" aria-hidden="true"><circle class="otp-timer-track" cx="10" cy="10" r="8"></circle><circle class="otp-timer-arc" id="otpTimerArc" cx="10" cy="10" r="8"></circle></svg>
+          <span id="otpCountdown">New code in 30 s</span>
+        </div>
+        <p class="otp-status" id="otpStatus" role="status" aria-live="polite"></p>
+        <button class="btn btn-accent btn-lg w-100" type="submit" id="otpSubmit">Verify</button>
+      </form>
+    </div>
+  </section>
+
   <section class="sheet" id="sheetCredential" role="dialog" aria-modal="true" aria-labelledby="credentialTitle" tabindex="-1" hidden>
     <div class="sheet-grabber" aria-hidden="true"></div>
     <div class="sheet-header"><h2 class="sheet-title" id="credentialTitle">Temporary password</h2><button class="sheet-close" type="button" data-close-sheet aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-xmark"></use></svg></button></div>
@@ -2258,6 +2316,8 @@
   <script src="assets/js/backend/staff.js"></script>
   <script src="assets/js/backend/registrations.js"></script>
   <script src="assets/js/backend/auth.js"></script>
+  <script src="assets/js/backend/twofactor.js"></script>
+  <script src="assets/js/backend/qrcode.js"></script>
 
   <!-- 3. Page helpers -->
   <script src="assets/js/ui/dom.js"></script>
@@ -2297,6 +2357,7 @@
   <script src="assets/js/views/admin/activity.js"></script>
   <script src="assets/js/views/admin/algorithms.js"></script>
   <script src="assets/js/views/admin/account.js"></script>
+  <script src="assets/js/views/admin/twofactor.js"></script>
 
   <!-- 5. Start -->
   <script src="assets/js/app.js"></script>

@@ -121,13 +121,16 @@ function runRegistrationAction(action, element, event) {
   }
   const registrationId = element.getAttribute('data-registration');
   if (action === 'approve-registration') {
-    const result = approveRegistration(registrationId, currentStaff());
-    if (!result.ok) {
-      reportFailure(result);
-    } else {
-      announce('Approved ' + result.staff.fullName + ' — ' + result.staff.id + ' can sign in now');
-    }
-    renderRegistrationsView();
+    const request = findRegistration(registrationId);
+    requireStepUp('approve ' + (request ? request.fullName : 'this request') + ' as staff', function () {
+      const result = approveRegistration(registrationId, currentStaff());
+      if (!result.ok) {
+        reportFailure(result);
+      } else {
+        announce('Approved ' + result.staff.fullName + ' — ' + result.staff.id + ' can sign in now');
+      }
+      renderRegistrationsView();
+    });
   } else if (action === 'reject-registration') {
     openRejectRegistrationSheet(registrationId);
   }

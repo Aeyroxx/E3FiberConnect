@@ -74,6 +74,7 @@ function initAllScreens() {
   initActivityView();
   initAlgorithmsView();
   initAccountView();
+  initTwoFactorView();
 }
 
 /**

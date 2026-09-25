@@ -217,6 +217,10 @@ function countSubscribersByStatus() {
  * Time O(log n)
  */
 function setSubscriberStatus(accountNo, status, actor) {
+  const stepUp = stepUpRequired();            // 0. two-step verification: a Google Authenticator code in the last 5 minutes
+  if (stepUp) {
+    return stepUp;
+  }
   const subscriber = findSubscriber(accountNo);                 // 1. binary search by account number
   if (!subscriber) {
     return { ok: false, error: 'Subscriber not found.' };
@@ -246,6 +250,10 @@ function setSubscriberStatus(accountNo, status, actor) {
  * Time O(log n)
  */
 function changeSubscriberPlan(accountNo, planId, customPrice, actor) {
+  const stepUp = stepUpRequired();            // 0. two-step verification: a Google Authenticator code in the last 5 minutes
+  if (stepUp) {
+    return stepUp;
+  }
   const subscriber = findSubscriber(accountNo);
   if (!subscriber) {
     return { ok: false, error: 'Subscriber not found.' };

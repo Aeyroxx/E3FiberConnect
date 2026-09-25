@@ -20,11 +20,15 @@ function renderAccountView() {
     + kvRow('Last sign-in', escapeHTML(staff.lastSignIn ? formatDateTime(staff.lastSignIn) : 'Now'))
     + kvRow('Can manage staff', canManageStaff(staff) ? 'Yes' : 'No'));
   setFormAlert('passwordAlert', '');
+  renderTwoFactorPanel();
 }
 
 function initAccountView() {
   byId('passwordForm').addEventListener('submit', function (event) {
     event.preventDefault();
+    requireStepUp('change your password', savePassword);   // two-step verification first
+  });
+  function savePassword() {
     const staff = currentStaff();
     const wasTemporary = staff.mustChangePassword;
     const result = changeOwnPassword(staff, fieldValue('currentPassword'), fieldValue('newPassword'), fieldValue('confirmPassword'));
@@ -40,7 +44,7 @@ function initAccountView() {
     } else {
       renderAccountView();
     }
-  });
+  }
   onClick('accountSignOut', function () {
     signOut();
     showToast('Signed out', { tone: 'info' });

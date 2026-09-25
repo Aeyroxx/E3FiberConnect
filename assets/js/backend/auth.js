@@ -63,6 +63,7 @@ function signIn(email, password) {
   hashPut(authState.failedByEmail, emailKey, 0);              // 6. success: this e-mail's count starts again; remember who is signed in
   authState.staffId = member.id;
   clearUndoHistory(); // Undo only ever reverses your own actions from this sign-in
+  endStepUp();        // a new sign-in must verify its own Google Authenticator code
   member.lastSignIn = nowISO();
   logActivity('auth', member.fullName + ' signed in', member.fullName);
   return { ok: true, staff: member };
@@ -76,6 +77,7 @@ function signOut() {
   }
   authState.staffId = null;
   clearUndoHistory();
+  endStepUp();
 }
 
 /**

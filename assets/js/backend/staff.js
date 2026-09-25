@@ -127,6 +127,10 @@ function validateNewStaff(data, actor) {
  * Time O(1) append + O(1) hash put · Space O(1)
  */
 function addStaff(data, actor) {
+  const stepUp = stepUpRequired();                  // 0. two-step verification: a Google Authenticator code in the last 5 minutes
+  if (stepUp) {
+    return stepUp;
+  }
   if (!canManageStaff(actor)) {                     // 1. only Owners and Admins add staff
     return { ok: false, errors: { fullName: 'Only an Owner or Admin can add staff.' } };
   }
@@ -162,6 +166,10 @@ function addStaff(data, actor) {
  * Time O(log n)
  */
 function setStaffStatus(id, status, actor) {
+  const stepUp = stepUpRequired();            // 0. two-step verification: a Google Authenticator code in the last 5 minutes
+  if (stepUp) {
+    return stepUp;
+  }
   const member = findStaffById(id);
   if (!member) {
     return { ok: false, error: 'Staff member not found.' };
@@ -185,6 +193,10 @@ function setStaffStatus(id, status, actor) {
 
 /** resetStaffPassword — issue a new temporary password. Time O(log n) */
 function resetStaffPassword(id, actor) {
+  const stepUp = stepUpRequired();            // 0. two-step verification: a Google Authenticator code in the last 5 minutes
+  if (stepUp) {
+    return stepUp;
+  }
   const member = findStaffById(id);
   if (!member) {
     return { ok: false, error: 'Staff member not found.' };
@@ -201,11 +213,48 @@ function resetStaffPassword(id, actor) {
 }
 
 /**
+ * resetStaffTwoFactor — turn off a member's Google Authenticator (lost phone,
+ * or someone else linked their phone). The member sets it up again, with their
+ * password, the next time they change something. Not on the Undo stack: an old
+ * secret must never come back. Time O(log n)
+ */
+function resetStaffTwoFactor(id, actor) {
+  const stepUp = stepUpRequired();            // 0. two-step verification: a Google Authenticator code in the last 5 minutes
+  if (stepUp) {
+    return stepUp;
+  }
+  const member = findStaffById(id);
+  if (!member) {
+    return { ok: false, error: 'Staff member not found.' };
+  }
+  if (!canManageMember(actor, member)) {
+    return { ok: false, error: 'You can’t reset this account’s two-step verification.' };
+  }
+  if (member.role !== 'Support' && actor.role !== 'Owner') {   // together with a password reset it would hand over the account
+    return { ok: false, error: 'Only an Owner can reset an Admin’s authenticator.' };
+  }
+  if (!member.totpEnabled) {
+    return { ok: false, error: member.fullName + ' hasn’t set up Google Authenticator.' };
+  }
+  member.totpEnabled = false;
+  member.totpSecret = '';
+  member.totpEnabledAt = null;
+  member.totpLastStep = -1;
+  logActivity('staff', 'Reset the two-step verification of ' + member.fullName, nameOfActor(actor));
+  markDataChanged();
+  return { ok: true, staff: member };
+}
+
+/**
  * changeOwnPassword — the signed-in member sets a new password.
  * Returns field errors { currentPassword, newPassword, confirmPassword }.
  * Time O(r · n) for the hash · Space O(1)
  */
 function changeOwnPassword(member, currentPassword, newPassword, confirmPassword) {
+  const stepUp = stepUpRequired();            // 0. two-step verification: a Google Authenticator code in the last 5 minutes
+  if (stepUp) {
+    return stepUp;
+  }
   const errors = {};
   if (!member) {
     return { ok: false, errors: { currentPassword: 'Please sign in again.' } };

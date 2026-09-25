@@ -171,6 +171,26 @@ Separate chaining: an array of buckets, each a small array of `{ key, value }`.
 | 4 | Reference fits the method (GCash 13 digits, Maya 12 characters, bank / counter 8–20) | scan the characters | O(k) |
 | 5 | Reference not used before — no confirmed payment and no earlier waiting report has it (the later report is the duplicate) | hash-table look-up | O(1) average |
 
+### Two-step verification — `assets/js/backend/twofactor.js`, `assets/js/backend/qrcode.js`
+Google Authenticator codes are **TOTP** (RFC 6238): `code = HMAC-SHA1(secret, ⌊time / 30 s⌋)`, cut to 6 digits.
+All of it is hand-written on arrays of bytes:
+
+| Piece | What it does | Time |
+|---|---|---|
+| `sha1Bytes` | SHA-1: pad the message, then 80 rounds of 32-bit rotations and additions per 64-byte block | O(n) |
+| `hmacSha1` | HMAC: SHA1((key ⊕ opad) + SHA1((key ⊕ ipad) + message)) | O(n) |
+| `base32Encode` / `base32Decode` | the setup key: 5 bits per letter (A–Z, 2–7) | O(n) |
+| `hotpCode` / `matchTotp` | 8-byte counter → HMAC → dynamic truncation → 6 digits; accepts ±1 step (clock drift), refuses a step already used | O(1) |
+| `makeQrMatrix` | QR code: bytes → codewords → Reed–Solomon error correction in GF(256) → zig-zag placement → the best of 8 masks | O(s²) |
+
+Checked against the RFC 3174 / RFC 6238 test vectors, and every QR code is decoded by an independent reader in the tests.
+
+Every account-changing backend function (`addStaff`, `approveRegistration`, `setStaffStatus`, `resetStaffPassword`,
+`resetStaffTwoFactor`, `changeOwnPassword`, `setSubscriberStatus`, `changeSubscriberPlan`) starts with
+`stepUpRequired()`, and `undoLastAction` does too when `undoTouchesAccounts(entry)` finds a `staffMembers` or
+`subscribers` operation in the entry (O(k)). First setup needs the password (`startTotpSetup`); five wrong
+tries pause entry for 30 s, doubling each time up to 15 minutes.
+
 ### Staff registration and approval — `assets/js/backend/registrations.js`
 A request is validated field by field (work e-mail, mobile, strong password) and **appended** (ids only grow).
 Pending requests form a **FIFO queue**. Approving checks the e-mail in the staff **hash table**, appends the staff

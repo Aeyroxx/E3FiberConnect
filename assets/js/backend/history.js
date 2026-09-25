@@ -155,9 +155,24 @@ function undoBlockedReason(entry) {
 }
 
 /**
+ * undoTouchesAccounts — would reversing this entry add, remove or change a
+ * staff or subscriber account? Those need a Google Authenticator code, like
+ * the change itself. Time O(k) for k operations
+ */
+function undoTouchesAccounts(entry) {
+  for (let i = 0; i < entry.operations.length; i++) {
+    if (entry.operations[i].table === 'staffMembers' || entry.operations[i].table === 'subscribers') {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * undoLastAction — pop the newest entry and reverse its operations, last one
  * first (an action that changed two tables is unwound in reverse order).
- * Returns the entry, null when there is nothing to undo, or
+ * Returns the entry, null when there is nothing to undo, a step-up error when
+ * it changes an account and no code was verified, or
  * { blocked: true, label, error } when it can't be undone (it stays on the stack).
  * Time O(k · n) for k operations · Space O(1)
  */
@@ -170,7 +185,13 @@ function undoLastAction(actorName) {
   if (blocked !== '') {
     return { blocked: true, label: top.label, error: 'Can’t undo “' + top.label + '”: ' + blocked };
   }
-  const entry = stackPop(undoStack);                  // 3. pop it and reverse its operations, newest first
+  if (undoTouchesAccounts(top)) {                     // 3. account changes need a code, also when undone
+    const stepUp = stepUpRequired();
+    if (stepUp) {
+      return stepUp;
+    }
+  }
+  const entry = stackPop(undoStack);                  // 4. pop it and reverse its operations, newest first
   for (let i = entry.operations.length - 1; i >= 0; i--) {
     revertOperation(entry.operations[i]);
   }

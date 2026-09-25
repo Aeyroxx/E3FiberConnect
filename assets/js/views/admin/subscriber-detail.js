@@ -134,13 +134,15 @@ function initSubscriberDetailView() {
     if (action === 'change-plan') {
       openChangePlanSheet();
     } else if (action === 'suspend' || action === 'reactivate') {
-      const result = setSubscriberStatus(accountNo, action === 'suspend' ? 'Suspended' : 'Active', staff);
-      if (!result.ok) {
-        reportFailure(result);
-      } else {
-        announce((action === 'suspend' ? 'Suspended ' : 'Reactivated ') + subscriber.fullName);
-      }
-      refreshCurrentRoute();
+      requireStepUp((action === 'suspend' ? 'suspend ' : 'reactivate ') + subscriber.fullName + '’s account', function () {
+        const result = setSubscriberStatus(accountNo, action === 'suspend' ? 'Suspended' : 'Active', staff);
+        if (!result.ok) {
+          reportFailure(result);
+        } else {
+          announce((action === 'suspend' ? 'Suspended ' : 'Reactivated ') + subscriber.fullName);
+        }
+        refreshCurrentRoute();
+      });
     } else if (action === 'terminate') {
       askToConfirm({
         title: 'Terminate this account?',
@@ -148,13 +150,15 @@ function initSubscriberDetailView() {
         confirmLabel: 'Terminate account',
         danger: true,
         onConfirm: function () {
-          const result = setSubscriberStatus(accountNo, 'Terminated', currentStaff());
-          if (!result.ok) {
-            reportFailure(result);
-          } else {
-            announce('Terminated ' + subscriber.fullName);
-          }
-          refreshCurrentRoute();
+          requireStepUp('terminate ' + subscriber.fullName + '’s account', function () {
+            const result = setSubscriberStatus(accountNo, 'Terminated', currentStaff());
+            if (!result.ok) {
+              reportFailure(result);
+            } else {
+              announce('Terminated ' + subscriber.fullName);
+            }
+            refreshCurrentRoute();
+          });
         },
       });
     }
@@ -187,13 +191,16 @@ function initSubscriberDetailView() {
     event.preventDefault();
     const accountNo = subscriberDetailState.accountNo;
     const planId = checkedValue('changePlan', byId('changePlanChoices'));
-    const result = changeSubscriberPlan(accountNo, planId, fieldValue('changePlanCustomPrice'), currentStaff());
-    if (!result.ok) {
-      setFormAlert('changePlanAlert', result.error, 'error');
-      return;
-    }
-    closeSheet('sheetChangePlan');
-    announce('Plan changed to ' + planName(planId));
-    refreshCurrentRoute();
+    const subscriber = findSubscriber(accountNo);
+    requireStepUp('change the plan of ' + (subscriber ? subscriber.fullName : accountNo), function () {
+      const result = changeSubscriberPlan(accountNo, planId, fieldValue('changePlanCustomPrice'), currentStaff());
+      if (!result.ok) {
+        setFormAlert('changePlanAlert', result.error, 'error');
+        return;
+      }
+      closeSheet('sheetChangePlan');
+      announce('Plan changed to ' + planName(planId));
+      refreshCurrentRoute();
+    });
   });
 }

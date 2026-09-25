@@ -103,14 +103,27 @@ function renderAdminChrome() {
   setText('adminToolbarTitle', routerState.route ? routerState.route.title : '');
 }
 
-/** performUndo — pop the undo stack, reverse the action and redraw the screen. */
+/**
+ * performUndo — pop the undo stack, reverse the action and redraw the screen.
+ * Undoing an account change (staff or subscriber) asks for a Google
+ * Authenticator code first, like the change itself did.
+ */
 function performUndo() {
+  const top = peekUndo();
+  if (top && undoTouchesAccounts(top) && undoBlockedReason(top) === '') {
+    requireStepUp('undo “' + top.label + '”', runUndo);
+    return;
+  }
+  runUndo();
+}
+
+function runUndo() {
   const entry = undoLastAction(nameOfActor(currentStaff()));
   if (!entry) {
     showToast('Nothing to undo', { tone: 'info' });
     return;
   }
-  if (entry.blocked) {
+  if (entry.blocked || entry.needsStepUp) {
     reportFailure(entry);
     return;
   }

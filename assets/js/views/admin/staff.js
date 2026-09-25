@@ -26,6 +26,9 @@ function staffRowActions(actor, member) {
   } else if (member.status === 'Suspended') {
     html += '<button class="btn btn-tinted btn-xs" type="button" data-action="reactivate" data-staff="' + id + '" aria-label="Reactivate ' + name + '">Reactivate</button>';
   }
+  if (member.totpEnabled && (member.role === 'Support' || actor.role === 'Owner')) {
+    html += '<button class="btn btn-gray btn-xs" type="button" data-action="reset-2fa" data-staff="' + id + '" aria-label="Reset the Google Authenticator of ' + name + '">Reset authenticator</button>';
+  }
   html += '<button class="btn btn-danger-tinted btn-xs" type="button" data-action="delete" data-staff="' + id + '" aria-label="Delete ' + name + '">Delete</button>';
   return html;
 }
@@ -100,21 +103,43 @@ function runStaffAction(action, id) {
     return;
   }
   if (action === 'suspend' || action === 'reactivate') {
-    const result = setStaffStatus(id, action === 'suspend' ? 'Suspended' : 'Active', actor);
-    if (!result.ok) {
-      reportFailure(result);
-    } else {
-      announce((action === 'suspend' ? 'Suspended ' : 'Reactivated ') + member.fullName);
-    }
-    renderStaffView();
+    requireStepUp((action === 'suspend' ? 'suspend ' : 'reactivate ') + member.fullName, function () {
+      const result = setStaffStatus(id, action === 'suspend' ? 'Suspended' : 'Active', actor);
+      if (!result.ok) {
+        reportFailure(result);
+      } else {
+        announce((action === 'suspend' ? 'Suspended ' : 'Reactivated ') + member.fullName);
+      }
+      renderStaffView();
+    });
   } else if (action === 'reset') {
-    const result = resetStaffPassword(id, actor);
-    if (!result.ok) {
-      reportFailure(result);
-      return;
-    }
-    showCredential(member, result.tempPassword, false);
-    renderStaffView();
+    requireStepUp('reset the password of ' + member.fullName, function () {
+      const result = resetStaffPassword(id, actor);
+      if (!result.ok) {
+        reportFailure(result);
+        return;
+      }
+      showCredential(member, result.tempPassword, false);
+      renderStaffView();
+    });
+  } else if (action === 'reset-2fa') {
+    askToConfirm({
+      title: 'Reset ' + member.fullName + '’s authenticator?',
+      text: 'Their Google Authenticator code stops working. They’ll set it up again, with their password, the next time they change something. This can’t be undone.',
+      confirmLabel: 'Reset authenticator',
+      danger: true,
+      onConfirm: function () {
+        requireStepUp('reset the Google Authenticator of ' + member.fullName, function () {
+          const result = resetStaffTwoFactor(id, currentStaff());
+          if (!result.ok) {
+            reportFailure(result);
+          } else {
+            showToast('Reset ' + member.fullName + '’s authenticator', { tone: 'success' });
+          }
+          renderStaffView();
+        });
+      },
+    });
   } else if (action === 'delete') {
     askToConfirm({
       title: 'Delete ' + member.fullName + '?',
@@ -122,13 +147,15 @@ function runStaffAction(action, id) {
       confirmLabel: 'Delete account',
       danger: true,
       onConfirm: function () {
-        const result = setStaffStatus(id, 'Deleted', currentStaff());
-        if (!result.ok) {
-          reportFailure(result);
-        } else {
-          announce('Deleted ' + member.fullName);
-        }
-        renderStaffView();
+        requireStepUp('delete the account of ' + member.fullName, function () {
+          const result = setStaffStatus(id, 'Deleted', currentStaff());
+          if (!result.ok) {
+            reportFailure(result);
+          } else {
+            announce('Deleted ' + member.fullName);
+          }
+          renderStaffView();
+        });
       },
     });
   }
@@ -165,15 +192,27 @@ function initStaffView() {
   }
   byId('addStaffForm').addEventListener('submit', function (event) {
     event.preventDefault();
-    const result = addStaff({ fullName: fieldValue('addStaffName'), email: fieldValue('addStaffEmail'), role: fieldValue('addStaffRole'), startDate: fieldValue('addStaffStart') }, currentStaff());
-    if (!result.ok) {
-      focusInvalid(applyFieldErrors(ADD_STAFF_FIELDS, result.errors));
+    const data = { fullName: fieldValue('addStaffName'), email: fieldValue('addStaffEmail'), role: fieldValue('addStaffRole'), startDate: fieldValue('addStaffStart') };
+    const errors = validateNewStaff(data, currentStaff());    // show field mistakes before asking for a code
+    if (hasAnyErrors(errors)) {
+      focusInvalid(applyFieldErrors(ADD_STAFF_FIELDS, errors));
       return;
     }
-    closeSheet('sheetAddStaff');
-    renderStaffView();
-    showCredential(result.staff, result.tempPassword, true);
-    announce('Added ' + result.staff.fullName);
+    requireStepUp('add ' + collapseSpaces(data.fullName) + ' as ' + data.role, function () {
+      const result = addStaff(data, currentStaff());
+      if (!result.ok) {
+        if (result.errors && hasAnyErrors(result.errors)) {
+          focusInvalid(applyFieldErrors(ADD_STAFF_FIELDS, result.errors));
+        } else {
+          reportFailure(result);
+        }
+        return;
+      }
+      closeSheet('sheetAddStaff');
+      renderStaffView();
+      showCredential(result.staff, result.tempPassword, true);
+      announce('Added ' + result.staff.fullName);
+    });
   });
   onClick('credentialCopy', function () {
     copyToClipboard(staffViewState.credential, function (copied) {
