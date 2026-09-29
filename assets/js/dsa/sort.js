@@ -42,7 +42,7 @@ function isEmptyValue(value) {
  * compareValues — negative when a comes first, positive when b comes first,
  * 0 when equal. Text is compared without regard to capital letters; numbers
  * and ISO dates ("2026-09-23") compare naturally.
- * Time O(L) for text of length L, O(1) for numbers · Space O(L)
+ * Time O(n) for text of length n, O(1) for numbers · Space O(n)
  */
 function compareValues(a, b) {
   let left = a;

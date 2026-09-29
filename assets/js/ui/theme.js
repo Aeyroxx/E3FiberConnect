@@ -14,7 +14,7 @@ const THEME_FADE_MS = 300;
 
 /**
  * applyTheme — set <html data-theme>, the browser bar colour and every toggle
- * button (pressed = dark, icon = what a press switches to). O(t) for t buttons
+ * button (pressed = dark, icon = what a press switches to). O(n) for n buttons
  */
 function applyTheme(mode) {
   themeState.mode = mode === 'dark' ? 'dark' : 'light';
@@ -31,7 +31,7 @@ function applyTheme(mode) {
   }
 }
 
-/** toggleTheme — switch light ↔ dark with a short cross-fade (none if reduced motion). O(t) */
+/** toggleTheme — switch light ↔ dark with a short cross-fade (none if reduced motion). O(n) */
 function toggleTheme() {
   const root = document.documentElement;
   if (!prefersReducedMotion()) {
@@ -43,7 +43,7 @@ function toggleTheme() {
   applyTheme(themeState.mode === 'dark' ? 'light' : 'dark');
 }
 
-/** initTheme — start in light mode and wire every toggle button. O(t) */
+/** initTheme — start in light mode and wire every toggle button. O(n) */
 function initTheme() {
   const buttons = document.querySelectorAll('[data-theme-toggle]');
   for (let i = 0; i < buttons.length; i++) {

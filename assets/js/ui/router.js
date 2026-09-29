@@ -71,7 +71,7 @@ function registerNotFound(viewId, render) {
 
 /**
  * matchRoute — linear search over ROUTES; ":name" segments capture values.
- * Time O(r · s) for r routes of s segments · Space O(s)
+ * Time O(n²): every route × every path segment · Space O(n)
  */
 function matchRoute(path) {
   const segments = pathSegments(path);
@@ -158,7 +158,7 @@ function showShell(name) {
   document.documentElement.setAttribute('data-shell', name);
 }
 
-/** showView — reveal one <section data-view> and hide all others. O(v) */
+/** showView — reveal one <section data-view> and hide all others. O(n) */
 function showView(viewId) {
   const views = qsa('[data-view]');
   for (let i = 0; i < views.length; i++) {
@@ -166,7 +166,7 @@ function showView(viewId) {
   }
 }
 
-/** markActiveNav — aria-current="page" on the links for this section. O(links) */
+/** markActiveNav — aria-current="page" on the links for this section. O(n) */
 function markActiveNav(navKey) {
   const links = qsa('[data-nav]');
   for (let i = 0; i < links.length; i++) {

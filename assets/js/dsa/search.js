@@ -46,7 +46,7 @@ function linearSearchValue(values, value) {
 /**
  * linearSearchAll — every record whose `field` equals `value`, in their
  * original order (replaces filter). Always visits all n records.
- * Time O(n) · Space O(k) for the k matches
+ * Time O(n) · Space O(n) for the matches
  */
 function linearSearchAll(records, field, value) {
   const matches = [];
@@ -178,7 +178,7 @@ function sortedRemove(sortedRecords, field, value) {
  * array sorted by `field`. Binary search jumps to the first candidate, then a
  * short scan collects the neighbours. (Bill ids start with "BILL-YYYYMM-",
  * so this finds one month's bills without reading the whole table.)
- * Time O(log n + k) for k matches · Space O(k)
+ * Time O(log n) to find the first + O(n) to collect the matches · Space O(n)
  */
 function rangeWithPrefix(sortedRecords, field, prefix) {
   const matches = [];
@@ -200,8 +200,8 @@ function rangeWithPrefix(sortedRecords, field, prefix) {
  * textSearchRecords — records where any of `fields` contains `query`,
  * ignoring capital letters ("jua" finds "Juan Dela Cruz"). An empty query
  * returns every record. Linear search + naive string matching per field.
- * Time O(n · f · L · m), n records, f fields, L field length, m query length
- * Space O(k) for the k matches
+ * Time O(n²): the query is tried at every position of every field of every record
+ * Space O(n) for the matches
  */
 function textSearchRecords(records, fields, query) {
   const needle = toLowerText(trimText(query));

@@ -318,7 +318,7 @@ function formatDayDistance(days) {
 /**
  * formatNumber — 1200 → "1,200". Walks the digits from the right and puts a
  * comma before every group of three.
- * Time O(d) for d digits · Space O(d)
+ * Time O(n) for n digits · Space O(n)
  */
 function formatNumber(value) {
   const rounded = Math.round(Number(value) || 0);
@@ -336,7 +336,7 @@ function formatNumber(value) {
   return negative ? '-' + result : result;
 }
 
-/** formatPeso — 1200 → "₱1,200". O(d) */
+/** formatPeso — 1200 → "₱1,200". O(n) */
 function formatPeso(value) {
   return '₱' + formatNumber(value);
 }
@@ -594,7 +594,7 @@ function isBlank(value) {
   return trimText(value) === '';
 }
 
-/** hasAnyErrors — true when an errors record has at least one message. O(k) */
+/** hasAnyErrors — true when an errors record has at least one message. O(n) */
 function hasAnyErrors(errors) {
   for (const field in errors) {
     if (errors[field]) {
@@ -674,7 +674,7 @@ function toHex32(number) {
  * DEMO ONLY: it keeps plain-text passwords out of the staff table, but it is NOT
  * a secure password hash. A real system checks passwords on a server with a
  * slow algorithm such as bcrypt or Argon2.
- * Time O(r · n), r rounds · Space O(1)
+ * Time O(n) for n characters — the 400 rounds are a fixed number · Space O(1)
  */
 function hashPassword(password, salt) {
   const text = textOf(salt) + ':' + textOf(password);

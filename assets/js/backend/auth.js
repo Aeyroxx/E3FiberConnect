@@ -27,7 +27,7 @@ const authState = { staffId: null, failedByEmail: createHashTable(17), failedInA
 /**
  * signIn — check the e-mail (hash-table look-up) and the password hash.
  * Only Active accounts may sign in.
- * Time O(1) average + one password hash (400 fixed rounds, O(k) for k characters)
+ * Time O(1) average + one password hash (400 fixed rounds, O(n) for n characters)
  */
 function signIn(email, password) {
   const now = Date.now();

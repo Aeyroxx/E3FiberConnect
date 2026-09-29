@@ -8,7 +8,7 @@
 
 const coverageViewState = { filter: 'all', suggestions: [], activeIndex: -1 };
 
-/** highlightMatch — wrap the part of `name` that matches the query in <mark>. O(n · m) */
+/** highlightMatch — wrap the part of `name` that matches the query in <mark>. O(n²) */
 function highlightMatch(name, query) {
   const needle = normalizeBarangayName(query);
   const at = needle === '' ? -1 : textFind(toLowerText(name), needle);

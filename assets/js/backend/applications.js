@@ -54,7 +54,7 @@ function trackApplication(input) {
   };
 }
 
-/** textEndsWithIgnoreCase — "ID.JPG" ends with ".jpg". O(m) */
+/** textEndsWithIgnoreCase — "ID.JPG" ends with ".jpg". O(n) */
 function textEndsWithIgnoreCase(value, ending) {
   const text = toLowerText(value);
   const tail = toLowerText(ending);
@@ -64,7 +64,7 @@ function textEndsWithIgnoreCase(value, ending) {
   return textSlice(text, text.length - tail.length) === tail;
 }
 
-/** isAllowedIdPhoto — JPG, PNG or PDF, judged by the file name and (if known) its type. O(k) */
+/** isAllowedIdPhoto — JPG, PNG or PDF, judged by the file name and (if known) its type. O(n) */
 function isAllowedIdPhoto(fileName, fileType) {
   let extensionOk = false;
   for (let i = 0; i < ID_PHOTO_EXTENSIONS.length; i++) {
@@ -263,7 +263,7 @@ function applicationRow(app) {
  * listApplications — filter by status (linear search), search the text
  * (naive string matching), then sort with the chosen algorithm.
  * options: { status, query, sortField, sortOrder, algorithm }
- * Time O(n · L · m) search + O(n²) sort · Space O(n)
+ * Time O(n²) search + O(n²) sort · Space O(n)
  */
 function listApplications(options) {
   const status = options.status || 'all';
@@ -296,7 +296,7 @@ function countApplicationsByStatus() {
 /**
  * buildReviewQueue — a QUEUE of pending applications, oldest first.
  * The table is already in submission order, so one pass enqueues them FIFO.
- * Time O(n) · Space O(p) for p pending applications
+ * Time O(n) · Space O(n) for the pending applications
  */
 function buildReviewQueue() {
   const queue = createQueue(8);
@@ -311,7 +311,7 @@ function buildReviewQueue() {
 /**
  * buildInstallQueue — a QUEUE of scheduled installations, earliest date first
  * (insertion sort by installDate, then enqueue in that order).
- * Time O(n + k²) · Space O(k)
+ * Time O(n²) · Space O(n)
  */
 function buildInstallQueue() {
   const scheduled = insertionSort(linearSearchAll(applications, 'status', 'For Installation'), 'installDate', 'asc');
@@ -456,7 +456,7 @@ function updateApplicationNotes(referenceNo, notes, actor) {
   return { ok: true, application: app };
 }
 
-/** historyStepFor — the latest timeline step with a given status, or null. O(h) */
+/** historyStepFor — the latest timeline step with a given status, or null. O(n) */
 function historyStepFor(app, status) {
   for (let i = app.history.length - 1; i >= 0; i--) {
     if (app.history[i].status === status) {
@@ -470,7 +470,7 @@ function historyStepFor(app, status) {
  * applicationProgress — the steps shown on the tracker and the review page.
  * Steps up to the current status are "done", the next one is "current",
  * the rest "upcoming". A rejected application shows a short two-step path.
- * Time O(h) for h timeline entries · Space O(1)
+ * Time O(n) for n timeline entries · Space O(1)
  */
 function applicationProgress(app) {
   if (app.status === 'Rejected') {

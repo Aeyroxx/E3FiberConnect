@@ -19,7 +19,7 @@ const HASH_MAX_LOAD = 0.75; // grow when there are more than 0.75 entries per bu
 
 /**
  * createHashTable — an empty table with `bucketCount` buckets (a prime spreads keys better).
- * Time O(b) · Space O(b)
+ * Time O(n) · Space O(n)
  */
 function createHashTable(bucketCount) {
   const count = bucketCount > 0 ? bucketCount : 17;
@@ -33,7 +33,7 @@ function createHashTable(bucketCount) {
 /**
  * hashText — the djb2 string hash: start at 5381, then for every character
  * hash = hash × 33 + character code. Kept below 2^32, then reduced to a bucket.
- * Time O(k), k = key length · Space O(1)
+ * Time O(n), n = key length · Space O(1)
  */
 function hashText(key, bucketCount) {
   const text = textOf(key);
@@ -47,7 +47,7 @@ function hashText(key, bucketCount) {
 /**
  * hashFindInBucket — position of `key` inside one bucket, or -1 (linear search
  * over the few entries that share the bucket).
- * Time O(chain length) · Space O(1)
+ * Time O(n) · Space O(1)
  */
 function hashFindInBucket(bucket, key) {
   for (let i = 0; i < bucket.length; i++) {
@@ -61,7 +61,7 @@ function hashFindInBucket(bucket, key) {
 /**
  * hashResize — rebuild the table with about twice as many buckets and put
  * every entry into its new bucket ("rehashing").
- * Time O(n + b) · Space O(n + b)
+ * Time O(n) · Space O(n)
  */
 function hashResize(table) {
   const old = table.buckets;
@@ -127,7 +127,7 @@ function hashRemove(table, key) {
 /**
  * hashStats — numbers for the Algorithms page: size, buckets, load factor,
  * the longest chain and how many entries collided with an earlier one.
- * Time O(b) · Space O(1)
+ * Time O(n) · Space O(1)
  */
 function hashStats(table) {
   let longest = 0;

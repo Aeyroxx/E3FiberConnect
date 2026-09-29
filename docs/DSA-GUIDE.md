@@ -16,7 +16,7 @@ costs (time and space complexity), and how to show it live during a presentation
 | **Data cannot transfer** between pages (arrays live in memory) | The site is **one page** (`index.html`); screens are shown and hidden, so the arrays survive every screen change. A reload restarts from the sample data. No `localStorage`, no server. |
 | **Procedural, not OOP** | Only `function` declarations and plain records. No `class`, `this`, prototypes or methods on data. A stack is the record `{ items, top }` plus functions such as `stackPush(stack, item)`. |
 | **No built-in search / sort / stack / queue helpers** | Never used: `push pop shift unshift splice slice concat sort reverse indexOf lastIndexOf includes find findIndex filter map forEach reduce some every join` and the string versions `search indexOf includes startsWith split replace trim toLowerCase toUpperCase padStart substring`, nor regular expressions. |
-| **Time and space complexity** | Written above every function in `assets/js/dsa/` and `assets/js/backend/`, summarised in §6, and measured live on the admin **Algorithms** page. |
+| **Time and space complexity** | Written above every function in `assets/js/dsa/` and `assets/js/backend/`, summarised in §6, and measured live on the admin **Algorithms** page. Only the four notations from class are used — **O(1), O(log n), O(n), O(n²)**. n is the size of whatever the function goes through (records in a table, characters of a text, items in a queue); a loop inside a loop is O(n²). |
 
 Built-ins that *are* used are only for input/output: the browser's DOM (showing and reading the page), `Date`
 (once, to read the clock — all date maths is hand-written), `Math`, `Number`, `String`, `charCodeAt`,
@@ -49,7 +49,7 @@ search possible:
 | `arrayInsertAt(a, i, x)` | `splice(i, 0, x)` | O(n) | O(1) | shifts the tail right, then writes |
 | `arrayRemoveAt(a, i)` | `splice(i, 1)` | O(n) | O(1) | shifts the tail left |
 | `arrayCopy(a)` | `slice()` | O(n) | O(n) | loop copy (sorts work on copies) |
-| `arrayRange(a, s, c)` | `slice(s, s + c)` | O(c) | O(c) | used for "show more" lists |
+| `arrayRange(a, s, c)` | `slice(s, s + c)` | O(n) | O(n) | used for "show more" lists |
 | `arrayReverseCopy(a)` | `reverse()` | O(n) | O(n) | |
 | `arraySwap(a, i, j)` | — | O(1) | O(1) | used by bubble and selection sort |
 
@@ -91,12 +91,12 @@ record to restore.
 - `lowerBound` — binary search for the **first position ≥ value** (where a new key belongs). O(log n).
 - `sortedInsert` — "put" a record in key order: lower bound + shift the tail. O(log n) + O(n) = **O(n)**.
 - `rangeWithPrefix` — all bills of one month: bill ids start with `BILL-YYYYMM-`, so a binary search jumps to
-  the first one and a short scan collects the rest. **O(log n + k)** instead of O(n).
+  the first one (**O(log n)**) and a scan collects only that month’s bills (**O(n)** at most), instead of reading every bill ever issued.
 
-### Text search — naive string matching, O(n · m)
+### Text search — naive string matching, O(n²)
 `textFind` (in `strings.js`) tries every starting position and compares character by character.
 `textSearchRecords` runs it over several fields of every record (case-insensitive via `toLowerText`):
-**O(n · f · L · m)** for n records, f fields of length L. Used by every search box and the barangay suggestions.
+**O(n²)** — the query is tried at every position of every field of every record. Used by every search box and the barangay suggestions.
 
 ---
 
@@ -149,7 +149,7 @@ When full, the buffer doubles (`queueGrow`, O(n), amortised O(1)).
 
 ### Hash table — `assets/js/dsa/hashtable.js`
 Separate chaining: an array of buckets, each a small array of `{ key, value }`.
-- `hashText` — the **djb2** hash (`hash × 33 + character`), O(key length).
+- `hashText` — the **djb2** hash (`hash × 33 + character`), O(n).
 - `hashPut` / `hashGet` / `hashRemove` — **O(1) average**, O(n) worst case (everything in one bucket).
 - Grows (rehashes into about twice as many buckets) when the load factor passes 0.75.
 - **Used for:**
@@ -168,7 +168,7 @@ Separate chaining: an array of buckets, each a small array of `{ key, value }`.
 | 1 | The bill belongs to the account | binary search on `bills` by `billId`, then compare `accountNo` | O(log n) |
 | 2 | The bill is still unpaid (or was settled by this same payment) | read `status` / `paymentRef` | O(1) |
 | 3 | Amount paid = amount billed | one comparison | O(1) |
-| 4 | Reference fits the method (GCash 13 digits, Maya 12 characters, bank / counter 8–20) | scan the characters | O(k) |
+| 4 | Reference fits the method (GCash 13 digits, Maya 12 characters, bank / counter 8–20) | scan the characters | O(n) |
 | 5 | Reference not used before — no confirmed payment and no earlier waiting report has it (the later report is the duplicate) | hash-table look-up | O(1) average |
 
 ### Two-step verification — `assets/js/backend/twofactor.js`, `assets/js/backend/qrcode.js`
@@ -181,14 +181,14 @@ All of it is hand-written on arrays of bytes:
 | `hmacSha1` | HMAC: SHA1((key ⊕ opad) + SHA1((key ⊕ ipad) + message)) | O(n) |
 | `base32Encode` / `base32Decode` | the setup key: 5 bits per letter (A–Z, 2–7) | O(n) |
 | `hotpCode` / `matchTotp` | 8-byte counter → HMAC → dynamic truncation → 6 digits; accepts ±1 step (clock drift), refuses a step already used | O(1) |
-| `makeQrMatrix` | QR code: bytes → codewords → Reed–Solomon error correction in GF(256) → zig-zag placement → the best of 8 masks | O(s²) |
+| `makeQrMatrix` | QR code: bytes → codewords → Reed–Solomon error correction in GF(256) → zig-zag placement → the best of 8 masks | O(n²) |
 
 Checked against the RFC 3174 / RFC 6238 test vectors, and every QR code is decoded by an independent reader in the tests.
 
 Every account-changing backend function (`addStaff`, `approveRegistration`, `setStaffStatus`, `resetStaffPassword`,
 `resetStaffTwoFactor`, `changeOwnPassword`, `setSubscriberStatus`, `changeSubscriberPlan`) starts with
 `stepUpRequired()`, and `undoLastAction` does too when `undoTouchesAccounts(entry)` finds a `staffMembers` or
-`subscribers` operation in the entry (O(k)). First setup needs the password (`startTotpSetup`); five wrong
+`subscribers` operation in the entry (O(n)). First setup needs the password (`startTotpSetup`); five wrong
 tries pause entry for 30 s, doubling each time up to 15 minutes.
 
 ### Staff registration and approval — `assets/js/backend/registrations.js`
@@ -210,16 +210,16 @@ record and puts the e-mail in the hash table (O(1) average); one Undo removes th
 |---|---|---|
 | Linear search | O(n) (best O(1)) | O(1) |
 | Binary search | O(log n) | O(1) |
-| Naive string search over a table | O(n · m) | O(1) |
+| Naive string search over a table | O(n²) | O(1) |
 | Bubble / insertion sort | O(n²) (best O(n)) | O(1) + O(n) copy |
 | Selection sort | O(n²) always | O(1) + O(n) copy |
 | Append new application / payment / ticket | O(1) | O(1) |
 | Sorted insert of a subscriber / bill ("put") | O(n) | O(1) |
-| One month's bills (`rangeWithPrefix`) | O(log n + k) | O(k) |
+| One month's bills (`rangeWithPrefix`) | O(log n) + O(n) | O(n) |
 | Stack push / pop / peek | O(1) | O(n) total |
 | Queue enqueue / dequeue / peek | O(1) amortised | O(n) total |
-| Hash table put / get | O(1) average | O(n + b) |
-| Validate one payment (5 checks) | O(log n + k) | O(1) |
+| Hash table put / get | O(1) average | O(n) |
+| Validate one payment (5 checks) | O(log n) + O(n) | O(1) |
 | Approve a staff registration | O(log n) + O(1) average | O(1) |
 | Create a subscriber account (sorted insert) | O(n) | O(1) |
 | Undo an action | O(log n), or O(n) if it removes a record | O(1) |

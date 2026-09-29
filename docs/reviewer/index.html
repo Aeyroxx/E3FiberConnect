@@ -176,7 +176,7 @@
       <p class="small">Walk the list swapping neighbours that are in the wrong order; after each pass the biggest item has “bubbled” to the end. Stops early when a pass makes no swap.</p>
     </div>
     <div class="card">
-      <h4>Naive string matching — O(n·m)</h4>
+      <h4>Naive string matching — O(n²)</h4>
       <p class="small">Used by every search box: try every starting position of the text and compare letter by letter (“jua” finds “Juan Dela Cruz”), ignoring capital letters.</p>
     </div>
     <div class="card">
@@ -304,7 +304,7 @@
         <tr><td>Find the first plan fast enough</td><td>O(n)</td><td>O(1)</td><td>stops early</td></tr>
         <tr><td><strong>recommendPlan overall</strong></td><td><strong>O(n)</strong></td><td>O(n)</td><td></td></tr>
         <tr><td>Selection sort of the cards</td><td>O(n²) in every case — n(n−1)/2 = 10 comparisons</td><td>O(n) copy, O(1) extra</td><td>at most n−1 swaps</td></tr>
-        <tr><td>Comparison table</td><td>O(n · r)</td><td>O(n · r)</td><td>r = 7 feature rows</td></tr>
+        <tr><td>Comparison table</td><td>O(n)</td><td>O(n)</td><td>7 fixed feature rows per plan</td></tr>
       </tbody>
     </table>
   </div>
@@ -479,9 +479,9 @@
     <table class="t">
       <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
       <tbody>
-        <tr><td>Field checks (e-mail, mobile, name …)</td><td>O(k) per field, k = its length</td><td>O(k)</td></tr>
-        <tr><td>Barangay look-up (binary search, B = 24)</td><td>O(log B)</td><td>O(1)</td></tr>
-        <tr><td>ID type look-up (linear, 11 types)</td><td>O(t)</td><td>O(1)</td></tr>
+        <tr><td>Field checks (e-mail, mobile, name …)</td><td>O(n) per field, n = its length</td><td>O(n)</td></tr>
+        <tr><td>Barangay look-up (binary search, B = 24)</td><td>O(log n)</td><td>O(1)</td></tr>
+        <tr><td>ID type look-up (linear, 11 types)</td><td>O(n)</td><td>O(1)</td></tr>
         <tr><td>Duplicate check over n applications</td><td>O(n)</td><td>O(1)</td></tr>
         <tr><td>Next reference number + append</td><td>O(1)</td><td>O(1) (one new record)</td></tr>
         <tr><td><strong>submitApplication overall</strong></td><td><strong>O(n)</strong> (the duplicate scan dominates)</td><td><strong>O(1)</strong> extra</td></tr>
@@ -495,7 +495,7 @@
     <ul>
       <li><strong>Append to a sorted array:</strong> reference numbers only grow, so appending is O(1) <em>and</em> keeps the array sorted — this is what makes the tracker’s binary search possible without ever sorting.</li>
       <li><strong>Linear search for duplicates:</strong> the rule depends on the status (only open applications count), on two fields (e-mail or mobile) and on text normalisation; a single pass handles all of that. A hash table would need an index per field and updates on every status change — not worth it for our size.</li>
-      <li><strong>Binary search for the barangay:</strong> the list is fixed and sorted by name, so the look-up is O(log B).</li>
+      <li><strong>Binary search for the barangay:</strong> the list is fixed and sorted by name, so the look-up is O(log n).</li>
       <li><strong>Hand-written character checks:</strong> required by the project rules (no regular expressions) and they give a precise message for each kind of mistake.</li>
       <li>The wizard reuses the backend validator, so the screen and the saved data follow exactly the same rules.</li>
     </ul>
@@ -695,9 +695,9 @@
     <table class="t">
       <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
       <tbody>
-        <tr><td>Normalise and check the format (k = 14 characters)</td><td>O(k)</td><td>O(k)</td></tr>
+        <tr><td>Normalise and check the format (n = 14 characters)</td><td>O(n)</td><td>O(n)</td></tr>
         <tr><td><strong>Binary search over n applications</strong></td><td><strong>O(log n)</strong> — at most ⌈log₂(n+1)⌉ comparisons</td><td><strong>O(1)</strong></td></tr>
-        <tr><td>Timeline (4 steps × h history entries)</td><td>O(h)</td><td>O(1)</td></tr>
+        <tr><td>Timeline (4 steps × n history entries)</td><td>O(n)</td><td>O(1)</td></tr>
         <tr><td>Linear search (for comparison)</td><td>O(n)</td><td>O(1)</td></tr>
       </tbody>
     </table>
@@ -834,10 +834,10 @@
   <table class="t">
     <thead><tr><th>Where</th><th>Structure / algorithm</th><th>Time</th><th>Space</th></tr></thead>
     <tbody>
-      <tr><td>Filter by status</td><td>Linear search (collect all matches)</td><td>O(n)</td><td>O(k)</td></tr>
-      <tr><td>Search box</td><td>Naive string matching on 5 fields</td><td>O(n · L · m)</td><td>O(k)</td></tr>
+      <tr><td>Filter by status</td><td>Linear search (collect all matches)</td><td>O(n)</td><td>O(n)</td></tr>
+      <tr><td>Search box</td><td>Naive string matching on 5 fields</td><td>O(n²)</td><td>O(n)</td></tr>
       <tr><td>Sort the list</td><td>Insertion / selection / bubble sort</td><td>O(n²) worst (insertion &amp; bubble O(n) best)</td><td>O(n) copy</td></tr>
-      <tr><td>Review next</td><td>Queue (circular buffer), peek</td><td>O(n) to build, O(1) peek</td><td>O(p)</td></tr>
+      <tr><td>Review next</td><td>Queue (circular buffer), peek</td><td>O(n) to build, O(1) peek</td><td>O(n)</td></tr>
       <tr><td>Undo a walk-in</td><td>Stack push / pop</td><td>O(1) push, O(n) removal</td><td>O(1)</td></tr>
       <tr><td>Create account</td><td>Lower bound (binary search) + shift</td><td>O(log n) + O(n) = O(n)</td><td>O(1)</td></tr>
     </tbody>
@@ -919,12 +919,12 @@
       <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
       <tbody>
         <tr><td>Count by status</td><td>O(n)</td><td>O(1)</td></tr>
-        <tr><td>Filter (linear search)</td><td>O(n)</td><td>O(k) matches</td></tr>
-        <tr><td>Search (5 fields, text length L, query length m)</td><td>O(n · L · m)</td><td>O(k)</td></tr>
+        <tr><td>Filter (linear search)</td><td>O(n)</td><td>O(n) matches</td></tr>
+        <tr><td>Search (5 fields, text length L, query length m)</td><td>O(n²)</td><td>O(n)</td></tr>
         <tr><td>Insertion sort</td><td>best O(n) · average / worst O(n²)</td><td>O(n) copy, O(1) extra</td></tr>
         <tr><td>Selection sort</td><td>O(n²) always</td><td>O(n) copy, O(1) extra</td></tr>
         <tr><td>Bubble sort</td><td>best O(n) · average / worst O(n²)</td><td>O(n) copy, O(1) extra</td></tr>
-        <tr><td>Build the review queue / peek</td><td>O(n) / O(1)</td><td>O(p) pending</td></tr>
+        <tr><td>Build the review queue / peek</td><td>O(n) / O(1)</td><td>O(n) pending</td></tr>
       </tbody>
     </table>
   </div>
@@ -962,7 +962,7 @@
 <span class="ln">263</span><span class="cm"> * listApplications — filter by status (linear search), search the text</span>
 <span class="ln">264</span><span class="cm"> * (naive string matching), then sort with the chosen algorithm.</span>
 <span class="ln">265</span><span class="cm"> * options: { status, query, sortField, sortOrder, algorithm }</span>
-<span class="ln">266</span><span class="cm"> * Time O(n · L · m) search + O(n²) sort · Space O(n)</span>
+<span class="ln">266</span><span class="cm"> * Time O(n²) search + O(n²) sort · Space O(n)</span>
 <span class="ln">267</span><span class="cm"> */</span>
 <span class="ln">268</span><span class="kw">function</span> listApplications(options) {
 <span class="ln">269</span>  <span class="kw">const</span> status = options.status || <span class="st">'all'</span>;
@@ -1027,8 +1027,8 @@
 <span class="ln">200</span><span class="cm"> * textSearchRecords — records where any of `fields` contains `query`,</span>
 <span class="ln">201</span><span class="cm"> * ignoring capital letters (&quot;jua&quot; finds &quot;Juan Dela Cruz&quot;). An empty query</span>
 <span class="ln">202</span><span class="cm"> * returns every record. Linear search + naive string matching per field.</span>
-<span class="ln">203</span><span class="cm"> * Time O(n · f · L · m), n records, f fields, L field length, m query length</span>
-<span class="ln">204</span><span class="cm"> * Space O(k) for the k matches</span>
+<span class="ln">203</span><span class="cm"> * Time O(n²): the query is tried at every position of every field of every record</span>
+<span class="ln">204</span><span class="cm"> * Space O(n) for the matches</span>
 <span class="ln">205</span><span class="cm"> */</span>
 <span class="ln">206</span><span class="kw">function</span> textSearchRecords(records, fields, query) {
 <span class="ln">207</span>  <span class="kw">const</span> needle = toLowerText(trimText(query));
@@ -1059,7 +1059,7 @@
   <p class="code-head"><span class="mono">assets/js/backend/applications.js</span> · lines 296–309</p><pre class="code"><span class="ln">296</span><span class="cm">/**</span>
 <span class="ln">297</span><span class="cm"> * buildReviewQueue — a QUEUE of pending applications, oldest first.</span>
 <span class="ln">298</span><span class="cm"> * The table is already in submission order, so one pass enqueues them FIFO.</span>
-<span class="ln">299</span><span class="cm"> * Time O(n) · Space O(p) for p pending applications</span>
+<span class="ln">299</span><span class="cm"> * Time O(n) · Space O(n) for the pending applications</span>
 <span class="ln">300</span><span class="cm"> */</span>
 <span class="ln">301</span><span class="kw">function</span> buildReviewQueue() {
 <span class="ln">302</span>  <span class="kw">const</span> queue = createQueue(8);
@@ -1143,12 +1143,12 @@
     <table class="t">
       <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
       <tbody>
-        <tr><td>Validation (walk-in rules)</td><td>O(k) per field</td><td>O(k)</td></tr>
+        <tr><td>Validation (walk-in rules)</td><td>O(n) per field</td><td>O(n)</td></tr>
         <tr><td>Duplicate check</td><td>O(n)</td><td>O(1)</td></tr>
         <tr><td>Append the application</td><td>O(1)</td><td>O(1)</td></tr>
         <tr><td>Push an Undo step</td><td>O(1) (O(n) only when the 25-step limit drops the bottom)</td><td>O(1)</td></tr>
         <tr><td>Undo: pop + find (binary search) + remove</td><td>O(1) + O(log n) + O(n)</td><td>O(1)</td></tr>
-        <tr><td>Queue position (build the review queue)</td><td>O(n)</td><td>O(p)</td></tr>
+        <tr><td>Queue position (build the review queue)</td><td>O(n)</td><td>O(n)</td></tr>
       </tbody>
     </table>
   </div>
@@ -1240,7 +1240,7 @@
 <span class="ln">174</span><span class="cm"> * Returns the entry, null when there is nothing to undo, a step-up error when</span>
 <span class="ln">175</span><span class="cm"> * it changes an account and no code was verified, or</span>
 <span class="ln">176</span><span class="cm"> * { blocked: true, label, error } when it can't be undone (it stays on the stack).</span>
-<span class="ln">177</span><span class="cm"> * Time O(k · n) for k operations · Space O(1)</span>
+<span class="ln">177</span><span class="cm"> * Time O(n²) — O(n) per operation (removing a record shifts the rest) · Space O(1)</span>
 <span class="ln">178</span><span class="cm"> */</span>
 <span class="ln">179</span><span class="kw">function</span> undoLastAction(actorName) {
 <span class="ln">180</span>  <span class="kw">const</span> top = stackPeek(undoStack);                   <span class="cm">// 1. look at the newest entry first</span>
@@ -1338,10 +1338,10 @@
     <table class="t">
       <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
       <tbody>
-        <tr><td>Find the application / check the account (binary search)</td><td>O(log a) + O(log n)</td><td>O(1)</td></tr>
+        <tr><td>Find the application / check the account (binary search)</td><td>O(log n) + O(log n)</td><td>O(1)</td></tr>
         <tr><td>Lower bound (insert position)</td><td>O(log n)</td><td>O(1)</td></tr>
-        <tr><td>Validate the form (serial of length k)</td><td>O(k)</td><td>O(1)</td></tr>
-        <tr><td>Shift the later records (arrayInsertAt)</td><td>O(n − position), O(n) worst</td><td>O(1)</td></tr>
+        <tr><td>Validate the form (serial of length n)</td><td>O(n)</td><td>O(1)</td></tr>
+        <tr><td>Shift the later records (arrayInsertAt)</td><td>O(n) — only the later records move</td><td>O(1)</td></tr>
         <tr><td><strong>Create account overall</strong></td><td><strong>O(n)</strong></td><td><strong>O(1)</strong> extra (one new record)</td></tr>
       </tbody>
     </table>
@@ -1354,7 +1354,7 @@
     <ul>
       <li><strong>The subscribers array must stay sorted</strong> by account number: Pay Bills, billing, the subscriber page and Undo all find accounts by binary search.</li>
       <li><strong>Installations finish in any order</strong> — in our demo Maricel (…4881) is installed before Noel (…4880). Appending Noel would break the order, so we insert him in place.</li>
-      <li><strong>Lower bound + shift (O(n))</strong> is cheaper than appending and re-sorting (O(n log n) at best, O(n²) with our simple sorts), and finding the spot is only O(log n).</li>
+      <li><strong>Lower bound + shift (O(n))</strong> is cheaper than appending and re-sorting (O(n²) with our simple sorts), and finding the spot is only O(log n).</li>
       <li>A linked list could insert without shifting, but finding the spot would then be O(n) and binary search would be impossible — the array is the better fit because we search far more often than we insert.</li>
     </ul>
   </div>
@@ -1373,7 +1373,7 @@
     </div>
     <figure class="fig-narrow"><img src="img/m6-subscriber.jpg" alt="New subscriber"><figcaption>Output: the new subscriber account.</figcaption></figure>
     <h4>Trace — the sorted insert (computed by our code)</h4>
-    <p>Maricel Dizon (<span class="mono">E3-2026-004881</span>) was installed first, so her account is already at the end. Now Noel Garcia’s account <strong class="mono">E3-2026-004880</strong> — an <em>older</em> number — must go in front of it.</p><h4>1 · Where does it go? (lowerBound = binary search for the first key ≥ 004880)</h4><table class="t"><thead><tr><th class="num">Step</th><th class="num">low</th><th class="num">high</th><th class="num">middle</th><th>Account at middle</th><th>Decision</th></tr></thead><tbody><tr><td class="num">1</td><td class="num">0</td><td class="num">9</td><td class="num">4</td><td><span class="mono">E3-2026-004875</span></td><td>smaller → low = 5</td></tr><tr><td class="num">2</td><td class="num">5</td><td class="num">9</td><td class="num">7</td><td><span class="mono">E3-2026-004878</span></td><td>smaller → low = 8</td></tr><tr><td class="num">3</td><td class="num">8</td><td class="num">9</td><td class="num">8</td><td><span class="mono">E3-2026-004881</span></td><td>not smaller → high = 8</td></tr></tbody></table><p>Position <strong>8</strong> (the sheet shows it as “position 9 of 10”), found in 3 comparisons; the real preview reported 3. Neighbours: E3-2026-004878 before, E3-2026-004881 after.</p><h4>2 · Insert (arrayInsertAt shifts the later records one slot right)</h4><div class="arr"><span class="cell">004871<small>[0]</small></span><span class="cell">004872<small>[1]</small></span><span class="cell">004873<small>[2]</small></span><span class="cell">004874<small>[3]</small></span><span class="cell">004875<small>[4]</small></span><span class="cell">004876<small>[5]</small></span><span class="cell">004877<small>[6]</small></span><span class="cell">004878<small>[7]</small></span><span class="cell moved">004881<small>[8]</small></span></div><p class="arrow-row">Before: 9 accounts. The yellow record moves one slot to the right (1 shift).</p><div class="arr"><span class="cell">004871<small>[0]</small></span><span class="cell">004872<small>[1]</small></span><span class="cell">004873<small>[2]</small></span><span class="cell">004874<small>[3]</small></span><span class="cell">004875<small>[4]</small></span><span class="cell">004876<small>[5]</small></span><span class="cell">004877<small>[6]</small></span><span class="cell">004878<small>[7]</small></span><span class="cell new">004880<small>[8]</small></span><span class="cell moved">004881<small>[9]</small></span></div><p class="arrow-row">After: 10 accounts, still sorted — Noel at index 8, application status now Completed, modem serial saved as ZTEG-C8A1F2B7.</p><h4>3 · The account details</h4><table class="t"><thead><tr><th>Item</th><th>Value</th></tr></thead><tbody><tr><td>Account number</td><td><span class="mono">E3-2026-004880</span> (same as the reference number)</td></tr><tr><td>Billing day</td><td>day 25 of every month — the day the account was created (anniversary billing)</td></tr><tr><td>First bill</td><td>2026-09-25 → 2026-10-24, due 2026-10-10, ₱2,000</td></tr><tr><td>Form errors if left wrong</td><td>Use 6–24 letters, digits or dashes, as printed on the modem.<br>Confirm that the fiber is installed and the connection was tested.</td></tr></tbody></table>
+    <p>Maricel Dizon (<span class="mono">E3-2026-004881</span>) was installed first, so her account is already at the end. Now Noel Garcia’s account <strong class="mono">E3-2026-004880</strong> — an <em>older</em> number — must go in front of it.</p><h4>1 · Where does it go? (lowerBound = binary search for the first key ≥ 004880)</h4><table class="t"><thead><tr><th class="num">Step</th><th class="num">low</th><th class="num">high</th><th class="num">middle</th><th>Account at middle</th><th>Decision</th></tr></thead><tbody><tr><td class="num">1</td><td class="num">0</td><td class="num">9</td><td class="num">4</td><td><span class="mono">E3-2026-004875</span></td><td>smaller → low = 5</td></tr><tr><td class="num">2</td><td class="num">5</td><td class="num">9</td><td class="num">7</td><td><span class="mono">E3-2026-004878</span></td><td>smaller → low = 8</td></tr><tr><td class="num">3</td><td class="num">8</td><td class="num">9</td><td class="num">8</td><td><span class="mono">E3-2026-004881</span></td><td>not smaller → high = 8</td></tr></tbody></table><p>Position <strong>8</strong> (the sheet shows it as “position 9 of 10”), found in 3 comparisons; the real preview reported 3. Neighbours: E3-2026-004878 before, E3-2026-004881 after.</p><h4>2 · Insert (arrayInsertAt shifts the later records one slot right)</h4><div class="arr"><span class="cell">004871<small>[0]</small></span><span class="cell">004872<small>[1]</small></span><span class="cell">004873<small>[2]</small></span><span class="cell">004874<small>[3]</small></span><span class="cell">004875<small>[4]</small></span><span class="cell">004876<small>[5]</small></span><span class="cell">004877<small>[6]</small></span><span class="cell">004878<small>[7]</small></span><span class="cell moved">004881<small>[8]</small></span></div><p class="arrow-row">Before: 9 accounts. The yellow record moves one slot to the right (1 shift).</p><div class="arr"><span class="cell">004871<small>[0]</small></span><span class="cell">004872<small>[1]</small></span><span class="cell">004873<small>[2]</small></span><span class="cell">004874<small>[3]</small></span><span class="cell">004875<small>[4]</small></span><span class="cell">004876<small>[5]</small></span><span class="cell">004877<small>[6]</small></span><span class="cell">004878<small>[7]</small></span><span class="cell new">004880<small>[8]</small></span><span class="cell moved">004881<small>[9]</small></span></div><p class="arrow-row">After: 10 accounts, still sorted — Noel at index 8, application status now Completed, modem serial saved as ZTEG-C8A1F2B7.</p><h4>3 · The account details</h4><table class="t"><thead><tr><th>Item</th><th>Value</th></tr></thead><tbody><tr><td>Account number</td><td><span class="mono">E3-2026-004880</span> (same as the reference number)</td></tr><tr><td>Billing day</td><td>day 29 of every month — the day the account was created (anniversary billing)</td></tr><tr><td>First bill</td><td>2026-09-29 → 2026-10-28, due 2026-10-14, ₱2,000</td></tr><tr><td>Form errors if left wrong</td><td>Use 6–24 letters, digits or dashes, as printed on the modem.<br>Confirm that the fiber is installed and the connection was tested.</td></tr></tbody></table>
   </div>
 
   <h3>Code walkthrough</h3>
@@ -1477,7 +1477,7 @@
   <p class="code-head"><span class="mono">assets/js/dsa/arrays.js</span> · lines 68–86</p><pre class="code"><span class="ln">68</span><span class="cm">/**</span>
 <span class="ln">69</span><span class="cm"> * arrayInsertAt — put an item at a position (replaces splice(index, 0, item)).</span>
 <span class="ln">70</span><span class="cm"> * Items from `index` onward move one slot to the right.</span>
-<span class="ln">71</span><span class="cm"> * Time O(n − index), O(n) worst · Space O(1)</span>
+<span class="ln">71</span><span class="cm"> * Time O(n) — only the records after the index move · Space O(1)</span>
 <span class="ln">72</span><span class="cm"> */</span>
 <span class="ln">73</span><span class="kw">function</span> arrayInsertAt(array, index, item) {
 <span class="ln">74</span>  <span class="kw">let</span> position = index;
@@ -1513,11 +1513,11 @@
   <table class="t">
     <thead><tr><th>Where</th><th>Structure / algorithm</th><th>Time</th><th>Space</th></tr></thead>
     <tbody>
-      <tr><td>Find staff by e-mail (sign-in, duplicates)</td><td>Hash table, djb2, separate chaining</td><td>O(1) average</td><td>O(n + b)</td></tr>
+      <tr><td>Find staff by e-mail (sign-in, duplicates)</td><td>Hash table, djb2, separate chaining</td><td>O(1) average</td><td>O(n)</td></tr>
       <tr><td>Find staff by id / subscriber by account</td><td>Binary search</td><td>O(log n)</td><td>O(1)</td></tr>
       <tr><td>Lists (subscribers, staff, requests)</td><td>Linear filter · string search · chosen sort</td><td>O(n²) worst</td><td>O(n)</td></tr>
-      <tr><td>Oldest bill first</td><td>Queue (after insertion sort by due date)</td><td>O(b + k²)</td><td>O(k)</td></tr>
-      <tr><td>Staff requests</td><td>Queue (circular buffer)</td><td>O(r) build, O(1) peek</td><td>O(p)</td></tr>
+      <tr><td>Oldest bill first</td><td>Queue (after insertion sort by due date)</td><td>O(n²)</td><td>O(n)</td></tr>
+      <tr><td>Staff requests</td><td>Queue (circular buffer)</td><td>O(n) build, O(1) peek</td><td>O(n)</td></tr>
       <tr><td>Every change</td><td>Undo stack</td><td>O(1) push / pop</td><td>O(1) per step</td></tr>
     </tbody>
   </table>
@@ -1594,13 +1594,13 @@
     <table class="t">
       <thead><tr><th>Step</th><th>Time</th><th>Space</th></tr></thead>
       <tbody>
-        <tr><td>Hash the e-mail (k characters)</td><td>O(k)</td><td>O(1)</td></tr>
+        <tr><td>Hash the e-mail (n characters)</td><td>O(n)</td><td>O(1)</td></tr>
         <tr><td>Look in the bucket’s chain</td><td>O(1) average, O(n) worst (all keys in one bucket)</td><td>O(1)</td></tr>
         <tr><td>Binary search by id</td><td>O(log n)</td><td>O(1)</td></tr>
-        <tr><td>Password hash (400 rounds over p characters)</td><td>O(p) — a constant amount of work per try</td><td>O(1)</td></tr>
-        <tr><td>Waiting-registration check (r requests)</td><td>O(r) (only when the staff password did not match)</td><td>O(1)</td></tr>
+        <tr><td>Password hash (400 rounds over n characters)</td><td>O(n) — a constant amount of work per try</td><td>O(1)</td></tr>
+        <tr><td>Waiting-registration check (n requests)</td><td>O(n) (only when the staff password did not match)</td><td>O(1)</td></tr>
         <tr><td>Count a wrong try for that e-mail (hash table)</td><td>O(1) average</td><td>O(1) per e-mail tried</td></tr>
-        <tr><td><strong>signIn overall</strong></td><td><strong>O(1) average</strong> (plus O(log n) and the fixed hash cost)</td><td><strong>O(1)</strong>; the hash table itself O(n + b)</td></tr>
+        <tr><td><strong>signIn overall</strong></td><td><strong>O(1) average</strong> (plus O(log n) and the fixed hash cost)</td><td><strong>O(1)</strong>; the hash table itself O(n)</td></tr>
       </tbody>
     </table>
   </div>
@@ -1637,7 +1637,7 @@
   <p class="code-head"><span class="mono">assets/js/backend/auth.js</span> · lines 27–70</p><pre class="code"><span class="ln">27</span><span class="cm">/**</span>
 <span class="ln">28</span><span class="cm"> * signIn — check the e-mail (hash-table look-up) and the password hash.</span>
 <span class="ln">29</span><span class="cm"> * Only Active accounts may sign in.</span>
-<span class="ln">30</span><span class="cm"> * Time O(1) average + one password hash (400 fixed rounds, O(k) for k characters)</span>
+<span class="ln">30</span><span class="cm"> * Time O(1) average + one password hash (400 fixed rounds, O(n) for n characters)</span>
 <span class="ln">31</span><span class="cm"> */</span>
 <span class="ln">32</span><span class="kw">function</span> signIn(email, password) {
 <span class="ln">33</span>  <span class="kw">const</span> now = Date.now();
@@ -1712,7 +1712,7 @@
   <p class="code-head"><span class="mono">assets/js/backend/staff.js</span> · lines 40–47</p><pre class="code"><span class="ln">40</span><span class="cm">/**</span>
 <span class="ln">41</span><span class="cm"> * staffPasswordMatches — hash the typed password with the member's salt and</span>
 <span class="ln">42</span><span class="cm"> * compare it with the stored hash (the password itself is never stored).</span>
-<span class="ln">43</span><span class="cm"> * Time O(r · n) for the hash · Space O(1)</span>
+<span class="ln">43</span><span class="cm"> * Time O(n) for the hash (400 fixed rounds over n characters) · Space O(1)</span>
 <span class="ln">44</span><span class="cm"> */</span>
 <span class="ln">45</span><span class="kw">function</span> staffPasswordMatches(member, password) {
 <span class="ln">46</span>  <span class="kw">return</span> hashPassword(password, member.passwordSalt) === member.passwordHash;
@@ -1788,12 +1788,12 @@
     <table class="t">
       <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
       <tbody>
-        <tr><td>List (n subscribers, B bills): filter + search + balances</td><td>O(n · B) for the balances</td><td>O(n)</td></tr>
+        <tr><td>List (n subscribers): filter + search + balances</td><td>O(n²) — each subscriber’s balance scans the bills</td><td>O(n)</td></tr>
         <tr><td>Sort the rows</td><td>O(n²) worst (insertion/bubble O(n) best)</td><td>O(n)</td></tr>
         <tr><td>Find one account (binary search)</td><td>O(log n)</td><td>O(1)</td></tr>
         <tr><td>Status or plan change</td><td>O(log n)</td><td>O(1)</td></tr>
-        <tr><td>Oldest-bill queue for one account (k unpaid bills)</td><td>O(B + k²)</td><td>O(k)</td></tr>
-        <tr><td>Settle the front bill</td><td>O(1) dequeue + O(log B) to update</td><td>O(1)</td></tr>
+        <tr><td>Oldest-bill queue for one account (its unpaid bills)</td><td>O(n²)</td><td>O(n)</td></tr>
+        <tr><td>Settle the front bill</td><td>O(1) dequeue + O(log n) to update</td><td>O(1)</td></tr>
       </tbody>
     </table>
   </div>
@@ -1824,7 +1824,7 @@
     </div>
     <figure class="fig-half"><img src="img/m8-change-plan.jpg" alt="Change plan"><figcaption>Change plan — the next bill uses the new price.</figcaption></figure>
     <h4>Trace — sorting, searching and the bill queue (computed by our code)</h4>
-    <p>Sorting the 8 subscribers by balance, high to low (each row’s balance is summed from the bills first):</p><table class="t"><thead><tr><th>Algorithm</th><th class="num">Comparisons</th><th class="num">Moves</th></tr></thead><tbody><tr><td>Insertion sort</td><td class="num">19</td><td class="num">15</td></tr><tr><td>Selection sort</td><td class="num">28</td><td class="num">3</td></tr><tr><td>Bubble sort</td><td class="num">27</td><td class="num">15</td></tr></tbody></table><table class="t"><thead><tr><th>Top rows</th><th>Account</th><th class="num">Balance</th><th>Status</th></tr></thead><tbody><tr><td>Patricia Gonzales</td><td><span class="mono">E3-2026-004876</span></td><td class="num">₱2,400</td><td>Suspended</td></tr><tr><td>Kristine Ramos</td><td><span class="mono">E3-2026-004874</span></td><td class="num">₱1,600</td><td>Active</td></tr><tr><td>Carlo Mendoza</td><td><span class="mono">E3-2026-004877</span></td><td class="num">₱1,500</td><td>Active</td></tr><tr><td>Ramon Villareal</td><td><span class="mono">E3-2026-004872</span></td><td class="num">₱1,200</td><td>Active</td></tr></tbody></table><p>Counts by status (one pass): 6 Active · 1 Suspended · 1 Terminated. Opening Patricia’s page finds <span class="mono">E3-2026-004876</span> by binary search in 2 comparisons.</p><p><strong>Her unpaid bills as a queue (oldest due date at the front):</strong></p><div class="arr"><span class="cell front">202607-004876 · ₱1,200<small>FRONT · due 2026-08-12</small></span><span class="cell">202608-004876 · ₱1,200<small>due 2026-09-12</small></span></div><p class="arrow-row">“Mark oldest bill paid” dequeues the front bill, so the oldest debt is always settled first (FIFO).</p>
+    <p>Sorting the 8 subscribers by balance, high to low (each row’s balance is summed from the bills first):</p><table class="t"><thead><tr><th>Algorithm</th><th class="num">Comparisons</th><th class="num">Moves</th></tr></thead><tbody><tr><td>Insertion sort</td><td class="num">15</td><td class="num">11</td></tr><tr><td>Selection sort</td><td class="num">28</td><td class="num">4</td></tr><tr><td>Bubble sort</td><td class="num">27</td><td class="num">11</td></tr></tbody></table><table class="t"><thead><tr><th>Top rows</th><th>Account</th><th class="num">Balance</th><th>Status</th></tr></thead><tbody><tr><td>Patricia Gonzales</td><td><span class="mono">E3-2026-004876</span></td><td class="num">₱2,400</td><td>Suspended</td></tr><tr><td>Kristine Ramos</td><td><span class="mono">E3-2026-004874</span></td><td class="num">₱1,600</td><td>Active</td></tr><tr><td>Ramon Villareal</td><td><span class="mono">E3-2026-004872</span></td><td class="num">₱1,200</td><td>Active</td></tr><tr><td>Mark Bautista</td><td><span class="mono">E3-2026-004875</span></td><td class="num">₱1,000</td><td>Active</td></tr></tbody></table><p>Counts by status (one pass): 6 Active · 1 Suspended · 1 Terminated. Opening Patricia’s page finds <span class="mono">E3-2026-004876</span> by binary search in 2 comparisons.</p><p><strong>Her unpaid bills as a queue (oldest due date at the front):</strong></p><div class="arr"><span class="cell front">202608-004876 · ₱1,200<small>FRONT · due 2026-08-16</small></span><span class="cell">202609-004876 · ₱1,200<small>due 2026-09-16</small></span></div><p class="arrow-row">“Mark oldest bill paid” dequeues the front bill, so the oldest debt is always settled first (FIFO).</p>
   </div>
 
   <h3>Code walkthrough</h3>
@@ -1913,7 +1913,7 @@
   <p class="code-head"><span class="mono">assets/js/backend/billing.js</span> · lines 166–184</p><pre class="code"><span class="ln">166</span><span class="cm">/**</span>
 <span class="ln">167</span><span class="cm"> * unpaidBillsQueue — the account's unpaid bills as a QUEUE, oldest due date</span>
 <span class="ln">168</span><span class="cm"> * first, so payments always settle the oldest debt first (FIFO).</span>
-<span class="ln">169</span><span class="cm"> * Time O(n + k²) · Space O(k)</span>
+<span class="ln">169</span><span class="cm"> * Time O(n²) · Space O(n)</span>
 <span class="ln">170</span><span class="cm"> */</span>
 <span class="ln">171</span><span class="kw">function</span> unpaidBillsQueue(accountNo) {
 <span class="ln">172</span>  <span class="kw">const</span> unpaid = [];
@@ -1936,7 +1936,7 @@
   </ol>
   <p class="code-head"><span class="mono">assets/js/backend/billing.js</span> · lines 213–223</p><pre class="code"><span class="ln">213</span><span class="cm">/**</span>
 <span class="ln">214</span><span class="cm"> * settleOldestBill — take the front of the unpaid-bills queue (dequeue) and pay it.</span>
-<span class="ln">215</span><span class="cm"> * Time O(n + k²) · Space O(k)</span>
+<span class="ln">215</span><span class="cm"> * Time O(n²) · Space O(n)</span>
 <span class="ln">216</span><span class="cm"> */</span>
 <span class="ln">217</span><span class="kw">function</span> settleOldestBill(accountNo, actor) {
 <span class="ln">218</span>  <span class="kw">const</span> oldest = dequeue(unpaidBillsQueue(accountNo));
@@ -2019,10 +2019,10 @@
     <table class="t">
       <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
       <tbody>
-        <tr><td>Validate (e-mail uniqueness by hash)</td><td>O(1) average + O(k) for the text</td><td>O(1)</td></tr>
+        <tr><td>Validate (e-mail uniqueness by hash)</td><td>O(1) average + O(n) for the text</td><td>O(1)</td></tr>
         <tr><td>Temporary password (10 characters)</td><td>O(1)</td><td>O(1)</td></tr>
         <tr><td>Append the record</td><td>O(1)</td><td>O(1)</td></tr>
-        <tr><td>hashPut</td><td>O(1) average; O(n + b) on the rare resize</td><td>O(1)</td></tr>
+        <tr><td>hashPut</td><td>O(1) average; O(n) on the rare resize</td><td>O(1)</td></tr>
         <tr><td>Suspend / reactivate / delete / reset</td><td>O(log n)</td><td>O(1)</td></tr>
         <tr><td>List with sort</td><td>O(n²) worst</td><td>O(n)</td></tr>
       </tbody>
@@ -2055,7 +2055,7 @@
     </div>
     <figure class="fig-narrow"><img src="img/m9-list-after.jpg" alt="Staff list"><figcaption>The staff list with the new member (“Temporary password”).</figcaption></figure>
     <h4>Trace — adding a member and the role rules (computed by our code)</h4>
-    <table class="t"><thead><tr><th>Step</th><th>Result</th></tr></thead><tbody><tr><td>Validate (hash-table look-up for the e-mail)</td><td><span class="ok">✓ no errors</span></td></tr><tr><td>New id (counter + 1, appended → ids stay sorted)</td><td><strong>STF-0006</strong></td></tr><tr><td>E-mail stored in lower case</td><td><span class="mono">paula.ignacio@e3fiberconnect.ph</span></td></tr><tr><td>Temporary password</td><td>10 random characters, shown once; stored only as hash <span class="mono">a9d05965</span></td></tr><tr><td>Must change it at first sign-in</td><td><span class="ok">✓ yes</span></td></tr><tr><td>hashPut(e-mail → id)</td><td>bucket <strong>1</strong>: paula.ignacio@e3fiberconnect.ph → STF-0006</td></tr><tr><td>Hash table size</td><td>5 → 6 keys in 17 buckets (load 0.35 ≤ 0.75, so no resize)</td></tr></tbody></table><table class="t"><thead><tr><th>Rule checked</th><th>Message</th></tr></thead><tbody><tr><td>Same e-mail in capitals</td><td><span class="no">✗ That e-mail already has an account.</span></td></tr><tr><td>An Admin adding an Owner</td><td><span class="no">✗ Only the Owner can add another Owner.</span></td></tr><tr><td>Changing your own account</td><td><span class="no">✗ You can’t change this account.</span></td></tr><tr><td>An Admin changing the Owner</td><td><span class="no">✗ You can’t change this account.</span></td></tr></tbody></table>
+    <table class="t"><thead><tr><th>Step</th><th>Result</th></tr></thead><tbody><tr><td>Validate (hash-table look-up for the e-mail)</td><td><span class="ok">✓ no errors</span></td></tr><tr><td>New id (counter + 1, appended → ids stay sorted)</td><td><strong>STF-0006</strong></td></tr><tr><td>E-mail stored in lower case</td><td><span class="mono">paula.ignacio@e3fiberconnect.ph</span></td></tr><tr><td>Temporary password</td><td>10 random characters, shown once; stored only as hash <span class="mono">67422385</span></td></tr><tr><td>Must change it at first sign-in</td><td><span class="ok">✓ yes</span></td></tr><tr><td>hashPut(e-mail → id)</td><td>bucket <strong>1</strong>: paula.ignacio@e3fiberconnect.ph → STF-0006</td></tr><tr><td>Hash table size</td><td>5 → 6 keys in 17 buckets (load 0.35 ≤ 0.75, so no resize)</td></tr></tbody></table><table class="t"><thead><tr><th>Rule checked</th><th>Message</th></tr></thead><tbody><tr><td>Same e-mail in capitals</td><td><span class="no">✗ That e-mail already has an account.</span></td></tr><tr><td>An Admin adding an Owner</td><td><span class="no">✗ Only the Owner can add another Owner.</span></td></tr><tr><td>Changing your own account</td><td><span class="no">✗ You can’t change this account.</span></td></tr><tr><td>An Admin changing the Owner</td><td><span class="no">✗ You can’t change this account.</span></td></tr></tbody></table>
   </div>
 
   <h3>Code walkthrough</h3>
@@ -2236,13 +2236,13 @@
     <table class="t">
       <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
       <tbody>
-        <tr><td>Validate a request (pending-duplicate scan over r requests)</td><td>O(r + k)</td><td>O(1)</td></tr>
+        <tr><td>Validate a request (pending-duplicate scan over n requests)</td><td>O(n)</td><td>O(1)</td></tr>
         <tr><td>Submit (append)</td><td>O(1) + the password hash</td><td>O(1)</td></tr>
-        <tr><td>Build the approval queue / peek the front</td><td>O(r) / O(1)</td><td>O(p)</td></tr>
+        <tr><td>Build the approval queue / peek the front</td><td>O(n) / O(1)</td><td>O(n)</td></tr>
         <tr><td>Checks (hash look-up)</td><td>O(1) average</td><td>O(1)</td></tr>
-        <tr><td>Approve (binary search + append + hashPut)</td><td>O(log r) + O(1) + O(1) average</td><td>O(1)</td></tr>
-        <tr><td>Reject</td><td>O(log r)</td><td>O(1)</td></tr>
-        <tr><td>Sign-in message for a request</td><td>O(r)</td><td>O(1)</td></tr>
+        <tr><td>Approve (binary search + append + hashPut)</td><td>O(log n) + O(1) + O(1) average</td><td>O(1)</td></tr>
+        <tr><td>Reject</td><td>O(log n)</td><td>O(1)</td></tr>
+        <tr><td>Sign-in message for a request</td><td>O(n)</td><td>O(1)</td></tr>
       </tbody>
     </table>
   </div>
@@ -2283,7 +2283,7 @@
   <h3>Code walkthrough</h3>
   <p class="code-head"><span class="mono">assets/js/backend/registrations.js</span> · lines 87–118</p><pre class="code"><span class="ln">87</span><span class="cm">/**</span>
 <span class="ln">88</span><span class="cm"> * submitRegistration — save a request with the next id (appended → still sorted).</span>
-<span class="ln">89</span><span class="cm"> * Time O(r) for the checks + O(1) append · Space O(1)</span>
+<span class="ln">89</span><span class="cm"> * Time O(n) for the checks + O(1) append · Space O(1)</span>
 <span class="ln">90</span><span class="cm"> */</span>
 <span class="ln">91</span><span class="kw">function</span> submitRegistration(data) {
 <span class="ln">92</span>  <span class="kw">const</span> errors = validateRegistration(data);
@@ -2322,7 +2322,7 @@
   <p class="code-head"><span class="mono">assets/js/backend/registrations.js</span> · lines 120–133</p><pre class="code"><span class="ln">120</span><span class="cm">/**</span>
 <span class="ln">121</span><span class="cm"> * registrationQueue — requests waiting for approval, oldest first (FIFO).</span>
 <span class="ln">122</span><span class="cm"> * The table is in arrival order, so one pass enqueues them.</span>
-<span class="ln">123</span><span class="cm"> * Time O(r) · Space O(p) for p pending requests</span>
+<span class="ln">123</span><span class="cm"> * Time O(n) · Space O(n) for the pending requests</span>
 <span class="ln">124</span><span class="cm"> */</span>
 <span class="ln">125</span><span class="kw">function</span> registrationQueue() {
 <span class="ln">126</span>  <span class="kw">const</span> queue = createQueue(4);
@@ -2341,7 +2341,7 @@
 <span class="ln">145</span><span class="cm"> * registrationChecks — what the reviewer should know before approving:</span>
 <span class="ln">146</span><span class="cm"> * a work e-mail, no staff account with that e-mail yet (hash table), and a</span>
 <span class="ln">147</span><span class="cm"> * reviewer who is allowed to approve. Returns { checks, passed, firstFailure }.</span>
-<span class="ln">148</span><span class="cm"> * Time O(k) · Space O(1)</span>
+<span class="ln">148</span><span class="cm"> * Time O(n) · Space O(1)</span>
 <span class="ln">149</span><span class="cm"> */</span>
 <span class="ln">150</span><span class="kw">function</span> registrationChecks(request, actor) {
 <span class="ln">151</span>  <span class="kw">const</span> checks = [];
@@ -2447,16 +2447,16 @@
   <table class="t">
     <thead><tr><th>Where</th><th>Structure / algorithm</th><th>Time</th><th>Space</th></tr></thead>
     <tbody>
-      <tr><td>One month’s bills</td><td>Lower bound (binary search) + scan</td><td>O(log n + k)</td><td>O(k)</td></tr>
-      <tr><td>Group by urgency</td><td>One pass into 4 arrays + insertion sort</td><td>O(k + k²)</td><td>O(k)</td></tr>
+      <tr><td>One month’s bills</td><td>Lower bound (binary search) + scan</td><td>O(log n) + O(n)</td><td>O(n)</td></tr>
+      <tr><td>Group by urgency</td><td>One pass into 4 arrays + insertion sort</td><td>O(n²)</td><td>O(n)</td></tr>
       <tr><td>Create one bill</td><td>Binary search (duplicate) + sorted insert</td><td>O(n)</td><td>O(1)</td></tr>
-      <tr><td>Generate a month</td><td>Loop over subscribers</td><td>O(s · n)</td><td>O(s)</td></tr>
-      <tr><td>Payment validation order</td><td>Queue (circular buffer)</td><td>O(n) build, O(1) peek</td><td>O(p)</td></tr>
-      <tr><td>Re-used reference number</td><td>Hash table (METHOD:REFERENCE → ids)</td><td>O(1) average</td><td>O(n + b)</td></tr>
+      <tr><td>Generate a month</td><td>Loop over subscribers</td><td>O(n²)</td><td>O(n)</td></tr>
+      <tr><td>Payment validation order</td><td>Queue (circular buffer)</td><td>O(n) build, O(1) peek</td><td>O(n)</td></tr>
+      <tr><td>Re-used reference number</td><td>Hash table (METHOD:REFERENCE → ids)</td><td>O(1) average</td><td>O(n)</td></tr>
     </tbody>
   </table>
   <h3>Likely panel questions</h3>
-  <div class="qa"><p class="qq">Why does the bill id start with the year and month?</p><p class="aa">Because the array is sorted by id, all bills of one month sit next to each other. A binary search jumps to the first one and a short scan collects the rest — O(log n + k) instead of reading every bill.</p></div>
+  <div class="qa"><p class="qq">Why does the bill id start with the year and month?</p><p class="aa">Because the array is sorted by id, all bills of one month sit next to each other. A binary search jumps to the first one in O(log n) and a scan collects only that month’s bills, instead of reading every bill ever issued.</p></div>
   <div class="qa"><p class="qq">What happens to someone connected on the 31st?</p><p class="aa">In a month without a 31st the period starts on that month’s last day (e.g. February 28), then goes back to the 31st when it exists. The due date is always 15 days after the period starts.</p></div>
   <div class="qa"><p class="qq">How do you stop double billing?</p><p class="aa">The bill id is built from the month and the account, so a second bill for the same month has the same id — <span class="mono">findBill</span> (binary search) finds it and the bill is refused.</p></div>
   <div class="qa"><p class="qq">How do you detect a re-used reference number?</p><p class="aa">Every payment is stored in a hash table under “METHOD:REFERENCE”. Validation looks that key up once; if a confirmed payment, or an earlier report still waiting, is listed there, check 5 fails. Only the <em>later</em> report is the duplicate — the first one is not blamed, and declined reports don’t count.</p></div>
@@ -2530,11 +2530,11 @@
     <table class="t">
       <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
       <tbody>
-        <tr><td>One month’s bills (n bills, k in the month)</td><td><strong>O(log n + k)</strong></td><td>O(k)</td></tr>
-        <tr><td>Month totals</td><td>O(k)</td><td>O(1)</td></tr>
-        <tr><td>Overdue in all months / earlier overdue (e of them)</td><td>O(n) / O(n + e²)</td><td>O(1) / O(e)</td></tr>
-        <tr><td>Filter + names + search</td><td>O(k log s + k · L · m)</td><td>O(k)</td></tr>
-        <tr><td>Group + sort each group</td><td>O(k + k²)</td><td>O(k)</td></tr>
+        <tr><td>One month’s bills (n bills in total)</td><td><strong>O(log n) + O(n)</strong></td><td>O(n)</td></tr>
+        <tr><td>Month totals</td><td>O(n)</td><td>O(1)</td></tr>
+        <tr><td>Overdue in all months / earlier overdue</td><td>O(n) / O(n²)</td><td>O(1) / O(n)</td></tr>
+        <tr><td>Filter + names + search</td><td>O(n²)</td><td>O(n)</td></tr>
+        <tr><td>Group + sort each group</td><td>O(n²)</td><td>O(n)</td></tr>
         <tr><td>Mark one bill paid</td><td>O(log n)</td><td>O(1)</td></tr>
       </tbody>
     </table>
@@ -2544,7 +2544,7 @@
   <p class="ask">Why did you choose that data structure or algorithm? Why is it appropriate?</p>
   <div class="answer">
     <ul>
-      <li><strong>Sorted array + range search</strong>: putting year and month at the front of the id makes each month a contiguous block, so the page reads only that block (O(log n + k)) instead of every bill ever issued (O(n)) — this matters more every month the business runs.</li>
+      <li><strong>Sorted array + range search</strong>: putting year and month at the front of the id makes each month a contiguous block, so the page jumps there in O(log n) and reads only that block instead of every bill ever issued — this matters more every month the business runs.</li>
       <li><strong>One-pass grouping</strong>: each bill is compared with today once, and the groups match how staff work (collect overdue first, remind the due-soon ones).</li>
       <li><strong>Insertion sort per group</strong>: the groups are small and almost in order already, the best case for insertion sort; it is also stable.</li>
       <li><strong>Totals computed on the fly</strong> from the bills, so they are always correct after a payment or an Undo.</li>
@@ -2562,14 +2562,14 @@
     <figure><img src="img/m11-billing.jpg" alt="Billing"><figcaption>Totals, payments waiting and overdue bills from earlier months.</figcaption></figure>
     <figure class="fig-narrow"><img src="img/m11-groups.jpg" alt="Bill groups"><figcaption>The month’s bills grouped by how soon they are due.</figcaption></figure>
     <h4>Trace — finding one month’s bills (computed by our code)</h4>
-    <p>All <strong>21</strong> bills are sorted by id <span class="mono">BILL-YYYYMM-ACCOUNT</span>. This month’s ids start with <strong class="mono">BILL-202609-</strong>, so they sit next to each other (blue):</p><div class="arr"><span class="cell">202607-004871<small>[0]</small></span><span class="cell">202607-004872<small>[1]</small></span><span class="cell">202607-004873<small>[2]</small></span><span class="cell">202607-004874<small>[3]</small></span><span class="cell">202607-004875<small>[4]</small></span><span class="cell">202607-004876<small>[5]</small></span><span class="cell">202607-004877<small>[6]</small></span><span class="cell">202608-004871<small>[7]</small></span><span class="cell">202608-004872<small>[8]</small></span><span class="cell">202608-004873<small>[9]</small></span><span class="cell">202608-004874<small>[10]</small></span><span class="cell">202608-004875<small>[11]</small></span><span class="cell">202608-004876<small>[12]</small></span><span class="cell">202608-004877<small>[13]</small></span><span class="cell">202608-004878<small>[14]</small></span><span class="cell mid">202609-004871<small>[15] first</small></span><span class="cell range">202609-004872<small>[16]</small></span><span class="cell range">202609-004874<small>[17]</small></span><span class="cell range">202609-004875<small>[18]</small></span><span class="cell range">202609-004877<small>[19]</small></span><span class="cell range">202609-004878<small>[20]</small></span></div><table class="t"><thead><tr><th class="num">Step</th><th class="num">low</th><th class="num">high</th><th class="num">middle</th><th>Bill id at middle</th><th>Decision</th></tr></thead><tbody><tr><td class="num">1</td><td class="num">0</td><td class="num">21</td><td class="num">10</td><td><span class="mono">BILL-202608-004874</span></td><td>smaller → low = 11</td></tr><tr><td class="num">2</td><td class="num">11</td><td class="num">21</td><td class="num">16</td><td><span class="mono">BILL-202609-004872</span></td><td>not smaller → high = 16</td></tr><tr><td class="num">3</td><td class="num">11</td><td class="num">16</td><td class="num">13</td><td><span class="mono">BILL-202608-004877</span></td><td>smaller → low = 14</td></tr><tr><td class="num">4</td><td class="num">14</td><td class="num">16</td><td class="num">15</td><td><span class="mono">BILL-202609-004871</span></td><td>not smaller → high = 15</td></tr><tr><td class="num">5</td><td class="num">14</td><td class="num">15</td><td class="num">14</td><td><span class="mono">BILL-202608-004878</span></td><td>smaller → low = 15</td></tr></tbody></table><p>Binary search finds the first bill of the month at index <strong>15</strong> in 5 steps; a short scan collects the <strong>6</strong> bills of the month (the code reports 11 comparisons in total instead of reading all 21).</p><table class="t"><thead><tr><th>Group (by days to due date)</th><th>Bills</th></tr></thead><tbody><tr><td>Overdue</td><td>—</td></tr><tr><td>Due within 7 days</td><td>Ramon Villareal</td></tr><tr><td>Upcoming</td><td>Kristine Ramos, Mark Bautista, Carlo Mendoza</td></tr><tr><td>Paid</td><td>Liza Fernandez, Angelica Cruz</td></tr></tbody></table><p>Totals in one pass: expected ₱6,300 · collected ₱1,800 · outstanding ₱4,500 (4 unpaid of 6).</p>
+    <p>All <strong>20</strong> bills are sorted by id <span class="mono">BILL-YYYYMM-ACCOUNT</span>. This month’s ids start with <strong class="mono">BILL-202609-</strong>, so they sit next to each other (blue):</p><div class="arr"><span class="cell">202607-004871<small>[0]</small></span><span class="cell">202607-004872<small>[1]</small></span><span class="cell">202607-004873<small>[2]</small></span><span class="cell">202607-004874<small>[3]</small></span><span class="cell">202607-004875<small>[4]</small></span><span class="cell">202608-004871<small>[5]</small></span><span class="cell">202608-004872<small>[6]</small></span><span class="cell">202608-004873<small>[7]</small></span><span class="cell">202608-004874<small>[8]</small></span><span class="cell">202608-004875<small>[9]</small></span><span class="cell">202608-004876<small>[10]</small></span><span class="cell">202608-004877<small>[11]</small></span><span class="cell">202608-004878<small>[12]</small></span><span class="cell mid">202609-004871<small>[13] first</small></span><span class="cell range">202609-004872<small>[14]</small></span><span class="cell range">202609-004874<small>[15]</small></span><span class="cell range">202609-004875<small>[16]</small></span><span class="cell range">202609-004876<small>[17]</small></span><span class="cell range">202609-004877<small>[18]</small></span><span class="cell range">202609-004878<small>[19]</small></span></div><table class="t"><thead><tr><th class="num">Step</th><th class="num">low</th><th class="num">high</th><th class="num">middle</th><th>Bill id at middle</th><th>Decision</th></tr></thead><tbody><tr><td class="num">1</td><td class="num">0</td><td class="num">20</td><td class="num">10</td><td><span class="mono">BILL-202608-004876</span></td><td>smaller → low = 11</td></tr><tr><td class="num">2</td><td class="num">11</td><td class="num">20</td><td class="num">15</td><td><span class="mono">BILL-202609-004874</span></td><td>not smaller → high = 15</td></tr><tr><td class="num">3</td><td class="num">11</td><td class="num">15</td><td class="num">13</td><td><span class="mono">BILL-202609-004871</span></td><td>not smaller → high = 13</td></tr><tr><td class="num">4</td><td class="num">11</td><td class="num">13</td><td class="num">12</td><td><span class="mono">BILL-202608-004878</span></td><td>smaller → low = 13</td></tr></tbody></table><p>Binary search finds the first bill of the month at index <strong>13</strong> in 4 steps; a short scan collects the <strong>7</strong> bills of the month (the code reports 11 comparisons in total instead of reading all 20).</p><table class="t"><thead><tr><th>Group (by days to due date)</th><th>Bills</th></tr></thead><tbody><tr><td>Overdue</td><td>Patricia Gonzales</td></tr><tr><td>Due within 7 days</td><td>Ramon Villareal</td></tr><tr><td>Upcoming</td><td>Kristine Ramos, Mark Bautista</td></tr><tr><td>Paid</td><td>Liza Fernandez, Angelica Cruz, Carlo Mendoza</td></tr></tbody></table><p>Totals in one pass: expected ₱7,500 · collected ₱3,300 · outstanding ₱4,200 (4 unpaid of 7).</p>
   </div>
 
   <h3>Code walkthrough</h3>
   <p class="code-head"><span class="mono">assets/js/backend/billing.js</span> · lines 152–159</p><pre class="code"><span class="ln">152</span><span class="cm">/**</span>
 <span class="ln">153</span><span class="cm"> * billsForMonth — one month's bills. Bill ids start with &quot;BILL-YYYYMM-&quot;, so a</span>
 <span class="ln">154</span><span class="cm"> * binary search jumps to the first one and a short scan collects the rest.</span>
-<span class="ln">155</span><span class="cm"> * Time O(log n + k) · Space O(k)</span>
+<span class="ln">155</span><span class="cm"> * Time O(log n) + O(n) · Space O(n)</span>
 <span class="ln">156</span><span class="cm"> */</span>
 <span class="ln">157</span><span class="kw">function</span> billsForMonth(year, month) {
 <span class="ln">158</span>  <span class="kw">return</span> rangeWithPrefix(bills, <span class="st">'billId'</span>, <span class="st">'BILL-'</span> + year + pad2(month) + <span class="st">'-'</span>);
@@ -2583,7 +2583,7 @@
 <span class="ln">178</span><span class="cm"> * array sorted by `field`. Binary search jumps to the first candidate, then a</span>
 <span class="ln">179</span><span class="cm"> * short scan collects the neighbours. (Bill ids start with &quot;BILL-YYYYMM-&quot;,</span>
 <span class="ln">180</span><span class="cm"> * so this finds one month's bills without reading the whole table.)</span>
-<span class="ln">181</span><span class="cm"> * Time O(log n + k) for k matches · Space O(k)</span>
+<span class="ln">181</span><span class="cm"> * Time O(log n) to find the first + O(n) to collect the matches · Space O(n)</span>
 <span class="ln">182</span><span class="cm"> */</span>
 <span class="ln">183</span><span class="kw">function</span> rangeWithPrefix(sortedRecords, field, prefix) {
 <span class="ln">184</span>  <span class="kw">const</span> matches = [];
@@ -2609,7 +2609,7 @@
   <p class="code-head"><span class="mono">assets/js/backend/billing.js</span> · lines 230–261</p><pre class="code"><span class="ln">230</span><span class="cm">/**</span>
 <span class="ln">231</span><span class="cm"> * groupBills — bucket bills into four arrays by comparing the due date with</span>
 <span class="ln">232</span><span class="cm"> * today; each bucket is then sorted by due date (insertion sort).</span>
-<span class="ln">233</span><span class="cm"> * Time O(n + k²) · Space O(n)</span>
+<span class="ln">233</span><span class="cm"> * Time O(n²) · Space O(n)</span>
 <span class="ln">234</span><span class="cm"> */</span>
 <span class="ln">235</span><span class="kw">function</span> groupBills(list, today) {
 <span class="ln">236</span>  <span class="kw">const</span> overdue = [];
@@ -2731,9 +2731,9 @@
       <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
       <tbody>
         <tr><td>billingPeriod (day-number arithmetic)</td><td>O(1)</td><td>O(1)</td></tr>
-        <tr><td>createBill: find subscriber + duplicate check</td><td>O(log s) + O(log n)</td><td>O(1)</td></tr>
+        <tr><td>createBill: find subscriber + duplicate check</td><td>O(log n) + O(log n)</td><td>O(1)</td></tr>
         <tr><td>createBill: sorted insert</td><td>O(log n) + O(n) shift = O(n)</td><td>O(1)</td></tr>
-        <tr><td><strong>generateMonthlyBills</strong> (s subscribers, n bills)</td><td><strong>O(s · n)</strong></td><td><strong>O(s)</strong> for the Undo operations</td></tr>
+        <tr><td><strong>generateMonthlyBills</strong> (an O(n) sorted insert per subscriber)</td><td><strong>O(n²)</strong></td><td><strong>O(n)</strong> for the Undo operations</td></tr>
       </tbody>
     </table>
   </div>
@@ -2766,7 +2766,7 @@
       <figure class="fig-narrow"><img src="img/m12-new-bill.jpg" alt="New bill sheet"><figcaption>“New bill” — already-billed accounts are disabled.</figcaption></figure>
     </div>
     <h4>Trace — periods and a generation run (computed by our code)</h4>
-    <table class="t"><thead><tr><th>Connected on</th><th>Bill for</th><th>Period</th><th>Due (start + 15 days)</th><th>Why</th></tr></thead><tbody><tr><td>2026-08-15</td><td>September 2026</td><td>2026-09-15 → 2026-10-14</td><td>2026-09-30</td><td>normal month: same day each month</td></tr><tr><td>2026-01-31</td><td>February 2026</td><td>2026-02-28 → 2026-03-30</td><td>2026-03-15</td><td>February has no 31st → its last day is used</td></tr></tbody></table><p><strong>Generate bills for 2026-10:</strong> 6 bills created, total ₱6,300. Bills table: 21 → 27 records, still sorted by id: <span class="ok">✓ verified</span>. Skipped (not active): Jerome Santiago (Terminated), Patricia Gonzales (Suspended).</p><table class="t"><thead><tr><th>Example bill</th><th>Value</th></tr></thead><tbody><tr><td>Subscriber (connected on)</td><td>Liza Fernandez (2026-07-13)</td></tr><tr><td>Bill id</td><td><span class="mono">BILL-202610-004871</span></td></tr><tr><td>Period</td><td>2026-10-13 → 2026-11-12</td></tr><tr><td>Due date</td><td>2026-10-28</td></tr><tr><td>Amount (plan price)</td><td>₱800</td></tr></tbody></table><p>Clicking <em>Generate</em> again: “Every active subscriber already has a bill for October 2026.” (each bill id was found by binary search). Undo stack top: “Generate 6 bills for October 2026” holding <strong>6 insert operations</strong> — one Undo removes all of them.</p>
+    <table class="t"><thead><tr><th>Connected on</th><th>Bill for</th><th>Period</th><th>Due (start + 15 days)</th><th>Why</th></tr></thead><tbody><tr><td>2026-08-15</td><td>September 2026</td><td>2026-09-15 → 2026-10-14</td><td>2026-09-30</td><td>normal month: same day each month</td></tr><tr><td>2026-01-31</td><td>February 2026</td><td>2026-02-28 → 2026-03-30</td><td>2026-03-15</td><td>February has no 31st → its last day is used</td></tr></tbody></table><p><strong>Generate bills for 2026-10:</strong> 6 bills created, total ₱6,300. Bills table: 20 → 26 records, still sorted by id: <span class="ok">✓ verified</span>. Skipped (not active): Jerome Santiago (Terminated), Patricia Gonzales (Suspended).</p><table class="t"><thead><tr><th>Example bill</th><th>Value</th></tr></thead><tbody><tr><td>Subscriber (connected on)</td><td>Liza Fernandez (2026-07-17)</td></tr><tr><td>Bill id</td><td><span class="mono">BILL-202610-004871</span></td></tr><tr><td>Period</td><td>2026-10-17 → 2026-11-16</td></tr><tr><td>Due date</td><td>2026-11-01</td></tr><tr><td>Amount (plan price)</td><td>₱800</td></tr></tbody></table><p>Clicking <em>Generate</em> again: “Every active subscriber already has a bill for October 2026.” (each bill id was found by binary search). Undo stack top: “Generate 6 bills for October 2026” holding <strong>6 insert operations</strong> — one Undo removes all of them.</p>
   </div>
 
   <h3>Code walkthrough</h3>
@@ -2856,7 +2856,7 @@
   <p class="code-head"><span class="mono">assets/js/backend/billing.js</span> · lines 113–150</p><pre class="code"><span class="ln">113</span><span class="cm">/**</span>
 <span class="ln">114</span><span class="cm"> * generateMonthlyBills — bill every active subscriber who has no bill for the</span>
 <span class="ln">115</span><span class="cm"> * month yet. All the new bills form ONE undo step.</span>
-<span class="ln">116</span><span class="cm"> * Time O(s · n) for s subscribers · Space O(s)</span>
+<span class="ln">116</span><span class="cm"> * Time O(n²) — an O(n) sorted insert for each subscriber · Space O(n)</span>
 <span class="ln">117</span><span class="cm"> */</span>
 <span class="ln">118</span><span class="kw">function</span> generateMonthlyBills(year, month, actor) {
 <span class="ln">119</span>  <span class="kw">const</span> operations = [];
@@ -2970,13 +2970,13 @@
       <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
       <tbody>
         <tr><td>Report a payment (pending check over n payments, then append + hashPut)</td><td>O(n) + O(1) average</td><td>O(1)</td></tr>
-        <tr><td>Build the validation queue / peek the front</td><td>O(n) / O(1)</td><td>O(p)</td></tr>
-        <tr><td>Check 1 — find the bill (binary search over B bills)</td><td>O(log B)</td><td>O(1)</td></tr>
+        <tr><td>Build the validation queue / peek the front</td><td>O(n) / O(1)</td><td>O(n)</td></tr>
+        <tr><td>Check 1 — find the bill (binary search over the bills)</td><td>O(log n)</td><td>O(1)</td></tr>
         <tr><td>Checks 2 and 3</td><td>O(1)</td><td>O(1)</td></tr>
-        <tr><td>Check 4 — format (k characters)</td><td>O(k)</td><td>O(1)</td></tr>
-        <tr><td>Check 5 — hash look-up (d earlier uses of the reference)</td><td>O(1) average (+ O(d log n))</td><td>O(1)</td></tr>
-        <tr><td><strong>validatePayment overall</strong></td><td><strong>O(log B + k)</strong></td><td><strong>O(1)</strong></td></tr>
-        <tr><td>Confirm (validate + settle the bill)</td><td>O(log B + k)</td><td>O(1)</td></tr>
+        <tr><td>Check 4 — format (n characters)</td><td>O(n)</td><td>O(1)</td></tr>
+        <tr><td>Check 5 — hash look-up</td><td>O(1) average (+ O(log n) per earlier use — almost never)</td><td>O(1)</td></tr>
+        <tr><td><strong>validatePayment overall</strong></td><td><strong>O(log n) + O(n)</strong></td><td><strong>O(1)</strong></td></tr>
+        <tr><td>Confirm (validate + settle the bill)</td><td>O(log n) + O(n)</td><td>O(1)</td></tr>
       </tbody>
     </table>
   </div>
@@ -2987,7 +2987,7 @@
     <ul>
       <li><strong>Queue</strong>: payments are validated in the order customers reported them — first come, first served — and the front is available in O(1).</li>
       <li><strong>Hash table for references</strong>: checking “was this reference used?” by scanning every payment would be O(n) for each validation and grow forever; the hash table answers in O(1) on average. The key includes the method, so a GCash and a bank number that happen to look alike don’t clash.</li>
-      <li><strong>Binary search for the bill</strong>: bills are sorted by id (Module 12), so finding the reported bill is O(log B).</li>
+      <li><strong>Binary search for the bill</strong>: bills are sorted by id (Module 12), so finding the reported bill is O(log n).</li>
       <li><strong>Character scan</strong> for the format: exact rules per method without regular expressions.</li>
       <li><strong>Checks repeated inside Confirm</strong>: the rule is enforced by the backend, not just by a disabled button.</li>
       <li><strong>Privacy</strong>: the public form never reveals whether a reference exists; only staff see duplicates.</li>
@@ -3015,7 +3015,7 @@
       <figure><img src="img/m13-decline.jpg" alt="Decline with reason"><figcaption>Decline: the reason is suggested from the failed check.</figcaption></figure>
     </div>
     <h4>Trace — the queue, the five checks and the hash table (computed by our code)</h4>
-    <p>The validation queue (circular buffer, front = oldest report):</p><div class="arr"><span class="cell front">PAY-000002<small>[0] front</small></span><span class="cell">PAY-000003<small>[1]</small></span><span class="cell">PAY-000004<small>[2]</small></span><span class="cell">PAY-000005<small>[3]</small></span></div><table class="t"><thead><tr><th>Payment</th><th>1. Bill belongs to the account</th><th>2. Bill is still unpaid</th><th>3. Amount matches the bill</th><th>4. Reference number format</th><th>5. Reference number not used before</th><th>Verdict</th></tr></thead><tbody><tr><td><strong>PAY-000002</strong><br>Kristine Ramos<br><span class="muted">GCash · ₱800</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ Confirm</span></td></tr><tr><td><strong>PAY-000003</strong><br>Liza Fernandez<br><span class="muted">Maya · ₱800</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ no</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ Decline</span></td></tr><tr><td><strong>PAY-000004</strong><br>Patricia Gonzales<br><span class="muted">GCash · ₱1,000</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ no</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ Decline</span></td></tr><tr><td><strong>PAY-000005</strong><br>Mark Bautista<br><span class="muted">GCash · ₱1,000</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ no</span></td><td><span class="no">✗ Decline</span></td></tr></tbody></table><table class="t"><thead><tr><th>Payment</th><th>The failed check says</th><th>Suggested reason for the customer</th></tr></thead><tbody><tr><td>PAY-000003 Liza Fernandez</td><td>Already paid on Sep 25, 2026 (Office payment).</td><td>“This bill was already paid, so this payment was not applied. Please contact us if you paid twice.”</td></tr><tr><td>PAY-000004 Patricia Gonzales</td><td>Paid ₱1,000 for a ₱1,200 bill — ₱200 short.</td><td>“You sent ₱1,000 but the bill is ₱1,200. Please visit our office so we can settle the difference.”</td></tr><tr><td>PAY-000005 Mark Bautista</td><td>Already used by PAY-000001 (Angelica Cruz, confirmed).</td><td>“This reference number was already used for another payment. Please check your receipt.”</td></tr></tbody></table><p><strong>The reference hash table</strong> (key <span class="mono">METHOD:REFERENCE</span> → payment ids):</p><table class="t"><thead><tr><th class="num">Bucket</th><th>Key</th><th>Payment ids</th></tr></thead><tbody><tr><td class="num">3</td><td><span class="mono">GCASH:7204519833102</span></td><td>PAY-000002</td></tr><tr><td class="num">12</td><td><span class="mono">MAYA:4F7K2M9Q1T8B</span></td><td>PAY-000003</td></tr><tr><td class="num">13</td><td><span class="mono">GCASH:8830146527015</span></td><td>PAY-000004</td></tr><tr><td class="num">15</td><td><span class="mono">GCASH:5012873246119</span></td><td>PAY-000001, PAY-000005 <span class="no">✗ used twice</span></td></tr></tbody></table><p><strong>Reference formats (check 4):</strong> GCash — 13 digits (e.g. <span class="mono">5012 873 246 119</span>); Maya — 12 letters or digits (e.g. <span class="mono">4F7K 2M9Q 1T8B</span>); Bank transfer — 8–20 letters or digits (e.g. <span class="mono">FT26 0918 8830</span>); Over the counter — 8–20 letters or digits (e.g. <span class="mono">BC26 0918 0457</span>).</p>
+    <p>The validation queue (circular buffer, front = oldest report):</p><div class="arr"><span class="cell front">PAY-000002<small>[0] front</small></span><span class="cell">PAY-000003<small>[1]</small></span><span class="cell">PAY-000004<small>[2]</small></span><span class="cell">PAY-000005<small>[3]</small></span></div><table class="t"><thead><tr><th>Payment</th><th>1. Bill belongs to the account</th><th>2. Bill is still unpaid</th><th>3. Amount matches the bill</th><th>4. Reference number format</th><th>5. Reference number not used before</th><th>Verdict</th></tr></thead><tbody><tr><td><strong>PAY-000002</strong><br>Kristine Ramos<br><span class="muted">GCash · ₱800</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ Confirm</span></td></tr><tr><td><strong>PAY-000003</strong><br>Liza Fernandez<br><span class="muted">Maya · ₱800</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ no</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ Decline</span></td></tr><tr><td><strong>PAY-000004</strong><br>Patricia Gonzales<br><span class="muted">GCash · ₱1,000</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ no</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ Decline</span></td></tr><tr><td><strong>PAY-000005</strong><br>Mark Bautista<br><span class="muted">GCash · ₱1,000</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="ok">✓ yes</span></td><td><span class="no">✗ no</span></td><td><span class="no">✗ Decline</span></td></tr></tbody></table><table class="t"><thead><tr><th>Payment</th><th>The failed check says</th><th>Suggested reason for the customer</th></tr></thead><tbody><tr><td>PAY-000003 Liza Fernandez</td><td>Already paid on Sep 29, 2026 (Office payment).</td><td>“This bill was already paid, so this payment was not applied. Please contact us if you paid twice.”</td></tr><tr><td>PAY-000004 Patricia Gonzales</td><td>Paid ₱1,000 for a ₱1,200 bill — ₱200 short.</td><td>“You sent ₱1,000 but the bill is ₱1,200. Please visit our office so we can settle the difference.”</td></tr><tr><td>PAY-000005 Mark Bautista</td><td>Already used by PAY-000001 (Angelica Cruz, confirmed).</td><td>“This reference number was already used for another payment. Please check your receipt.”</td></tr></tbody></table><p><strong>The reference hash table</strong> (key <span class="mono">METHOD:REFERENCE</span> → payment ids):</p><table class="t"><thead><tr><th class="num">Bucket</th><th>Key</th><th>Payment ids</th></tr></thead><tbody><tr><td class="num">3</td><td><span class="mono">GCASH:7204519833102</span></td><td>PAY-000002</td></tr><tr><td class="num">12</td><td><span class="mono">MAYA:4F7K2M9Q1T8B</span></td><td>PAY-000003</td></tr><tr><td class="num">13</td><td><span class="mono">GCASH:8830146527015</span></td><td>PAY-000004</td></tr><tr><td class="num">15</td><td><span class="mono">GCASH:5012873246119</span></td><td>PAY-000001, PAY-000005 <span class="no">✗ used twice</span></td></tr></tbody></table><p><strong>Reference formats (check 4):</strong> GCash — 13 digits (e.g. <span class="mono">5012 873 246 119</span>); Maya — 12 letters or digits (e.g. <span class="mono">4F7K 2M9Q 1T8B</span>); Bank transfer — 8–20 letters or digits (e.g. <span class="mono">FT26 0918 8830</span>); Over the counter — 8–20 letters or digits (e.g. <span class="mono">BC26 0918 0457</span>).</p>
   </div>
 
   <h3>Code walkthrough</h3>
@@ -3023,7 +3023,7 @@
 <span class="ln">148</span><span class="cm"> * validatePayment — the five checks shown on the Payments page. Nothing is</span>
 <span class="ln">149</span><span class="cm"> * changed; the result says which checks passed and why.</span>
 <span class="ln">150</span><span class="cm"> * Returns { checks: [{ key, label, ok, text }], passed, failed, firstFailure, bill }.</span>
-<span class="ln">151</span><span class="cm"> * Time O(log n + k) · Space O(1)</span>
+<span class="ln">151</span><span class="cm"> * Time O(log n) + O(n) · Space O(1)</span>
 <span class="ln">152</span><span class="cm"> */</span>
 <span class="ln">153</span><span class="kw">function</span> validatePayment(payment) {
 <span class="ln">154</span>  <span class="kw">const</span> checks = [];
@@ -3117,7 +3117,7 @@
 <span class="ln">125</span><span class="cm"> * BEFORE this one: an already confirmed payment, or an earlier report that is still</span>
 <span class="ln">126</span><span class="cm"> * waiting. Declined reports don't count, and neither do later reports (the later one</span>
 <span class="ln">127</span><span class="cm"> * is the duplicate, not this one). One hash-table look-up, then a binary search per id.</span>
-<span class="ln">128</span><span class="cm"> * Time O(1) average + O(d log n) for d other uses (d is almost always 0) · Space O(1)</span>
+<span class="ln">128</span><span class="cm"> * Time O(1) average, + O(log n) for each earlier use of the reference (almost never) · Space O(1)</span>
 <span class="ln">129</span><span class="cm"> */</span>
 <span class="ln">130</span><span class="kw">function</span> findDuplicatePayment(payment) {
 <span class="ln">131</span>  <span class="kw">const</span> ids = hashGet(paymentReferenceIndex, paymentReferenceKey(payment.method, payment.referenceCode));
@@ -3143,7 +3143,7 @@
   <p class="code-head"><span class="mono">assets/js/backend/payments.js</span> · lines 327–361</p><pre class="code"><span class="ln">327</span><span class="cm">/**</span>
 <span class="ln">328</span><span class="cm"> * confirmPayment — accept the payment and mark its bill paid. Refused unless</span>
 <span class="ln">329</span><span class="cm"> * all five validation checks pass. One undo step reverses both changes.</span>
-<span class="ln">330</span><span class="cm"> * Time O(log n + k) · Space O(1)</span>
+<span class="ln">330</span><span class="cm"> * Time O(log n) + O(n) · Space O(1)</span>
 <span class="ln">331</span><span class="cm"> */</span>
 <span class="ln">332</span><span class="kw">function</span> confirmPayment(paymentId, actor) {
 <span class="ln">333</span>  <span class="kw">if</span> (!actor) {
@@ -3186,7 +3186,7 @@
 <section class="break">
   <p class="cover-kicker">Appendix A</p>
   <h2>Complexity summary — all 13 modules</h2>
-  <p class="small muted">The main operation of each module. n = records in the table, k = results or text length, s = subscribers, r = staff requests, p = items waiting in a queue, b = hash buckets. Details are on each module’s page.</p>
+  <p class="small muted">The main operation of each module, written with only the four notations from class: O(1), O(log n), O(n) and O(n²). n is the size of whatever the operation goes through — records in a table, characters of a text, or items in a queue; a loop inside a loop is O(n²). Details are on each module’s page.</p>
   <table class="t compact">
     <thead><tr><th>#</th><th>Module</th><th>Member</th><th>Main structure / algorithm</th><th>Time</th><th>Space</th></tr></thead>
     <tbody>
@@ -3196,13 +3196,13 @@
       <tr><td>4</td><td>Application List</td><td><span class="pill m-justin">Justin</span></td><td>Linear filter · naive string matching · insertion / selection / bubble sort · review queue</td><td>O(n²) worst sort · O(1) peek</td><td>O(n)</td></tr>
       <tr><td>5</td><td>Walk-in Override</td><td><span class="pill m-justin">Justin</span></td><td>Validation · linear duplicate check · append · Undo stack</td><td>O(n)</td><td>O(1)</td></tr>
       <tr><td>6</td><td>Create Account</td><td><span class="pill m-justin">Justin</span></td><td>Binary search · lower bound + shift (sorted insert)</td><td>O(n)</td><td>O(1) extra</td></tr>
-      <tr><td>7</td><td>Admin Login</td><td><span class="pill m-rice">Riceerich</span></td><td>Hash table (djb2, chaining) · binary search · salted password hash</td><td>O(1) average</td><td>O(1); table O(n + b)</td></tr>
+      <tr><td>7</td><td>Admin Login</td><td><span class="pill m-rice">Riceerich</span></td><td>Hash table (djb2, chaining) · binary search · salted password hash</td><td>O(1) average</td><td>O(1); table O(n)</td></tr>
       <tr><td>8</td><td>Accounts Management</td><td><span class="pill m-rice">Riceerich</span></td><td>Filter + search + sort · binary search · oldest-bill queue</td><td>O(log n) find · O(n²) worst sort</td><td>O(n)</td></tr>
       <tr><td>9</td><td>Admin/Staff Creation &amp; Management</td><td><span class="pill m-rice">Riceerich</span></td><td>Hash table (unique e-mail) · append · binary search</td><td>O(1) average add · O(log n) actions</td><td>O(1)</td></tr>
-      <tr><td>10</td><td>Admin Registration &amp; Approval</td><td><span class="pill m-rice">Riceerich</span></td><td>Approval queue · hash look-up · binary search · append + hashPut</td><td>O(1) peek · O(log r) approve</td><td>O(p)</td></tr>
-      <tr><td>11</td><td>Billing: Client Billing List</td><td><span class="pill m-aaron">Aaron</span></td><td>Lower bound + range scan · one-pass grouping · insertion sort</td><td>O(log n + k)</td><td>O(k)</td></tr>
-      <tr><td>12</td><td>Billing: Bill Generation</td><td><span class="pill m-aaron">Aaron</span></td><td>Binary search (duplicate) · sorted insert · one Undo step</td><td>O(s · n)</td><td>O(s)</td></tr>
-      <tr><td>13</td><td>Payments Validation</td><td><span class="pill m-aaron">Aaron</span></td><td>Queue · binary search · character scan · hash table</td><td>O(log n + k)</td><td>O(1)</td></tr>
+      <tr><td>10</td><td>Admin Registration &amp; Approval</td><td><span class="pill m-rice">Riceerich</span></td><td>Approval queue · hash look-up · binary search · append + hashPut</td><td>O(1) peek · O(log n) approve</td><td>O(n)</td></tr>
+      <tr><td>11</td><td>Billing: Client Billing List</td><td><span class="pill m-aaron">Aaron</span></td><td>Lower bound + range scan · one-pass grouping · insertion sort</td><td>O(log n) + O(n)</td><td>O(n)</td></tr>
+      <tr><td>12</td><td>Billing: Bill Generation</td><td><span class="pill m-aaron">Aaron</span></td><td>Binary search (duplicate) · sorted insert · one Undo step</td><td>O(n²)</td><td>O(n)</td></tr>
+      <tr><td>13</td><td>Payments Validation</td><td><span class="pill m-aaron">Aaron</span></td><td>Queue · binary search · character scan · hash table</td><td>O(log n) + O(n)</td><td>O(1)</td></tr>
     </tbody>
   </table>
 
@@ -3244,7 +3244,7 @@
       <tr><td><strong>Binary search</strong></td><td>On a sorted array, compare with the middle and keep one half. O(log n).</td></tr>
       <tr><td><strong>Lower bound</strong></td><td>Binary search for the first position whose key is ≥ a value — where a new item belongs, or where a range starts.</td></tr>
       <tr><td><strong>Sorted insert</strong></td><td>Lower bound + shift the later items one slot right. Keeps the array sorted. O(n).</td></tr>
-      <tr><td><strong>Naive string matching</strong></td><td>Try the search text at every position of the field. O(L · m).</td></tr>
+      <tr><td><strong>Naive string matching</strong></td><td>Try the search text at every position of the field. O(n²).</td></tr>
       <tr><td><strong>Stable sort</strong></td><td>Equal items keep their original order (insertion and bubble sort are stable; selection sort is not).</td></tr>
       <tr><td><strong>Stack (LIFO)</strong></td><td>Last in, first out: push and pop at the top. Used for Undo, Back and open dialogs.</td></tr>
       <tr><td><strong>Queue (FIFO)</strong></td><td>First in, first out: enqueue at the rear, dequeue at the front. Used for review, payments, staff requests, support, oldest bill.</td></tr>

@@ -17,7 +17,7 @@ function syncPayAmount() {
   setFieldValue('payAmount', bill ? bill.amount : '');
 }
 
-/** updateReferenceHint — show what a reference number looks like for the chosen method. O(r) */
+/** updateReferenceHint — show what a reference number looks like for the chosen method. O(n) */
 function updateReferenceHint() {
   const rule = paymentReferenceRule(fieldValue('payMethod'));
   setText('payReference-hint', rule ? rule.method + ' reference numbers have ' + rule.shape + ', e.g. ' + rule.example + '.' : 'Printed on your receipt or payment confirmation.');

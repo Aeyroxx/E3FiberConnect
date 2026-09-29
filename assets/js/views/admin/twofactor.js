@@ -26,7 +26,7 @@ function otpDigits() {
   return document.querySelectorAll('#otpCode .otp-digit');
 }
 
-/** otpValue — the code typed so far. O(6) */
+/** otpValue — the code typed so far. O(1) */
 function otpValue() {
   const digits = otpDigits();
   let code = '';
@@ -94,7 +94,7 @@ function buzz(pattern) {
   }
 }
 
-/** qrSvg — the QR matrix as a crisp SVG with a 4-module quiet zone. O(size²) */
+/** qrSvg — the QR matrix as a crisp SVG with a 4-module quiet zone. O(n²) */
 function qrSvg(matrix) {
   const quiet = 4;
   const full = matrix.size + quiet * 2;
@@ -177,7 +177,7 @@ function openOtpSheet(mode, text, onVerified) {
   }, 60);
 }
 
-/** showOtpSetupStep — the QR code, the phone link and the setup key for a started setup. O(size²) */
+/** showOtpSetupStep — the QR code, the phone link and the setup key for a started setup. O(n²) */
 function showOtpSetupStep(started) {
   otpView.setupSecret = started.secret;
   setHTML('otpQr', qrSvg(makeQrMatrix(started.uri)));

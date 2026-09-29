@@ -38,7 +38,7 @@ const QR_EC_LEVEL_M = 0;   // format bits for level M
 
 const qrGf = { exp: [], log: [] };
 
-/** qrInitGalois — exponent / logarithm tables for GF(256) with polynomial 0x11D. O(256) */
+/** qrInitGalois — exponent / logarithm tables for GF(256) with polynomial 0x11D. O(1) */
 function qrInitGalois() {
   if (qrGf.exp.length > 0) {
     return;
@@ -82,7 +82,7 @@ function qrGenerator(degree) {
   return poly;
 }
 
-/** qrErrorCorrection — the remainder of data · xⁿ divided by the generator = the EC codewords. O(d · n) */
+/** qrErrorCorrection — the remainder of data · xⁿ divided by the generator = the EC codewords. O(n²) */
 function qrErrorCorrection(data, degree) {
   const generator = qrGenerator(degree);
   const work = [];
@@ -109,7 +109,7 @@ function qrErrorCorrection(data, degree) {
 
 /* ----------------------------------------------------------- data encoding */
 
-/** qrAppendBits — add `length` bits of `value` (most significant first). O(length) */
+/** qrAppendBits — add `length` bits of `value` (most significant first). O(n) */
 function qrAppendBits(bits, value, length) {
   for (let i = length - 1; i >= 0; i--) {
     arrayAppend(bits, (value >>> i) & 1);
@@ -129,7 +129,7 @@ function qrDataCapacity(version) {
 /**
  * qrCodewords — 1. choose the smallest version that fits; 2. build the bit
  * stream; 3. pad; 4. split into blocks, add EC, and interleave.
- * Time O(n + blocks · d · ec)
+ * Time O(n²)
  */
 function qrCodewords(bytes) {
   let version = 1;
@@ -201,7 +201,7 @@ function qrCodewords(bytes) {
 
 /* ----------------------------------------------------------------- matrix */
 
-/** qrGrid — a size × size grid filled with `value`. O(size²) */
+/** qrGrid — a size × size grid filled with `value`. O(n²) */
 function qrGrid(size, value) {
   const grid = [];
   for (let y = 0; y < size; y++) {
@@ -306,7 +306,7 @@ function qrMaskHit(mask, x, y) {
   return ((x + y) % 2 + (x * y) % 3) % 2 === 0;
 }
 
-/** qrPenalty — the standard 4-rule penalty (long runs, 2×2 blocks, finder-like runs, dark balance). O(size²) */
+/** qrPenalty — the standard 4-rule penalty (long runs, 2×2 blocks, finder-like runs, dark balance). O(n²) */
 function qrPenalty(qr) {
   const size = qr.size;
   const m = qr.modules;
@@ -358,7 +358,7 @@ function qrPenalty(qr) {
 /**
  * makeQrMatrix — the finished QR code for `text` (ASCII), or null if too long.
  * Returns { size, version, mask, modules } where modules[y][x] is true for dark.
- * Time O(size² · 8) · Space O(size²)
+ * Time O(n²) · Space O(n²)
  */
 function makeQrMatrix(text) {
   const bytes = [];

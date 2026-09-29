@@ -91,7 +91,7 @@ function previewSubscriberAccount(referenceNo) {
   };
 }
 
-/** isSerialText — letters, digits and dashes only (modem serial numbers). O(k) */
+/** isSerialText — letters, digits and dashes only (modem serial numbers). O(n) */
 function isSerialText(text) {
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
@@ -105,7 +105,7 @@ function isSerialText(text) {
 /**
  * validateAccountDetails — the "Create account" form: the installer must
  * confirm the connection was tested; the modem serial number is optional
- * (6–24 letters, digits or dashes). Time O(k) · Space O(1)
+ * (6–24 letters, digits or dashes). Time O(n) · Space O(1)
  */
 function validateAccountDetails(details) {
   const errors = {};
@@ -136,13 +136,13 @@ function createSubscriberAccount(referenceNo, details, actor) {
 /**
  * subscriberBills — every bill of one account, oldest month first
  * (bills are sorted by id "BILL-YYYYMM-…", so a linear scan keeps month order).
- * Time O(b) for b bills in the table · Space O(k)
+ * Time O(n) for n bills in the table · Space O(n)
  */
 function subscriberBills(accountNo) {
   return linearSearchAll(bills, 'accountNo', accountNo);
 }
 
-/** subscriberBalance — the total of the account's unpaid bills. Time O(b) */
+/** subscriberBalance — the total of the account's unpaid bills. Time O(n) */
 function subscriberBalance(accountNo) {
   let total = 0;
   for (let i = 0; i < bills.length; i++) {
@@ -153,7 +153,7 @@ function subscriberBalance(accountNo) {
   return total;
 }
 
-/** subscriberPaidTotal — the total the account has paid so far. Time O(b) */
+/** subscriberPaidTotal — the total the account has paid so far. Time O(n) */
 function subscriberPaidTotal(accountNo) {
   let total = 0;
   for (let i = 0; i < bills.length; i++) {
@@ -164,7 +164,7 @@ function subscriberPaidTotal(accountNo) {
   return total;
 }
 
-/** subscriberRow — list fields, including computed balance and price for sorting. O(b) */
+/** subscriberRow — list fields, including computed balance and price for sorting. O(n) */
 function subscriberRow(subscriber) {
   return {
     accountNo: subscriber.accountNo,
@@ -184,7 +184,7 @@ function subscriberRow(subscriber) {
 /**
  * listSubscribers — filter by status, search the text, sort with the chosen
  * algorithm. options: { status, query, sortField, sortOrder, algorithm }
- * Time O(n · b) for balances + O(n²) sort · Space O(n)
+ * Time O(n²) for balances + O(n²) sort · Space O(n)
  */
 function listSubscribers(options) {
   const status = options.status || 'all';
@@ -305,7 +305,7 @@ function verifySubscriberAccess(accountInput, mobileInput) {
 /**
  * nextBillInfo — the next date a subscriber should pay: the due date of the
  * oldest unpaid bill, or the start of the next billing period.
- * Time O(b)
+ * Time O(n)
  */
 function nextBillInfo(subscriber) {
   const unpaid = unpaidBillsQueue(subscriber.accountNo);

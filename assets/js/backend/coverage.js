@@ -35,7 +35,7 @@ function findBarangay(name) {
 /**
  * suggestBarangays — up to `limit` barangays whose name contains the query
  * ("san" → San Gabriel, San Jose Patag, San Vicente …).
- * Linear search + naive string matching. Time O(n · m) · Space O(k)
+ * Linear search + naive string matching. Time O(n²) · Space O(n)
  */
 function suggestBarangays(query, limit) {
   const matches = textSearchRecords(BARANGAYS, ['name'], normalizeBarangayName(query));

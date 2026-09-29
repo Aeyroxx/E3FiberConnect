@@ -59,7 +59,7 @@ function toggleElement(element, visible) {
 /**
  * findAncestorWith — walk up from `node` to the first element that has the
  * attribute, stopping at `stopAt`. (A hand-written version of closest().)
- * Time O(depth)
+ * Time O(n)
  */
 function findAncestorWith(node, attributeName, stopAt) {
   let current = node;
@@ -72,7 +72,7 @@ function findAncestorWith(node, attributeName, stopAt) {
   return null;
 }
 
-/** findAncestorWithClass — like findAncestorWith, for a class name. Time O(depth) */
+/** findAncestorWithClass — like findAncestorWith, for a class name. Time O(n) */
 function findAncestorWithClass(node, className, stopAt) {
   let current = node;
   while (current && current !== stopAt && current !== document) {

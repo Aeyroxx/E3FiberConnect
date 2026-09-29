@@ -30,7 +30,7 @@ function logActivity(kind, message, actorName) {
 
 /**
  * recentActivity — the newest `limit` log lines, newest first (reads from the end).
- * Time O(limit) · Space O(limit)
+ * Time O(n) · Space O(n)
  */
 function recentActivity(limit) {
   const list = [];
@@ -43,7 +43,7 @@ function recentActivity(limit) {
 /**
  * snapshotFields — copy the listed fields of a record before changing them
  * (arrays are copied too, so later changes cannot alter the snapshot).
- * Time O(f + total array length) · Space the same
+ * Time O(n) · Space the same
  */
 function snapshotFields(record, fieldNames) {
   const snapshot = {};
@@ -128,7 +128,7 @@ function revertOperation(operation) {
  * own actions (payment reports, access requests) are not on the Undo stack, so
  * undoing an older staff action must not leave them without their bill, or
  * create a second waiting report / request for the same bill or e-mail.
- * Time O(k · n) for k operations · Space O(1)
+ * Time O(n²) — O(n) per operation (removing a record shifts the rest) · Space O(1)
  */
 function undoBlockedReason(entry) {
   for (let i = 0; i < entry.operations.length; i++) {
@@ -157,7 +157,7 @@ function undoBlockedReason(entry) {
 /**
  * undoTouchesAccounts — would reversing this entry add, remove or change a
  * staff or subscriber account? Those need a Google Authenticator code, like
- * the change itself. Time O(k) for k operations
+ * the change itself. Time O(n) for n operations
  */
 function undoTouchesAccounts(entry) {
   for (let i = 0; i < entry.operations.length; i++) {
@@ -174,7 +174,7 @@ function undoTouchesAccounts(entry) {
  * Returns the entry, null when there is nothing to undo, a step-up error when
  * it changes an account and no code was verified, or
  * { blocked: true, label, error } when it can't be undone (it stays on the stack).
- * Time O(k · n) for k operations · Space O(1)
+ * Time O(n²) — O(n) per operation (removing a record shifts the rest) · Space O(1)
  */
 function undoLastAction(actorName) {
   const top = stackPeek(undoStack);                   // 1. look at the newest entry first

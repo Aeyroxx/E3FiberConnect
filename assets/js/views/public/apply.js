@@ -46,7 +46,7 @@ function applyFieldError(key) {
   return validateApplication(readApplyForm(), 'online')[key] || '';
 }
 
-/** stepForField — which step owns a field (linear search over the steps). O(s · f) */
+/** stepForField — which step owns a field (linear search over the steps). O(n²) */
 function stepForField(key) {
   for (let step = 1; step < APPLY_STEP_FIELDS.length; step++) {
     for (const field in APPLY_STEP_FIELDS[step]) {

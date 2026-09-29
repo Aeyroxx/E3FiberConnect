@@ -9,7 +9,7 @@
    Bill ids look like "BILL-202609-004872" (year, month, last 6 digits of the
    account) and `bills` is kept sorted by id, so:
      • one bill            → binary search                      O(log n)
-     • one month's bills   → binary search to the first + scan  O(log n + k)
+     • one month's bills   → binary search to the first + scan  O(log n) + O(n)
 
    Defense modules — presented by Aaron Sebastian:
      Billing: client billing list  (billsForMonth, groupBills, summarizeBills, filterBillRows)
@@ -113,7 +113,7 @@ function isBillableIn(subscriber, year, month) {
 /**
  * generateMonthlyBills — bill every active subscriber who has no bill for the
  * month yet. All the new bills form ONE undo step.
- * Time O(s · n) for s subscribers · Space O(s)
+ * Time O(n²) — an O(n) sorted insert for each subscriber · Space O(n)
  */
 function generateMonthlyBills(year, month, actor) {
   const operations = [];
@@ -152,13 +152,13 @@ function generateMonthlyBills(year, month, actor) {
 /**
  * billsForMonth — one month's bills. Bill ids start with "BILL-YYYYMM-", so a
  * binary search jumps to the first one and a short scan collects the rest.
- * Time O(log n + k) · Space O(k)
+ * Time O(log n) + O(n) · Space O(n)
  */
 function billsForMonth(year, month) {
   return rangeWithPrefix(bills, 'billId', 'BILL-' + year + pad2(month) + '-');
 }
 
-/** billsForAccount — one account's bills, newest period first (insertion sort). O(n + k²) */
+/** billsForAccount — one account's bills, newest period first (insertion sort). O(n²) */
 function billsForAccount(accountNo) {
   return insertionSort(linearSearchAll(bills, 'accountNo', accountNo), 'periodStart', 'desc');
 }
@@ -166,7 +166,7 @@ function billsForAccount(accountNo) {
 /**
  * unpaidBillsQueue — the account's unpaid bills as a QUEUE, oldest due date
  * first, so payments always settle the oldest debt first (FIFO).
- * Time O(n + k²) · Space O(k)
+ * Time O(n²) · Space O(n)
  */
 function unpaidBillsQueue(accountNo) {
   const unpaid = [];
@@ -212,7 +212,7 @@ function settleBill(billId, actor, paymentRef, options) {
 
 /**
  * settleOldestBill — take the front of the unpaid-bills queue (dequeue) and pay it.
- * Time O(n + k²) · Space O(k)
+ * Time O(n²) · Space O(n)
  */
 function settleOldestBill(accountNo, actor) {
   const oldest = dequeue(unpaidBillsQueue(accountNo));
@@ -230,7 +230,7 @@ function isBillOverdue(bill, today) {
 /**
  * groupBills — bucket bills into four arrays by comparing the due date with
  * today; each bucket is then sorted by due date (insertion sort).
- * Time O(n + k²) · Space O(n)
+ * Time O(n²) · Space O(n)
  */
 function groupBills(list, today) {
   const overdue = [];
@@ -279,7 +279,7 @@ function summarizeBills(list) {
 /**
  * earlierOverdueBills — unpaid, past-due bills from months BEFORE the one on
  * screen, so old debts never disappear from view.
- * Time O(n + k²) · Space O(k)
+ * Time O(n²) · Space O(n)
  */
 function earlierOverdueBills(year, month, today) {
   const viewKey = year * 12 + month;
@@ -329,7 +329,7 @@ function billRow(bill) {
 /**
  * filterBillRows — status filter ("all", "unpaid", "paid") + text search on
  * the subscriber name, account number and bill id.
- * Time O(n · L · m) · Space O(n)
+ * Time O(n²) · Space O(n)
  */
 function filterBillRows(list, statusFilter, query) {
   const rows = [];
@@ -366,7 +366,7 @@ function receivablesSummary(today) {
 /**
  * billableSubscribers — every active subscriber already connected by that month,
  * with whether they already have a bill for it (for the "New bill" sheet).
- * Time O(s · log n) · Space O(s)
+ * Time O(n²) at most — one O(log n) binary search per subscriber · Space O(n)
  */
 function billableSubscribers(year, month) {
   const list = [];

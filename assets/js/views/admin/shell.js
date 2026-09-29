@@ -73,7 +73,7 @@ function renderUndoButton() {
   button.setAttribute('aria-label', top ? 'Undo: ' + top.label : 'Undo — nothing to undo');
 }
 
-/** updateBackButtons — label each Back button with the screen it returns to. O(b) */
+/** updateBackButtons — label each Back button with the screen it returns to. O(n) */
 function updateBackButtons() {
   const previous = peekBack();
   const buttons = qsa('[data-back]');

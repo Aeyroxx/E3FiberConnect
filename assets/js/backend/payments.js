@@ -11,7 +11,7 @@
      1 the bill belongs to the account   binary search on bills   O(log n)
      2 the bill is still unpaid          one field                O(1)
      3 amount paid = amount billed       one comparison           O(1)
-     4 the reference fits the method     scan its characters      O(k)
+     4 the reference fits the method     scan its characters      O(n)
      5 the reference was never used      HASH TABLE look-up       O(1) average
    The hash table (paymentReferenceIndex in database.js) maps a key such as
    "GCASH:5012873246119" to the ids of every payment that used it.
@@ -46,7 +46,7 @@ function pendingPaymentForBill(billId) {
   return null;
 }
 
-/** paymentReferenceRule — the reference rule for a method, or null (linear search). O(r) */
+/** paymentReferenceRule — the reference rule for a method, or null (linear search). O(n) */
 function paymentReferenceRule(method) {
   for (let i = 0; i < PAYMENT_REFERENCE_RULES.length; i++) {
     if (PAYMENT_REFERENCE_RULES[i].method === method) {
@@ -59,7 +59,7 @@ function paymentReferenceRule(method) {
 /**
  * normalizePaymentReference — "5012 873-246 119" → "5012873246119":
  * spaces and dashes removed, letters in capitals.
- * Time O(k) · Space O(k)
+ * Time O(n) · Space O(n)
  */
 function normalizePaymentReference(value) {
   const upper = toUpperText(value);
@@ -75,7 +75,7 @@ function normalizePaymentReference(value) {
 /**
  * checkReferenceFormat — does a normalised reference fit the method's rule?
  * One pass over the characters, then a length check. Returns { ok, text }.
- * Time O(k) · Space O(1)
+ * Time O(n) · Space O(1)
  */
 function checkReferenceFormat(method, reference) {
   const rule = paymentReferenceRule(method);
@@ -100,7 +100,7 @@ function checkReferenceFormat(method, reference) {
   };
 }
 
-/** paymentReferenceKey — the hash-table key, e.g. "GCASH:5012873246119". O(k) */
+/** paymentReferenceKey — the hash-table key, e.g. "GCASH:5012873246119". O(n) */
 function paymentReferenceKey(method, reference) {
   return toUpperText(method) + ':' + normalizePaymentReference(reference);
 }
@@ -125,7 +125,7 @@ function indexPaymentReference(payment) {
  * BEFORE this one: an already confirmed payment, or an earlier report that is still
  * waiting. Declined reports don't count, and neither do later reports (the later one
  * is the duplicate, not this one). One hash-table look-up, then a binary search per id.
- * Time O(1) average + O(d log n) for d other uses (d is almost always 0) · Space O(1)
+ * Time O(1) average, + O(log n) for each earlier use of the reference (almost never) · Space O(1)
  */
 function findDuplicatePayment(payment) {
   const ids = hashGet(paymentReferenceIndex, paymentReferenceKey(payment.method, payment.referenceCode));
@@ -148,7 +148,7 @@ function findDuplicatePayment(payment) {
  * validatePayment — the five checks shown on the Payments page. Nothing is
  * changed; the result says which checks passed and why.
  * Returns { checks: [{ key, label, ok, text }], passed, failed, firstFailure, bill }.
- * Time O(log n + k) · Space O(1)
+ * Time O(log n) + O(n) · Space O(1)
  */
 function validatePayment(payment) {
   const checks = [];
@@ -298,7 +298,7 @@ function reportPayment(accountNo, data) {
 /**
  * paymentsQueue — payments waiting for validation, first reported first.
  * The table is in arrival order, so one pass enqueues them FIFO.
- * Time O(n) · Space O(k)
+ * Time O(n) · Space O(n)
  */
 function paymentsQueue() {
   const queue = createQueue(4);
@@ -327,7 +327,7 @@ function countPaymentsByStatus() {
 /**
  * confirmPayment — accept the payment and mark its bill paid. Refused unless
  * all five validation checks pass. One undo step reverses both changes.
- * Time O(log n + k) · Space O(1)
+ * Time O(log n) + O(n) · Space O(1)
  */
 function confirmPayment(paymentId, actor) {
   if (!actor) {
@@ -419,7 +419,7 @@ function paymentRow(payment) {
  * listPayments — filter by status (linear search), search the text (naive
  * string matching), then sort with the chosen algorithm.
  * options: { status, query, sortField, sortOrder, algorithm }
- * Time O(n · L · m) search + O(n²) sort · Space O(n)
+ * Time O(n²) search + O(n²) sort · Space O(n)
  */
 function listPayments(options) {
   const status = options.status || 'all';

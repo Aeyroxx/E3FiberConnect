@@ -206,8 +206,8 @@ const SEED_APPLICANTS = [
 
 /**
  * seedDatabase — empty every table and load the sample data.
- * Runs once when the page opens (app.js). Time O(n log n) overall for the
- * sorted inserts of bills · Space O(n)
+ * Runs once when the page opens (app.js). Time O(n²) overall — each
+ * sorted insert of a bill is O(n) · Space O(n)
  */
 function seedDatabase() {
   arrayClear(applications);

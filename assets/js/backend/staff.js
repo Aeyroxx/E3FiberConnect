@@ -40,13 +40,13 @@ function isStaffEmailTaken(email) {
 /**
  * staffPasswordMatches — hash the typed password with the member's salt and
  * compare it with the stored hash (the password itself is never stored).
- * Time O(r · n) for the hash · Space O(1)
+ * Time O(n) for the hash (400 fixed rounds over n characters) · Space O(1)
  */
 function staffPasswordMatches(member, password) {
   return hashPassword(password, member.passwordSalt) === member.passwordHash;
 }
 
-/** setStaffPassword — store a new password as a salted hash (salt = staff id). O(r · n) */
+/** setStaffPassword — store a new password as a salted hash (salt = staff id). O(n) */
 function setStaffPassword(member, password) {
   member.passwordSalt = member.id;
   member.passwordHash = hashPassword(password, member.id);
@@ -68,7 +68,7 @@ function canManageMember(actor, member) {
 /**
  * generateTempPassword — 10 random characters from an alphabet without look-alike
  * characters, with at least two digits.
- * Time O(k) · Space O(k)
+ * Time O(n) · Space O(n)
  */
 function generateTempPassword() {
   const alphabet = TEMP_PASSWORD_LETTERS + TEMP_PASSWORD_DIGITS;
@@ -248,7 +248,7 @@ function resetStaffTwoFactor(id, actor) {
 /**
  * changeOwnPassword — the signed-in member sets a new password.
  * Returns field errors { currentPassword, newPassword, confirmPassword }.
- * Time O(r · n) for the hash · Space O(1)
+ * Time O(n) for the hash (400 fixed rounds over n characters) · Space O(1)
  */
 function changeOwnPassword(member, currentPassword, newPassword, confirmPassword) {
   const stepUp = stepUpRequired();            // 0. two-step verification: a Google Authenticator code in the last 5 minutes
@@ -297,7 +297,7 @@ function staffRow(member) {
 
 /**
  * listStaff — filter, search, sort. options: { status, query, sortField, sortOrder, algorithm }
- * Time O(n · L · m) + O(n²) · Space O(n)
+ * Time O(n²) + O(n²) · Space O(n)
  */
 function listStaff(options) {
   const status = options.status || 'all';

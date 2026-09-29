@@ -83,7 +83,7 @@ function setFieldError(inputId, message) {
  * applyFieldErrors — show every error from a service result.
  * fieldMap: { errorKey: inputId } — only the listed fields are updated.
  * Returns the first invalid input (to move focus there), or null.
- * Time O(f)
+ * Time O(n)
  */
 function applyFieldErrors(fieldMap, errors) {
   let first = null;
@@ -97,7 +97,7 @@ function applyFieldErrors(fieldMap, errors) {
   return first;
 }
 
-/** clearFieldErrors — remove every message in a form. O(f) */
+/** clearFieldErrors — remove every message in a form. O(n) */
 function clearFieldErrors(fieldMap) {
   for (const key in fieldMap) {
     setFieldError(fieldMap[key], '');

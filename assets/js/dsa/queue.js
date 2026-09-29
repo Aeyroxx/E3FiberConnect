@@ -23,7 +23,7 @@
 /**
  * createQueue — a new, empty queue with room for `capacity` items
  * (it grows automatically when full).
- * Time O(capacity) · Space O(capacity)
+ * Time O(n) · Space O(n)
  */
 function createQueue(capacity) {
   const size = capacity > 0 ? capacity : 8;
@@ -129,7 +129,7 @@ function queueToArray(queue) {
   return list;
 }
 
-/** queueClear — remove everything. Time O(capacity) */
+/** queueClear — remove everything. Time O(n) */
 function queueClear(queue) {
   queue.items = arrayFilled(queue.capacity, undefined);
   queue.front = 0;

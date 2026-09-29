@@ -134,7 +134,7 @@ function sha1Bytes(bytes) {
 
 /**
  * hmacSha1 — HMAC(key, message) = SHA1((key ⊕ opad) + SHA1((key ⊕ ipad) + message)).
- * Time O(k + n) · Space O(k + n)
+ * Time O(n) · Space O(n)
  */
 function hmacSha1(keyBytes, messageBytes) {
   let key = keyBytes;
@@ -276,7 +276,7 @@ function matchTotp(secretBase32, code, ms, lastStep) {
    Setup: secret, setup key and the otpauth:// link for the QR code
    -------------------------------------------------------------------------- */
 
-/** randomBytes — `count` random bytes from the browser's secure random source when it exists. O(count) */
+/** randomBytes — `count` random bytes from the browser's secure random source when it exists. O(n) */
 function randomBytes(count) {
   const bytes = [];
   const secure = typeof crypto !== 'undefined' && crypto && typeof crypto.getRandomValues === 'function';
@@ -335,7 +335,7 @@ function otpauthUri(email, secretBase32) {
  *   • new phone       → also a code from the current app in the last 5 minutes.
  * A wrong password counts toward the same 5-tries pause as a wrong code.
  * The new secret must be confirmed within SETUP_MINUTES.
- * Time O(r · n) for the password hash · Space O(1)
+ * Time O(n) for the password hash · Space O(1)
  */
 function startTotpSetup(member, password) {
   if (!member || member.id !== authState.staffId) {

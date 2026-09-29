@@ -114,7 +114,7 @@ function ticketRow(ticket) {
 
 /**
  * listTickets — filter by status, search, sort (newest first by default).
- * Time O(n · L · m) + O(n²) · Space O(n)
+ * Time O(n²) + O(n²) · Space O(n)
  */
 function listTickets(options) {
   const status = options.status || 'all';
@@ -143,7 +143,7 @@ function countTicketsByStatus() {
 
 /**
  * buildSupportQueue — open tickets as a QUEUE, oldest first (the table is in
- * creation order, so one pass keeps FIFO order). Time O(n) · Space O(k)
+ * creation order, so one pass keeps FIFO order). Time O(n) · Space O(n)
  */
 function buildSupportQueue() {
   const queue = createQueue(8);

@@ -68,7 +68,7 @@ function arrayRemoveFirst(array) {
 /**
  * arrayInsertAt — put an item at a position (replaces splice(index, 0, item)).
  * Items from `index` onward move one slot to the right.
- * Time O(n − index), O(n) worst · Space O(1)
+ * Time O(n) — only the records after the index move · Space O(1)
  */
 function arrayInsertAt(array, index, item) {
   let position = index;
@@ -88,7 +88,7 @@ function arrayInsertAt(array, index, item) {
 /**
  * arrayRemoveAt — take out the item at a position (replaces splice(index, 1)).
  * Items after it move one slot to the left.
- * Time O(n − index), O(n) worst · Space O(1)
+ * Time O(n) — only the records after the index move · Space O(1)
  */
 function arrayRemoveAt(array, index) {
   if (index < 0 || index >= array.length) {
@@ -118,7 +118,7 @@ function arrayCopy(array) {
 /**
  * arrayRange — up to `count` items starting at `start` (replaces slice(start, start + count)).
  * Used to show long lists one page at a time.
- * Time O(count) · Space O(count)
+ * Time O(n) · Space O(n)
  */
 function arrayRange(array, start, count) {
   const part = [];

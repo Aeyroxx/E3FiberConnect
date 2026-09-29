@@ -23,12 +23,12 @@ function findRegistration(registrationId) {
   return index === -1 ? null : registrations[index];
 }
 
-/** isWorkEmail — a valid e-mail that ends with "@e3fiberconnect.ph". O(k) */
+/** isWorkEmail — a valid e-mail that ends with "@e3fiberconnect.ph". O(n) */
 function isWorkEmail(email) {
   return isValidEmail(email) && textEndsWithIgnoreCase(trimText(email), STAFF_EMAIL_DOMAIN);
 }
 
-/** pendingRegistrationFor — a request for this e-mail that is still waiting (linear search). O(r) */
+/** pendingRegistrationFor — a request for this e-mail that is still waiting (linear search). O(n) */
 function pendingRegistrationFor(email) {
   const wanted = toLowerText(trimText(email));
   for (let i = 0; i < registrations.length; i++) {
@@ -43,7 +43,7 @@ function pendingRegistrationFor(email) {
  * validateRegistration — field-by-field checks for the request form.
  * It does NOT say whether the e-mail already has a staff account (strangers
  * could use that to find out which e-mails exist); the reviewer sees that check.
- * Time O(r + k) · Space O(1)
+ * Time O(n) · Space O(1)
  */
 function validateRegistration(data) {
   const errors = {};
@@ -86,7 +86,7 @@ function validateRegistration(data) {
 
 /**
  * submitRegistration — save a request with the next id (appended → still sorted).
- * Time O(r) for the checks + O(1) append · Space O(1)
+ * Time O(n) for the checks + O(1) append · Space O(1)
  */
 function submitRegistration(data) {
   const errors = validateRegistration(data);
@@ -120,7 +120,7 @@ function submitRegistration(data) {
 /**
  * registrationQueue — requests waiting for approval, oldest first (FIFO).
  * The table is in arrival order, so one pass enqueues them.
- * Time O(r) · Space O(p) for p pending requests
+ * Time O(n) · Space O(n) for the pending requests
  */
 function registrationQueue() {
   const queue = createQueue(4);
@@ -132,7 +132,7 @@ function registrationQueue() {
   return queue;
 }
 
-/** countRegistrationsByStatus — one pass, for badges and filters. Time O(r) · Space O(1) */
+/** countRegistrationsByStatus — one pass, for badges and filters. Time O(n) · Space O(1) */
 function countRegistrationsByStatus() {
   const counts = { all: registrations.length, Pending: 0, Approved: 0, Rejected: 0 };
   for (let i = 0; i < registrations.length; i++) {
@@ -145,7 +145,7 @@ function countRegistrationsByStatus() {
  * registrationChecks — what the reviewer should know before approving:
  * a work e-mail, no staff account with that e-mail yet (hash table), and a
  * reviewer who is allowed to approve. Returns { checks, passed, firstFailure }.
- * Time O(k) · Space O(1)
+ * Time O(n) · Space O(1)
  */
 function registrationChecks(request, actor) {
   const checks = [];
@@ -274,7 +274,7 @@ function registrationRow(request) {
 /**
  * listRegistrations — filter by status, search the text, sort with the chosen
  * algorithm. options: { status, query, sortField, sortOrder, algorithm }
- * Time O(r · L · m) search + O(r²) sort · Space O(r)
+ * Time O(n²) search + O(n²) sort · Space O(n)
  */
 function listRegistrations(options) {
   const status = options.status || 'all';
@@ -296,8 +296,8 @@ function listRegistrations(options) {
  * registrationForSignIn — for the sign-in page: the newest request for this
  * e-mail, when it is still waiting or was rejected, but only if the password
  * matches the one chosen when registering (otherwise null).
- * Time O(r) linear search from the newest + one password hash (400 fixed rounds
- * over the k characters, so O(k)) · Space O(1)
+ * Time O(n) linear search from the newest + one password hash (400 fixed rounds
+ * over the n characters, so O(n)) · Space O(1)
  */
 function registrationForSignIn(email, password) {
   const wanted = toLowerText(trimText(email));
@@ -316,7 +316,7 @@ function registrationForSignIn(email, password) {
 /**
  * registrationStatusMessage — what the sign-in page says about a request.
  * "Duplicate request" is not repeated to the person: it would hint that the
- * e-mail already belongs to a staff account. Time O(k) for the reason's length
+ * e-mail already belongs to a staff account. Time O(n) for the reason's length
  */
 function registrationStatusMessage(request) {
   if (request.status === 'Pending') {

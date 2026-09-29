@@ -73,7 +73,7 @@ function toUpperText(value) {
 /**
  * textSlice — the characters from `start` up to (not including) `end`
  * (replaces slice / substring).
- * Time O(end − start) · Space O(end − start)
+ * Time O(n) · Space O(n)
  */
 function textSlice(value, start, end) {
   const text = textOf(value);
@@ -131,7 +131,7 @@ function collapseSpaces(value) {
  * textFind — position of the first `query` inside `text`, or -1 (replaces indexOf / search).
  * Naive (brute-force) string matching: try every starting position and compare
  * the characters one by one until one differs.
- * Time O(n · m) worst, n = text length, m = query length · Space O(1)
+ * Time O(n²) worst: every start position in the text × every query character · Space O(1)
  */
 function textFind(value, query) {
   const text = textOf(value);
@@ -155,7 +155,7 @@ function textFind(value, query) {
 
 /**
  * textContains — true when `query` appears somewhere in `text` (replaces includes).
- * Time O(n · m) · Space O(1)
+ * Time O(n²) · Space O(1)
  */
 function textContains(value, query) {
   return textFind(value, query) !== -1;
@@ -163,7 +163,7 @@ function textContains(value, query) {
 
 /**
  * textStartsWith — true when `text` begins with `prefix` (replaces startsWith).
- * Time O(m) · Space O(1)
+ * Time O(n) · Space O(1)
  */
 function textStartsWith(value, prefix) {
   const text = textOf(value);
@@ -189,7 +189,7 @@ function textEqualsIgnoreCase(a, b) {
 
 /**
  * padLeft — "7" → "007" (replaces padStart).
- * Time O(width) · Space O(width)
+ * Time O(n) · Space O(n)
  */
 function padLeft(value, width, padChar) {
   let text = textOf(value);
@@ -219,7 +219,7 @@ function digitsOnly(value) {
  * parseDigits — the whole number written in `text` from `start` to `end`:
  * parseDigits("2026-09-23", 5, 7) → 9. Returns NaN if a character is not a digit.
  * Each digit shifts the running total one place left (× 10) and adds itself.
- * Time O(end − start) · Space O(1)
+ * Time O(n) · Space O(1)
  */
 function parseDigits(value, start, end) {
   const text = textOf(value);
@@ -259,7 +259,7 @@ function splitText(value, separator) {
 
 /**
  * joinText — glue the items together with `separator` between them (replaces join).
- * Time O(total length) · Space O(total length)
+ * Time O(n) · Space O(n)
  */
 function joinText(items, separator) {
   let result = '';
