@@ -17,7 +17,7 @@ const STATUS_STYLES = [
   { status: 'Active', tone: 'green', label: 'Active' },
   { status: 'Suspended', tone: 'orange', label: 'Suspended' },
   { status: 'Terminated', tone: 'gray', label: 'Terminated' },
-  { status: 'Deleted', tone: 'gray', label: 'Deleted' },
+  { status: 'Archived', tone: 'gray', label: 'Archived' },
   { status: 'Paid', tone: 'green', label: 'Paid' },
   { status: 'Unpaid', tone: 'orange', label: 'Unpaid' },
   { status: 'Overdue', tone: 'red', label: 'Overdue' },

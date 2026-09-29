@@ -26,6 +26,7 @@ function registerAllRoutes() {
 
   registerRoute('/admin/login', 'admin-login', 'login', renderLoginView, { title: 'Staff sign in', guestOnly: true });
   registerRoute('/admin/register', 'admin-register', 'login', renderRegisterView, { title: 'Request staff access', guestOnly: true });
+  registerRoute('/admin/forgot', 'admin-forgot', 'login', renderForgotView, { title: 'Reset your password', guestOnly: true });
   registerRoute('/admin', 'admin-dashboard', 'admin', renderDashboardView, { title: 'Dashboard', nav: 'dashboard', auth: true });
   registerRoute('/admin/applications', 'admin-applications', 'admin', renderApplicationsView, { title: 'Applications', nav: 'applications', auth: true });
   registerRoute('/admin/applications/new', 'admin-new-application', 'admin', renderNewApplicationView, { title: 'New application', nav: 'new-application', auth: true });
@@ -60,6 +61,7 @@ function initAllScreens() {
   initAdminShell();
   initLoginView();
   initRegisterView();
+  initForgotView();
   initDashboardView();
   initApplicationsView();
   initApplicationDetailView();

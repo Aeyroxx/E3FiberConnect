@@ -191,6 +191,12 @@ Every account-changing backend function (`addStaff`, `approveRegistration`, `set
 `subscribers` operation in the entry (O(n)). First setup needs the password (`startTotpSetup`); five wrong
 tries pause entry for 30 s, doubling each time up to 15 minutes.
 
+### Forgot password — `assets/js/backend/recovery.js`
+`requestPasswordReset` finds the account with the e-mail **hash table** (O(1) average) and makes a random
+6-digit code (10 minutes, one per 30 s for any e-mail; 5 wrong codes pause entry, doubling up to 15 minutes); `verifyResetCode` checks it in O(1); `completePasswordReset`
+saves the new salted hash (O(n) for n characters) only after a verified code. Staff accounts are never deleted —
+`setStaffStatus` moves them to **Archived** (and back with Restore), so their record and e-mail stay.
+
 ### Staff registration and approval — `assets/js/backend/registrations.js`
 A request is validated field by field (work e-mail, mobile, strong password) and **appended** (ids only grow).
 Pending requests form a **FIFO queue**. Approving checks the e-mail in the staff **hash table**, appends the staff

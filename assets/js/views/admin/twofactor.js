@@ -21,64 +21,27 @@
 const otpView = { mode: 'verify', onVerified: null, setupSecret: '', frame: 0, busy: false, lastSecond: -1 };
 const OTP_RING_LENGTH = 50.27;   // 2 · π · r for the r = 8 timer ring
 
-/** otpDigits — the six code boxes. O(1) */
+/* The six boxes use the shared helpers in ui/codeboxes.js. */
 function otpDigits() {
-  return document.querySelectorAll('#otpCode .otp-digit');
+  return codeBoxes(byId('otpCode'));
 }
 
-/** otpValue — the code typed so far. O(1) */
 function otpValue() {
-  const digits = otpDigits();
-  let code = '';
-  for (let i = 0; i < digits.length; i++) {
-    code += digits[i].value;
-  }
-  return code;
+  return codeBoxesValue(byId('otpCode'));
 }
 
 function clearOtpDigits() {
-  const digits = otpDigits();
-  for (let i = 0; i < digits.length; i++) {
-    digits[i].value = '';
-    digits[i].classList.remove('is-filled');
-  }
-}
-
-/** fillOtpFrom — put the digits of `text` into the boxes from `index` on; returns the next empty box. O(n) */
-function fillOtpFrom(index, text) {
-  const digits = otpDigits();
-  let at = index;
-  for (let i = 0; i < text.length && at < digits.length; i++) {
-    if (isDigitChar(text[i])) {
-      digits[at].value = text[i];
-      digits[at].classList.add('is-filled');
-      at++;
-    }
-  }
-  return at;
+  clearCodeBoxes(byId('otpCode'));
 }
 
 function focusOtpDigit(index) {
-  const digits = otpDigits();
-  const box = digits[index < digits.length ? index : digits.length - 1];
-  box.focus({ preventScroll: true });
-  box.select();
+  focusCodeBox(byId('otpCode'), index);
 }
 
 /** setOtpState — '' | 'error' | 'success' on the code boxes and the badge. O(1) */
 function setOtpState(state) {
-  const code = byId('otpCode');
-  const sheet = byId('sheetOtp');
-  code.classList.remove('is-error');
-  code.classList.remove('is-success');
-  sheet.classList.remove('is-verified');
-  if (state === 'error') {
-    void code.offsetWidth;                 // restart the shake if it is already running
-    code.classList.add('is-error');
-  } else if (state === 'success') {
-    code.classList.add('is-success');
-    sheet.classList.add('is-verified');
-  }
+  setCodeBoxesState(byId('otpCode'), state);
+  byId('sheetOtp').classList.toggle('is-verified', state === 'success');
 }
 
 function setOtpStatus(text, tone) {
@@ -301,55 +264,9 @@ function renderTwoFactorPanel() {
 }
 
 function initTwoFactorView() {
-  const code = byId('otpCode');
-  code.addEventListener('input', function (event) {
-    const box = event.target;
-    const index = Number(box.getAttribute('data-index'));
-    const typed = box.value;
-    box.value = '';
-    box.classList.remove('is-filled');
-    if (code.classList.contains('is-error')) {
-      setOtpState('');
-      setOtpStatus('', '');
-    }
-    const next = fillOtpFrom(index, typed);     // one digit, or a whole code from auto-fill
-    if (otpValue().length === TOTP_DIGITS) {
-      submitOtp();
-    } else if (next > index) {
-      focusOtpDigit(next);
-    }
-  });
-  code.addEventListener('keydown', function (event) {
-    const index = Number(event.target.getAttribute('data-index'));
-    if (event.key === 'Backspace' && event.target.value === '' && index > 0) {
-      event.preventDefault();
-      const digits = otpDigits();
-      digits[index - 1].value = '';
-      digits[index - 1].classList.remove('is-filled');
-      focusOtpDigit(index - 1);
-    } else if (event.key === 'ArrowLeft' && index > 0) {
-      event.preventDefault();
-      focusOtpDigit(index - 1);
-    } else if (event.key === 'ArrowRight' && index < TOTP_DIGITS - 1) {
-      event.preventDefault();
-      focusOtpDigit(index + 1);
-    }
-  });
-  code.addEventListener('paste', function (event) {
-    const text = event.clipboardData ? event.clipboardData.getData('text') : '';
-    event.preventDefault();
-    clearOtpDigits();
-    const next = fillOtpFrom(0, text);
-    if (otpValue().length === TOTP_DIGITS) {
-      submitOtp();
-    } else {
-      focusOtpDigit(next);
-    }
-  });
-  code.addEventListener('focusin', function (event) {
-    if (event.target.select) {
-      event.target.select();
-    }
+  wireCodeBoxes(byId('otpCode'), submitOtp, function () {
+    setOtpState('');
+    setOtpStatus('', '');
   });
   byId('otpForm').addEventListener('submit', function (event) {
     event.preventDefault();

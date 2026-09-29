@@ -989,12 +989,82 @@
                 <button class="btn btn-icon btn-plain password-toggle" type="button" id="loginPasswordToggle" aria-label="Show password" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-eye"></use></svg></button>
               </div>
               <p class="field-error" id="loginPassword-error"></p>
+              <p class="login-forgot"><a href="#/admin/forgot" id="loginForgot">Forgot password?</a></p>
             </div>
             <button class="btn btn-accent btn-lg w-100 mt-2" type="submit" id="loginSubmit">Sign in</button>
           </form>
           <p class="login-switch">New to the team? <a href="#/admin/register">Request staff access</a></p>
           <p class="login-privacy"><svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg><span>For authorized E3 staff only. Customer records are confidential under the Data Privacy Act of 2012 (RA 10173), and every action is recorded in the activity log.</span></p>
           <a class="login-back" href="#/">← Back to the website</a>
+        </div>
+      </section>
+
+      <section data-view="admin-forgot" hidden aria-labelledby="forgotTitle">
+        <div class="login-card forgot-card" id="forgotCard">
+          <span class="forgot-badge" id="forgotBadge" aria-hidden="true"><svg class="icon forgot-badge-lock"><use href="#i-shield"></use></svg><svg class="icon forgot-badge-check"><use href="#i-check"></use></svg></span>
+
+          <div class="forgot-step" id="forgotStepEmail">
+            <h1 class="login-title" id="forgotTitle">Reset your password</h1>
+            <p class="login-subtitle">Enter the work e-mail of your staff account. We’ll send a 6-digit code to confirm it’s you.</p>
+            <div class="form-alert" id="forgotAlert" role="alert" hidden></div>
+            <form id="forgotEmailForm" novalidate>
+              <div class="field">
+                <label class="form-label" for="forgotEmail">Work e-mail</label>
+                <input class="form-control" id="forgotEmail" type="email" autocomplete="username" inputmode="email" maxlength="254" placeholder="name@e3fiberconnect.ph" aria-describedby="forgotEmail-error">
+                <p class="field-error" id="forgotEmail-error"></p>
+              </div>
+              <button class="btn btn-accent btn-lg w-100 mt-2" type="submit" id="forgotSend">Send code</button>
+            </form>
+          </div>
+
+          <div class="forgot-step" id="forgotStepCode" hidden>
+            <h2 class="login-title" id="forgotCodeTitle" tabindex="-1">Enter the code</h2>
+            <p class="login-subtitle" id="forgotCodeText">We sent a 6-digit code to your e-mail.</p>
+            <form id="forgotCodeForm" novalidate>
+              <div class="otp-code" id="forgotCode" role="group" aria-labelledby="forgotCodeTitle" aria-describedby="forgotCodeStatus">
+                <input class="otp-digit" id="forgotDigit1" data-index="0" type="text" inputmode="numeric" autocomplete="one-time-code" aria-label="Digit 1 of 6">
+                <input class="otp-digit" id="forgotDigit2" data-index="1" type="text" inputmode="numeric" autocomplete="off" aria-label="Digit 2 of 6">
+                <input class="otp-digit" id="forgotDigit3" data-index="2" type="text" inputmode="numeric" autocomplete="off" aria-label="Digit 3 of 6">
+                <input class="otp-digit" id="forgotDigit4" data-index="3" type="text" inputmode="numeric" autocomplete="off" aria-label="Digit 4 of 6">
+                <input class="otp-digit" id="forgotDigit5" data-index="4" type="text" inputmode="numeric" autocomplete="off" aria-label="Digit 5 of 6">
+                <input class="otp-digit" id="forgotDigit6" data-index="5" type="text" inputmode="numeric" autocomplete="off" aria-label="Digit 6 of 6">
+              </div>
+              <p class="otp-status" id="forgotCodeStatus" role="status" aria-live="polite"></p>
+              <button class="btn btn-accent btn-lg w-100" type="submit" id="forgotVerify">Verify</button>
+            </form>
+            <div class="forgot-links">
+              <button class="btn btn-plain btn-sm" type="button" id="forgotResend">Resend code</button>
+              <button class="btn btn-plain btn-sm" type="button" id="forgotChangeEmail">Use a different e-mail</button>
+            </div>
+          </div>
+
+          <div class="forgot-step" id="forgotStepPassword" hidden>
+            <h2 class="login-title" id="forgotPasswordTitle" tabindex="-1">Choose a new password</h2>
+            <p class="login-subtitle">Use at least 8 characters with a letter and a number.</p>
+            <div class="form-alert" id="forgotPasswordAlert" role="alert" hidden></div>
+            <form id="forgotPasswordForm" novalidate>
+              <input type="email" id="forgotPasswordUser" autocomplete="username" hidden>
+              <div class="field">
+                <label class="form-label" for="forgotNewPassword">New password</label>
+                <input class="form-control" id="forgotNewPassword" type="password" autocomplete="new-password" maxlength="100" aria-describedby="forgotNewPassword-error">
+                <p class="field-error" id="forgotNewPassword-error"></p>
+              </div>
+              <div class="field">
+                <label class="form-label" for="forgotConfirmPassword">Confirm new password</label>
+                <input class="form-control" id="forgotConfirmPassword" type="password" autocomplete="new-password" maxlength="100" aria-describedby="forgotConfirmPassword-error">
+                <p class="field-error" id="forgotConfirmPassword-error"></p>
+              </div>
+              <button class="btn btn-accent btn-lg w-100 mt-2" type="submit" id="forgotSave">Reset password</button>
+            </form>
+          </div>
+
+          <div class="forgot-step" id="forgotStepDone" hidden>
+            <h2 class="login-title" id="forgotDoneTitle" tabindex="-1">Password updated</h2>
+            <p class="login-subtitle">You can now sign in with your new password.</p>
+            <a class="btn btn-accent btn-lg w-100 mt-2" href="#/admin/login" id="forgotSignIn">Sign in</a>
+          </div>
+
+          <a class="login-back" href="#/admin/login" id="forgotBack">← Back to sign in</a>
         </div>
       </section>
 
@@ -1739,7 +1809,7 @@
               <button type="button" data-value="all" aria-pressed="true">All <span class="segment-count" data-count-for="all"></span></button>
               <button type="button" data-value="Active" aria-pressed="false">Active <span class="segment-count" data-count-for="Active"></span></button>
               <button type="button" data-value="Suspended" aria-pressed="false">Suspended <span class="segment-count" data-count-for="Suspended"></span></button>
-              <button type="button" data-value="Deleted" aria-pressed="false">Deleted <span class="segment-count" data-count-for="Deleted"></span></button>
+              <button type="button" data-value="Archived" aria-pressed="false">Archived <span class="segment-count" data-count-for="Archived"></span></button>
             </div>
             <div class="list-toolbar-right">
               <div class="search-field">
@@ -2285,6 +2355,18 @@
 
   <div class="toast-host" id="toastHost" role="status" aria-live="polite" aria-atomic="false"></div>
 
+  <div class="notify-banner" id="notifyBanner" hidden>
+    <button class="notify-card" type="button" id="notifyCard" aria-describedby="notifyHint">
+      <img class="notify-icon" src="assets/img/logo-mark.png" alt="" width="38" height="33">
+      <span class="notify-content">
+        <span class="notify-head"><span class="notify-app">E3 Fiber Connect</span><span class="notify-time">now</span></span>
+        <span class="notify-title" id="notifyTitle">Password reset code</span>
+        <span class="notify-message" id="notifyMessage"></span>
+        <span class="notify-hint" id="notifyHint">Tap to fill in the code</span>
+      </span>
+    </button>
+  </div>
+
   <noscript>
     <p style="padding:2rem;text-align:center;font:17px/1.5 system-ui,sans-serif">E3 Fiber Connect needs JavaScript to run — please turn it on and reload the page.</p>
   </noscript>
@@ -2317,6 +2399,7 @@
   <script src="assets/js/backend/registrations.js"></script>
   <script src="assets/js/backend/auth.js"></script>
   <script src="assets/js/backend/twofactor.js"></script>
+  <script src="assets/js/backend/recovery.js"></script>
   <script src="assets/js/backend/qrcode.js"></script>
 
   <!-- 3. Page helpers -->
@@ -2328,6 +2411,7 @@
   <script src="assets/js/ui/toasts.js"></script>
   <script src="assets/js/ui/forms.js"></script>
   <script src="assets/js/ui/components.js"></script>
+  <script src="assets/js/ui/codeboxes.js"></script>
 
   <!-- 4. Screens -->
   <script src="assets/js/views/public/chrome.js"></script>
@@ -2343,6 +2427,7 @@
   <script src="assets/js/views/admin/shell.js"></script>
   <script src="assets/js/views/admin/login.js"></script>
   <script src="assets/js/views/admin/register.js"></script>
+  <script src="assets/js/views/admin/forgot.js"></script>
   <script src="assets/js/views/admin/dashboard.js"></script>
   <script src="assets/js/views/admin/applications.js"></script>
   <script src="assets/js/views/admin/application-detail.js"></script>

@@ -74,7 +74,7 @@ structures, a log of every search and sort, and a benchmark that races the algor
 | Pay Bills — balance, bills, report a payment (amount + reference) | Billing — month view, generate bills, overdue bills |
 | Support — FAQ, send a message, check a ticket | Payments — validation queue, 5 checks, confirm / decline |
 | 404 page | Support — FIFO ticket queue, serve next, resolve |
-| | Staff — add (temporary password), suspend, reset, delete |
+| | Staff — add (temporary password), suspend, reset, archive / restore (never deleted) |
 | | Registrations — approval queue for staff requests, approve / reject |
 | | Activity — log + the Undo stack · Algorithms · Account (change password) |
 
@@ -117,16 +117,24 @@ Scripts are plain `<script>` files loaded in order (DSA → backend → UI → s
 - Sheets open centred on computers and slide up from the bottom on phones, where they can be dragged down to
   close (spring physics with velocity hand-off, `assets/js/ui/spring.js`).
 - Buttons respond on press; confirmations use a toast with *Undo* instead of "Are you sure?" pop-ups —
-  those are kept for actions that are hard to take back (terminating an account, deleting staff).
+  those are kept for actions that are hard to take back (terminating an account, archiving staff).
 - Opens in **light mode**; the moon/sun button (site navigation, staff toolbar and sign-in page,
   `assets/js/ui/theme.js`) switches to dark mode. Like the data, the choice lives in memory, so a
   reload starts light again. Respects *reduce motion*, *reduce transparency* and *increase contrast*.
   Tables turn into cards on phones and tablets.
 
+## Forgot password
+
+“Forgot password?” on the staff sign-in page opens a three-step reset: enter the work e-mail, type the 6-digit
+code, choose a new password. The code arrives as a message banner at the top of the screen (tap it to fill the
+code, or drag it up to dismiss). A code is valid for 10 minutes; one code can be asked for every 30 seconds, and
+5 wrong codes pause entry (30 s, doubling each time up to 15 minutes). The answer is the same for e-mails without an account, and suspended or archived accounts get no code.
+The logic is `assets/js/backend/recovery.js`; the page is `assets/js/views/admin/forgot.js`.
+
 ## Two-step verification (Google Authenticator)
 
 Password changes and every change to an account — adding staff, approving a staff request, staff suspend /
-reactivate / delete / password reset, subscriber suspend / reactivate / terminate / plan change, and **undoing** any
+reactivate / archive / restore / password reset, subscriber suspend / reactivate / terminate / plan change, and **undoing** any
 of these — ask for a 6-digit code from **Google Authenticator** (or any TOTP app). The first time, the “Set up
 Google Authenticator” sheet asks for the account **password** (so a session left signed in can’t link someone else’s
 phone), then shows a QR code (and a setup key / an “Add to Google Authenticator” button on phones). Moving to a new

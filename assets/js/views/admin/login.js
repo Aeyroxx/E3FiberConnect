@@ -15,6 +15,10 @@ function shakeLoginCard() {
 }
 
 function renderLoginView() {
+  hideCodeNotification();
+  forgotView.step = 'email';
+  forgotView.code = '';
+  clearPasswordReset();                       // a reset left half-way ends here
   const pending = routerState.pendingAdminPath;
   setFormAlert('loginAlert', pending && pending !== '/admin' ? 'Please sign in to continue.' : '', 'info');
   setFieldValue('loginPassword', '');

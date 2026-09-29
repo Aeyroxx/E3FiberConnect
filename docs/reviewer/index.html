@@ -1546,7 +1546,7 @@
   <h3 class="q"><span class="n">1</span>Business process</h3>
   <p class="ask">What task or problem from the client are you solving?</p>
   <div class="answer">
-    <p>Customer data, bills and payments must only be seen and changed by E3 staff. Each employee signs in with their own account and role (Owner, Admin, Support), so the system knows who did what (the activity log and Undo use it). The login must stop password guessing, refuse suspended or deleted accounts, force people with a temporary password to choose their own, and tell someone whose registration is still waiting what is happening.</p>
+    <p>Customer data, bills and payments must only be seen and changed by E3 staff. Each employee signs in with their own account and role (Owner, Admin, Support), so the system knows who did what (the activity log and Undo use it). The login must stop password guessing, refuse suspended or archived accounts, let staff who forgot their password reset it with an e-mailed code, force people with a temporary password to choose their own, and tell someone whose registration is still waiting what is happening.</p>
   </div>
 
   <h3 class="q"><span class="n">2</span>Input</h3>
@@ -1577,9 +1577,10 @@
       <li><span class="mono">findStaffByEmail</span>: lower-case and trim the e-mail, <strong>djb2-hash</strong> it to a bucket, compare the keys in that bucket’s chain, get the staff id, then <strong>binary search</strong> the staff array by id.</li>
       <li><span class="mono">staffPasswordMatches</span>: hash the typed password with the member’s salt and compare with the stored hash.</li>
       <li>Not a staff password (or no account)? Check for a waiting or rejected <strong>registration</strong> with the same e-mail and password and explain its status — checked the same way whether or not a staff account exists, so nobody can learn which e-mails are staff. Otherwise count the wrong try for that e-mail in a second <strong>hash table</strong>; the 5th for one e-mail — or the 10th overall, which stops someone trying a few passwords on every e-mail — pauses sign-in for 30 seconds.</li>
-      <li>A suspended or deleted account is refused.</li>
+      <li>A suspended or archived account is refused (“Ask the owner to reactivate / restore it”).</li>
       <li>Success: reset that e-mail’s counter, remember the staff id, clear the Undo stack, record the sign-in time and log it. The router then opens the requested page; a temporary password forces the Account page first.</li>
     </ol>
+    <p><strong>Forgot password</strong> (<span class="mono">backend/recovery.js</span>): the e-mail is found with the same <strong>hash-table look-up</strong>; an Active account gets a random 6-digit code valid for 10 minutes (it arrives as a message banner on the screen). One code can be asked for every 30 seconds, 5 wrong codes pause entry (30 s, doubling up to 15 minutes), and only a verified code lets <span class="mono">completePasswordReset</span> save the new salted hash. The answer is the same for e-mails without an account, so nobody learns which e-mails are staff.</p>
   </div>
 
   <h3 class="q"><span class="n">4</span>Output</h3>
@@ -1600,6 +1601,7 @@
         <tr><td>Password hash (400 rounds over n characters)</td><td>O(n) — a constant amount of work per try</td><td>O(1)</td></tr>
         <tr><td>Waiting-registration check (n requests)</td><td>O(n) (only when the staff password did not match)</td><td>O(1)</td></tr>
         <tr><td>Count a wrong try for that e-mail (hash table)</td><td>O(1) average</td><td>O(1) per e-mail tried</td></tr>
+        <tr><td>Forgot password: find the account / check the code / save the new password</td><td>O(1) average / O(1) / O(n) for n characters</td><td>O(1)</td></tr>
         <tr><td><strong>signIn overall</strong></td><td><strong>O(1) average</strong> (plus O(log n) and the fixed hash cost)</td><td><strong>O(1)</strong>; the hash table itself O(n)</td></tr>
       </tbody>
     </table>
@@ -1611,6 +1613,7 @@
     <ul>
       <li><strong>Hash table</strong>: e-mail is the key people type; staff are stored by id. A hash table maps e-mail → id in O(1) on average, where a linear search would be O(n) — and the same table answers “is this e-mail already used?” for Modules 9 and 10.</li>
       <li><strong>Separate chaining</strong> handles collisions simply (a short array per bucket), and resizing at load 0.75 keeps chains short.</li>
+      <li><strong>Forgot password with a short-lived code</strong>: a 6-digit code that expires in 10 minutes and allows 5 tries proves the person can read the account’s messages without ever showing or e-mailing the password; the same hash table finds the account in O(1).</li>
       <li><strong>Binary search by id</strong> reuses the staff array’s sorted order (ids only grow, records are appended).</li>
       <li><strong>Salted hash</strong>: passwords are never kept in readable form; the salt makes equal passwords look different.</li>
       <li><strong>A counter per e-mail + a pause time</strong>: the simplest data that stops unlimited guessing. Keeping the counts in a hash table (e-mail → wrong tries) means signing in to your own account does not reset the count for someone else’s.</li>
@@ -1624,17 +1627,18 @@
       <li>Open a staff page (e.g. <span class="mono">#/admin/applications</span>) → you are sent to sign-in.</li>
       <li>Type the Admin e-mail with a wrong password → “The e-mail or password is incorrect.” (the card shakes).</li>
       <li>Type the Admin e-mail and password (page 2) → Sign in → you return to the page you asked for.</li>
+      <li>Forgot password: on the sign-in page click <em>Forgot password?</em>, enter the Admin e-mail → Send code. The code arrives as a banner at the top; tap it to fill the six boxes → choose a new password → sign in with it.</li>
     </ol>
     <div class="figs-2">
       <figure class="fig-half"><img src="img/m7-login-error.jpg" alt="Wrong password"><figcaption>Wrong password → error, no hint about which part was wrong.</figcaption></figure>
       <figure><img src="img/m7-dashboard.jpg" alt="Signed in"><figcaption>Output: signed in as Juan Dela Cruz (Admin).</figcaption></figure>
     </div>
     <h4>Trace — the e-mail hash table and a sign-in (computed by our code)</h4>
-    <p>The staff e-mails are stored in a hash table with 17 buckets (djb2 hash, then remainder):</p><table class="t"><thead><tr><th>E-mail (key)</th><th class="num">djb2 hash</th><th>Bucket</th><th>Value = staff id</th></tr></thead><tbody><tr><td><span class="mono">maria.santos@e3fiberconnect.ph</span></td><td class="num">1,390,595,461</td><td>1,390,595,461 mod 17 = <strong>0</strong></td><td>STF-0001 · Owner · Active</td></tr><tr><td><span class="mono">juan.delacruz@e3fiberconnect.ph</span></td><td class="num">3,956,422,187</td><td>3,956,422,187 mod 17 = <strong>15</strong></td><td>STF-0002 · Admin · Active</td></tr><tr><td><span class="mono">paolo.reyes@e3fiberconnect.ph</span></td><td class="num">2,202,796,774</td><td>2,202,796,774 mod 17 = <strong>14</strong></td><td>STF-0003 · Support · Active</td></tr><tr><td><span class="mono">grace.lim@e3fiberconnect.ph</span></td><td class="num">714,487,751</td><td>714,487,751 mod 17 = <strong>4</strong></td><td>STF-0004 · Support · Suspended</td></tr><tr><td><span class="mono">daniel.tan@e3fiberconnect.ph</span></td><td class="num">1,847,100,051</td><td>1,847,100,051 mod 17 = <strong>3</strong></td><td>STF-0005 · Admin · Deleted</td></tr></tbody></table><div class="buckets"><div class="bucket"><b>[0]</b><span class="chain">STF-0001</span></div><div class="bucket"><b>[1]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[2]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[3]</b><span class="chain">STF-0005</span></div><div class="bucket"><b>[4]</b><span class="chain">STF-0004</span></div><div class="bucket"><b>[5]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[6]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[7]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[8]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[9]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[10]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[11]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[12]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[13]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[14]</b><span class="chain">STF-0003</span></div><div class="bucket hit"><b>[15]</b><span class="chain">STF-0002</span></div><div class="bucket"><b>[16]</b><span class="chain"><span class="muted">empty</span></span></div></div><p><strong>Signing in as juan.delacruz@e3fiberconnect.ph:</strong> hash → bucket <strong>15</strong> → compare with the 1 key(s) in that bucket → id <strong>STF-0002</strong> → binary search on the staff table by id (3 comparisons) → password check:</p><table class="t"><thead><tr><th>Password typed</th><th>hashPassword(typed, salt “STF-0002”)</th><th>Stored hash</th><th>Match?</th></tr></thead><tbody><tr><td><span class="mono">e3admin</span></td><td><span class="mono">4c11d5e5</span></td><td><span class="mono">4c11d5e5</span></td><td><span class="ok">✓ signed in</span></td></tr><tr><td><span class="mono">wrong-password</span></td><td><span class="mono">336680c5</span></td><td><span class="mono">4c11d5e5</span></td><td><span class="no">✗ “The e-mail or password is incorrect.”</span></td></tr></tbody></table><table class="t"><thead><tr><th class="num">Wrong try</th><th>Message</th></tr></thead><tbody><tr><td class="num">1</td><td>The e-mail or password is incorrect.</td></tr><tr><td class="num">2</td><td>The e-mail or password is incorrect.</td></tr><tr><td class="num">3</td><td>The e-mail or password is incorrect.</td></tr><tr><td class="num">4</td><td>The e-mail or password is incorrect.</td></tr><tr><td class="num">5</td><td>Too many attempts. Sign-in is paused for 30 seconds.</td></tr><tr><td class="num">6</td><td>Too many attempts. Try again in 30 seconds.</td></tr></tbody></table>
+    <p>The staff e-mails are stored in a hash table with 17 buckets (djb2 hash, then remainder):</p><table class="t"><thead><tr><th>E-mail (key)</th><th class="num">djb2 hash</th><th>Bucket</th><th>Value = staff id</th></tr></thead><tbody><tr><td><span class="mono">maria.santos@e3fiberconnect.ph</span></td><td class="num">1,390,595,461</td><td>1,390,595,461 mod 17 = <strong>0</strong></td><td>STF-0001 · Owner · Active</td></tr><tr><td><span class="mono">juan.delacruz@e3fiberconnect.ph</span></td><td class="num">3,956,422,187</td><td>3,956,422,187 mod 17 = <strong>15</strong></td><td>STF-0002 · Admin · Active</td></tr><tr><td><span class="mono">paolo.reyes@e3fiberconnect.ph</span></td><td class="num">2,202,796,774</td><td>2,202,796,774 mod 17 = <strong>14</strong></td><td>STF-0003 · Support · Active</td></tr><tr><td><span class="mono">grace.lim@e3fiberconnect.ph</span></td><td class="num">714,487,751</td><td>714,487,751 mod 17 = <strong>4</strong></td><td>STF-0004 · Support · Suspended</td></tr><tr><td><span class="mono">daniel.tan@e3fiberconnect.ph</span></td><td class="num">1,847,100,051</td><td>1,847,100,051 mod 17 = <strong>3</strong></td><td>STF-0005 · Admin · Archived</td></tr></tbody></table><div class="buckets"><div class="bucket"><b>[0]</b><span class="chain">STF-0001</span></div><div class="bucket"><b>[1]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[2]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[3]</b><span class="chain">STF-0005</span></div><div class="bucket"><b>[4]</b><span class="chain">STF-0004</span></div><div class="bucket"><b>[5]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[6]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[7]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[8]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[9]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[10]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[11]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[12]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[13]</b><span class="chain"><span class="muted">empty</span></span></div><div class="bucket"><b>[14]</b><span class="chain">STF-0003</span></div><div class="bucket hit"><b>[15]</b><span class="chain">STF-0002</span></div><div class="bucket"><b>[16]</b><span class="chain"><span class="muted">empty</span></span></div></div><p><strong>Signing in as juan.delacruz@e3fiberconnect.ph:</strong> hash → bucket <strong>15</strong> → compare with the 1 key(s) in that bucket → id <strong>STF-0002</strong> → binary search on the staff table by id (3 comparisons) → password check:</p><table class="t"><thead><tr><th>Password typed</th><th>hashPassword(typed, salt “STF-0002”)</th><th>Stored hash</th><th>Match?</th></tr></thead><tbody><tr><td><span class="mono">e3admin</span></td><td><span class="mono">4c11d5e5</span></td><td><span class="mono">4c11d5e5</span></td><td><span class="ok">✓ signed in</span></td></tr><tr><td><span class="mono">wrong-password</span></td><td><span class="mono">336680c5</span></td><td><span class="mono">4c11d5e5</span></td><td><span class="no">✗ “The e-mail or password is incorrect.”</span></td></tr></tbody></table><table class="t"><thead><tr><th class="num">Wrong try</th><th>Message</th></tr></thead><tbody><tr><td class="num">1</td><td>The e-mail or password is incorrect.</td></tr><tr><td class="num">2</td><td>The e-mail or password is incorrect.</td></tr><tr><td class="num">3</td><td>The e-mail or password is incorrect.</td></tr><tr><td class="num">4</td><td>The e-mail or password is incorrect.</td></tr><tr><td class="num">5</td><td>Too many attempts. Sign-in is paused for 30 seconds.</td></tr><tr><td class="num">6</td><td>Too many attempts. Try again in 30 seconds.</td></tr></tbody></table>
   </div>
 
   <h3>Code walkthrough</h3>
-  <p class="code-head"><span class="mono">assets/js/backend/auth.js</span> · lines 27–70</p><pre class="code"><span class="ln">27</span><span class="cm">/**</span>
+  <p class="code-head"><span class="mono">assets/js/backend/auth.js</span> · lines 27–71</p><pre class="code"><span class="ln">27</span><span class="cm">/**</span>
 <span class="ln">28</span><span class="cm"> * signIn — check the e-mail (hash-table look-up) and the password hash.</span>
 <span class="ln">29</span><span class="cm"> * Only Active accounts may sign in.</span>
 <span class="ln">30</span><span class="cm"> * Time O(1) average + one password hash (400 fixed rounds, O(n) for n characters)</span>
@@ -1667,29 +1671,30 @@
 <span class="ln">57</span>    hashPut(authState.failedByEmail, emailKey, tries);
 <span class="ln">58</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'The e-mail or password is incorrect.'</span> };
 <span class="ln">59</span>  }
-<span class="ln">60</span>  <span class="kw">if</span> (member.status !== <span class="st">'Active'</span>) {                           <span class="cm">// 5. suspended or deleted accounts can't sign in</span>
-<span class="ln">61</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'This account is '</span> + toLowerText(member.status) + <span class="st">'. Ask the owner to reactivate it.'</span> };
+<span class="ln">60</span>  <span class="kw">if</span> (member.status !== <span class="st">'Active'</span>) {                           <span class="cm">// 5. suspended or archived accounts can't sign in</span>
+<span class="ln">61</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'This account is '</span> + toLowerText(member.status) + <span class="st">'. Ask the owner to '</span> + (member.status === <span class="st">'Archived'</span> ? <span class="st">'restore'</span> : <span class="st">'reactivate'</span>) + <span class="st">' it.'</span> };
 <span class="ln">62</span>  }
 <span class="ln">63</span>  hashPut(authState.failedByEmail, emailKey, 0);              <span class="cm">// 6. success: this e-mail's count starts again; remember who is signed in</span>
 <span class="ln">64</span>  authState.staffId = member.id;
 <span class="ln">65</span>  clearUndoHistory(); <span class="cm">// Undo only ever reverses your own actions from this sign-in</span>
 <span class="ln">66</span>  endStepUp();        <span class="cm">// a new sign-in must verify its own Google Authenticator code</span>
-<span class="ln">67</span>  member.lastSignIn = nowISO();
-<span class="ln">68</span>  logActivity(<span class="st">'auth'</span>, member.fullName + <span class="st">' signed in'</span>, member.fullName);
-<span class="ln">69</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, staff: member };
-<span class="ln">70</span>}
+<span class="ln">67</span>  clearPasswordReset(); <span class="cm">// … and ends any &quot;forgot password&quot; in progress in this browser</span>
+<span class="ln">68</span>  member.lastSignIn = nowISO();
+<span class="ln">69</span>  logActivity(<span class="st">'auth'</span>, member.fullName + <span class="st">' signed in'</span>, member.fullName);
+<span class="ln">70</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, staff: member };
+<span class="ln">71</span>}
 </pre>
   <ol class="explain">
     <li>Step 1 checks the pause time; <span class="mono">Math.ceil</span> turns milliseconds into whole seconds for the message.</li>
     <li>Step 2 is the hash-table look-up (below). Step 3: <span class="mono">staffPasswordMatches</span> hashes the typed password with the stored salt and compares.</li>
     <li>When it doesn’t match (or there is no account), a waiting or rejected registration is explained — only if <em>its</em> password matches. Step 4 then counts the wrong try for that e-mail in <span class="mono">authState.failedByEmail</span> (<span class="mono">hashGet</span> / <span class="mono">hashPut</span>); the 5th for that e-mail, or the 10th overall (<span class="mono">failedInARow</span>), sets <span class="mono">pausedUntil</span> 30 seconds ahead. The message never says whether the e-mail or the password was wrong.</li>
-    <li>Step 5 refuses suspended/deleted accounts; step 6 records the session, clears Undo and logs the sign-in.</li>
+    <li>Step 5 refuses suspended/archived accounts; step 6 records the session, clears Undo and logs the sign-in.</li>
   </ol>
-  <p class="code-head"><span class="mono">assets/js/backend/staff.js</span> · lines 29–33</p><pre class="code"><span class="ln">29</span><span class="cm">/** findStaffByEmail — hash-table look-up by e-mail, then by id. O(1) average */</span>
-<span class="ln">30</span><span class="kw">function</span> findStaffByEmail(email) {
-<span class="ln">31</span>  <span class="kw">const</span> id = hashGet(staffEmailIndex, toLowerText(trimText(email)));
-<span class="ln">32</span>  <span class="kw">return</span> id === <span class="kw">null</span> ? <span class="kw">null</span> : findStaffById(id);
-<span class="ln">33</span>}
+  <p class="code-head"><span class="mono">assets/js/backend/staff.js</span> · lines 33–37</p><pre class="code"><span class="ln">33</span><span class="cm">/** findStaffByEmail — hash-table look-up by e-mail, then by id. O(1) average */</span>
+<span class="ln">34</span><span class="kw">function</span> findStaffByEmail(email) {
+<span class="ln">35</span>  <span class="kw">const</span> id = hashGet(staffEmailIndex, toLowerText(trimText(email)));
+<span class="ln">36</span>  <span class="kw">return</span> id === <span class="kw">null</span> ? <span class="kw">null</span> : findStaffById(id);
+<span class="ln">37</span>}
 </pre>
   <ol class="explain">
     <li>The e-mail is trimmed and lower-cased, then <span class="mono">hashGet</span> returns the staff id stored under it (or <span class="mono">null</span>).</li>
@@ -1709,14 +1714,14 @@
     <li><span class="mono">hashText</span> turns the key into a bucket number (djb2: start at 5381, multiply by 33 and add each character, then take the remainder).</li>
     <li><span class="mono">hashFindInBucket</span> compares the few keys in that bucket; a missing key returns <span class="mono">null</span>.</li>
   </ol>
-  <p class="code-head"><span class="mono">assets/js/backend/staff.js</span> · lines 40–47</p><pre class="code"><span class="ln">40</span><span class="cm">/**</span>
-<span class="ln">41</span><span class="cm"> * staffPasswordMatches — hash the typed password with the member's salt and</span>
-<span class="ln">42</span><span class="cm"> * compare it with the stored hash (the password itself is never stored).</span>
-<span class="ln">43</span><span class="cm"> * Time O(n) for the hash (400 fixed rounds over n characters) · Space O(1)</span>
-<span class="ln">44</span><span class="cm"> */</span>
-<span class="ln">45</span><span class="kw">function</span> staffPasswordMatches(member, password) {
-<span class="ln">46</span>  <span class="kw">return</span> hashPassword(password, member.passwordSalt) === member.passwordHash;
-<span class="ln">47</span>}
+  <p class="code-head"><span class="mono">assets/js/backend/staff.js</span> · lines 44–51</p><pre class="code"><span class="ln">44</span><span class="cm">/**</span>
+<span class="ln">45</span><span class="cm"> * staffPasswordMatches — hash the typed password with the member's salt and</span>
+<span class="ln">46</span><span class="cm"> * compare it with the stored hash (the password itself is never stored).</span>
+<span class="ln">47</span><span class="cm"> * Time O(n) for the hash (400 fixed rounds over n characters) · Space O(1)</span>
+<span class="ln">48</span><span class="cm"> */</span>
+<span class="ln">49</span><span class="kw">function</span> staffPasswordMatches(member, password) {
+<span class="ln">50</span>  <span class="kw">return</span> hashPassword(password, member.passwordSalt) === member.passwordHash;
+<span class="ln">51</span>}
 </pre>
   <ol class="explain">
     <li>The same hash function with the same salt always gives the same result, so equal results mean the right password.</li>
@@ -1967,7 +1972,7 @@
   <h3 class="q"><span class="n">1</span>Business process</h3>
   <p class="ask">What task or problem from the client are you solving?</p>
   <div class="answer">
-    <p>The Owner and Admins must give new employees an account with the right role, reset forgotten passwords, and suspend, reactivate or delete accounts when people leave — with rules so nobody can take over the system: e-mails are unique, only the Owner can create another Owner, an Admin can’t change the Owner, and nobody can change their own account. The temporary password is shown <strong>once</strong> and must be changed at the first sign-in.</p>
+    <p>The Owner and Admins must give new employees an account with the right role, reset forgotten passwords, and suspend, reactivate, archive or restore accounts when people leave or come back (accounts are never deleted) — with rules so nobody can take over the system: e-mails are unique, only the Owner can create another Owner, an Admin can’t change the Owner, and nobody can change their own account. The temporary password is shown <strong>once</strong> and must be changed at the first sign-in.</p>
   </div>
 
   <h3 class="q"><span class="n">2</span>Input</h3>
@@ -1981,7 +1986,7 @@
         <tr><td>Role</td><td>Owner (only if you are the Owner), Admin or Support</td></tr>
         <tr><td>Start date</td><td>a real date within the next year</td></tr>
         <tr><td>Signed-in member (actor)</td><td>must be an Owner or Admin</td></tr>
-        <tr><td>Later actions</td><td>Suspend · Reactivate · Reset password · Delete (on another member)</td></tr>
+        <tr><td>Later actions</td><td>Suspend · Reactivate · Reset password · Archive · Restore (on another member)</td></tr>
       </tbody>
     </table>
   </div>
@@ -2002,7 +2007,7 @@
       <li>The counter gives the next id; ids only grow, so <strong>appending</strong> keeps the array sorted for binary search.</li>
       <li><span class="mono">generateTempPassword</span> picks 10 random characters (no look-alikes such as I, l, O, 0, 1), with at least two digits; only its salted hash is stored.</li>
       <li><span class="mono">hashPut</span> adds e-mail → id to the hash table (it grows when the load passes 0.75); one Undo step can remove the account again.</li>
-      <li><strong>Managing</strong>: <span class="mono">setStaffStatus</span> finds the member by binary search, applies the role rules and the allowed moves (Active ↔ Suspended, → Deleted), and pushes Undo; <span class="mono">resetStaffPassword</span> issues a new temporary password.</li>
+      <li><strong>Managing</strong>: <span class="mono">setStaffStatus</span> finds the member by binary search, applies the role rules and the allowed moves (Active ↔ Suspended, → Archived, Archived → Active), and pushes Undo; <span class="mono">resetStaffPassword</span> issues a new temporary password.</li>
       <li><strong>Listing</strong>: filter, search and sort (by role rank Owner → Admin → Support, name, start date or last sign-in) with the chosen algorithm.</li>
     </ol>
   </div>
@@ -2023,7 +2028,7 @@
         <tr><td>Temporary password (10 characters)</td><td>O(1)</td><td>O(1)</td></tr>
         <tr><td>Append the record</td><td>O(1)</td><td>O(1)</td></tr>
         <tr><td>hashPut</td><td>O(1) average; O(n) on the rare resize</td><td>O(1)</td></tr>
-        <tr><td>Suspend / reactivate / delete / reset</td><td>O(log n)</td><td>O(1)</td></tr>
+        <tr><td>Suspend / reactivate / archive / restore / reset</td><td>O(log n)</td><td>O(1)</td></tr>
         <tr><td>List with sort</td><td>O(n²) worst</td><td>O(n)</td></tr>
       </tbody>
     </table>
@@ -2037,7 +2042,7 @@
       <li><strong>Append with increasing ids</strong>: O(1) and keeps binary search by id valid.</li>
       <li><strong>Role rank</strong> (Owner 1, Admin 2, Support 3) turns “sort by role” into a number sort, so the same generic sorting functions work.</li>
       <li><strong>Temporary password shown once, stored hashed</strong>: the admin never keeps a readable copy, and the employee must replace it.</li>
-      <li>A deleted member keeps their record (status Deleted), so the e-mail stays reserved and the history still shows who did what.</li>
+      <li>Nothing is ever deleted: an archived member keeps their record (status Archived), so the e-mail stays reserved, the history still shows who did what, and the account can be restored.</li>
     </ul>
   </div>
 
@@ -2055,87 +2060,89 @@
     </div>
     <figure class="fig-narrow"><img src="img/m9-list-after.jpg" alt="Staff list"><figcaption>The staff list with the new member (“Temporary password”).</figcaption></figure>
     <h4>Trace — adding a member and the role rules (computed by our code)</h4>
-    <table class="t"><thead><tr><th>Step</th><th>Result</th></tr></thead><tbody><tr><td>Validate (hash-table look-up for the e-mail)</td><td><span class="ok">✓ no errors</span></td></tr><tr><td>New id (counter + 1, appended → ids stay sorted)</td><td><strong>STF-0006</strong></td></tr><tr><td>E-mail stored in lower case</td><td><span class="mono">paula.ignacio@e3fiberconnect.ph</span></td></tr><tr><td>Temporary password</td><td>10 random characters, shown once; stored only as hash <span class="mono">67422385</span></td></tr><tr><td>Must change it at first sign-in</td><td><span class="ok">✓ yes</span></td></tr><tr><td>hashPut(e-mail → id)</td><td>bucket <strong>1</strong>: paula.ignacio@e3fiberconnect.ph → STF-0006</td></tr><tr><td>Hash table size</td><td>5 → 6 keys in 17 buckets (load 0.35 ≤ 0.75, so no resize)</td></tr></tbody></table><table class="t"><thead><tr><th>Rule checked</th><th>Message</th></tr></thead><tbody><tr><td>Same e-mail in capitals</td><td><span class="no">✗ That e-mail already has an account.</span></td></tr><tr><td>An Admin adding an Owner</td><td><span class="no">✗ Only the Owner can add another Owner.</span></td></tr><tr><td>Changing your own account</td><td><span class="no">✗ You can’t change this account.</span></td></tr><tr><td>An Admin changing the Owner</td><td><span class="no">✗ You can’t change this account.</span></td></tr></tbody></table>
+    <table class="t"><thead><tr><th>Step</th><th>Result</th></tr></thead><tbody><tr><td>Validate (hash-table look-up for the e-mail)</td><td><span class="ok">✓ no errors</span></td></tr><tr><td>New id (counter + 1, appended → ids stay sorted)</td><td><strong>STF-0006</strong></td></tr><tr><td>E-mail stored in lower case</td><td><span class="mono">paula.ignacio@e3fiberconnect.ph</span></td></tr><tr><td>Temporary password</td><td>10 random characters, shown once; stored only as hash <span class="mono">38e63095</span></td></tr><tr><td>Must change it at first sign-in</td><td><span class="ok">✓ yes</span></td></tr><tr><td>hashPut(e-mail → id)</td><td>bucket <strong>1</strong>: paula.ignacio@e3fiberconnect.ph → STF-0006</td></tr><tr><td>Hash table size</td><td>5 → 6 keys in 17 buckets (load 0.35 ≤ 0.75, so no resize)</td></tr></tbody></table><table class="t"><thead><tr><th>Rule checked</th><th>Message</th></tr></thead><tbody><tr><td>Same e-mail in capitals</td><td><span class="no">✗ That e-mail already has an account.</span></td></tr><tr><td>An Admin adding an Owner</td><td><span class="no">✗ Only the Owner can add another Owner.</span></td></tr><tr><td>Changing your own account</td><td><span class="no">✗ You can’t change this account.</span></td></tr><tr><td>An Admin changing the Owner</td><td><span class="no">✗ You can’t change this account.</span></td></tr></tbody></table>
   </div>
 
   <h3>Code walkthrough</h3>
-  <p class="code-head"><span class="mono">assets/js/backend/staff.js</span> · lines 124–162</p><pre class="code"><span class="ln">124</span><span class="cm">/**</span>
-<span class="ln">125</span><span class="cm"> * addStaff — create an account with a temporary password. Returns the password</span>
-<span class="ln">126</span><span class="cm"> * once, so it can be shown to the admin (it is only stored as a hash).</span>
-<span class="ln">127</span><span class="cm"> * Time O(1) append + O(1) hash put · Space O(1)</span>
-<span class="ln">128</span><span class="cm"> */</span>
-<span class="ln">129</span><span class="kw">function</span> addStaff(data, actor) {
-<span class="ln">130</span>  <span class="kw">const</span> stepUp = stepUpRequired();                  <span class="cm">// 0. two-step verification: a Google Authenticator code in the last 5 minutes</span>
-<span class="ln">131</span>  <span class="kw">if</span> (stepUp) {
-<span class="ln">132</span>    <span class="kw">return</span> stepUp;
-<span class="ln">133</span>  }
-<span class="ln">134</span>  <span class="kw">if</span> (!canManageStaff(actor)) {                     <span class="cm">// 1. only Owners and Admins add staff</span>
-<span class="ln">135</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: { fullName: <span class="st">'Only an Owner or Admin can add staff.'</span> } };
-<span class="ln">136</span>  }
-<span class="ln">137</span>  <span class="kw">const</span> errors = validateNewStaff(data, actor);     <span class="cm">// 2. check the fields (e-mail through the hash table)</span>
-<span class="ln">138</span>  <span class="kw">if</span> (hasAnyErrors(errors)) {
-<span class="ln">139</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: errors };
+  <p class="code-head"><span class="mono">assets/js/backend/staff.js</span> · lines 128–166</p><pre class="code"><span class="ln">128</span><span class="cm">/**</span>
+<span class="ln">129</span><span class="cm"> * addStaff — create an account with a temporary password. Returns the password</span>
+<span class="ln">130</span><span class="cm"> * once, so it can be shown to the admin (it is only stored as a hash).</span>
+<span class="ln">131</span><span class="cm"> * Time O(1) append + O(1) hash put · Space O(1)</span>
+<span class="ln">132</span><span class="cm"> */</span>
+<span class="ln">133</span><span class="kw">function</span> addStaff(data, actor) {
+<span class="ln">134</span>  <span class="kw">const</span> stepUp = stepUpRequired();                  <span class="cm">// 0. two-step verification: a Google Authenticator code in the last 5 minutes</span>
+<span class="ln">135</span>  <span class="kw">if</span> (stepUp) {
+<span class="ln">136</span>    <span class="kw">return</span> stepUp;
+<span class="ln">137</span>  }
+<span class="ln">138</span>  <span class="kw">if</span> (!canManageStaff(actor)) {                     <span class="cm">// 1. only Owners and Admins add staff</span>
+<span class="ln">139</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: { fullName: <span class="st">'Only an Owner or Admin can add staff.'</span> } };
 <span class="ln">140</span>  }
-<span class="ln">141</span>  counters.staff = counters.staff + 1;              <span class="cm">// 3. the next staff id, e.g. STF-0006</span>
-<span class="ln">142</span>  <span class="kw">const</span> id = formatStaffId(counters.staff);
-<span class="ln">143</span>  <span class="kw">const</span> tempPassword = generateTempPassword();      <span class="cm">// 4. a random temporary password</span>
-<span class="ln">144</span>  <span class="kw">const</span> member = {
-<span class="ln">145</span>    id: id,
-<span class="ln">146</span>    fullName: collapseSpaces(data.fullName),
-<span class="ln">147</span>    email: toLowerText(trimText(data.email)),
-<span class="ln">148</span>    role: data.role,
-<span class="ln">149</span>    status: <span class="st">'Active'</span>,
-<span class="ln">150</span>    startDate: data.startDate,
-<span class="ln">151</span>    lastSignIn: <span class="kw">null</span>,
-<span class="ln">152</span>    passwordHash: hashPassword(tempPassword, id),
-<span class="ln">153</span>    passwordSalt: id,
-<span class="ln">154</span>    mustChangePassword: <span class="kw">true</span>,
-<span class="ln">155</span>  };
-<span class="ln">156</span>  arrayAppend(staffMembers, member);          <span class="cm">// 5. ids increase → the table stays sorted</span>
-<span class="ln">157</span>  hashPut(staffEmailIndex, member.email, id); <span class="cm">// 6. index the e-mail for sign-in</span>
-<span class="ln">158</span>  pushUndo(<span class="st">'Add staff '</span> + member.fullName, [insertOperation(<span class="st">'staffMembers'</span>, id)], nameOfActor(actor)); <span class="cm">// 7. undo step</span>
-<span class="ln">159</span>  logActivity(<span class="st">'staff'</span>, <span class="st">'Added '</span> + member.fullName + <span class="st">' as '</span> + member.role, nameOfActor(actor));
-<span class="ln">160</span>  markDataChanged();
-<span class="ln">161</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, staff: member, tempPassword: tempPassword };
-<span class="ln">162</span>}
+<span class="ln">141</span>  <span class="kw">const</span> errors = validateNewStaff(data, actor);     <span class="cm">// 2. check the fields (e-mail through the hash table)</span>
+<span class="ln">142</span>  <span class="kw">if</span> (hasAnyErrors(errors)) {
+<span class="ln">143</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: errors };
+<span class="ln">144</span>  }
+<span class="ln">145</span>  counters.staff = counters.staff + 1;              <span class="cm">// 3. the next staff id, e.g. STF-0006</span>
+<span class="ln">146</span>  <span class="kw">const</span> id = formatStaffId(counters.staff);
+<span class="ln">147</span>  <span class="kw">const</span> tempPassword = generateTempPassword();      <span class="cm">// 4. a random temporary password</span>
+<span class="ln">148</span>  <span class="kw">const</span> member = {
+<span class="ln">149</span>    id: id,
+<span class="ln">150</span>    fullName: collapseSpaces(data.fullName),
+<span class="ln">151</span>    email: toLowerText(trimText(data.email)),
+<span class="ln">152</span>    role: data.role,
+<span class="ln">153</span>    status: <span class="st">'Active'</span>,
+<span class="ln">154</span>    startDate: data.startDate,
+<span class="ln">155</span>    lastSignIn: <span class="kw">null</span>,
+<span class="ln">156</span>    passwordHash: hashPassword(tempPassword, id),
+<span class="ln">157</span>    passwordSalt: id,
+<span class="ln">158</span>    mustChangePassword: <span class="kw">true</span>,
+<span class="ln">159</span>  };
+<span class="ln">160</span>  arrayAppend(staffMembers, member);          <span class="cm">// 5. ids increase → the table stays sorted</span>
+<span class="ln">161</span>  hashPut(staffEmailIndex, member.email, id); <span class="cm">// 6. index the e-mail for sign-in</span>
+<span class="ln">162</span>  pushUndo(<span class="st">'Add staff '</span> + member.fullName, [insertOperation(<span class="st">'staffMembers'</span>, id)], nameOfActor(actor)); <span class="cm">// 7. undo step</span>
+<span class="ln">163</span>  logActivity(<span class="st">'staff'</span>, <span class="st">'Added '</span> + member.fullName + <span class="st">' as '</span> + member.role, nameOfActor(actor));
+<span class="ln">164</span>  markDataChanged();
+<span class="ln">165</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, staff: member, tempPassword: tempPassword };
+<span class="ln">166</span>}
 </pre>
   <ol class="explain">
     <li>Steps 1–2: permission, then field checks (the e-mail goes through the hash table).</li>
     <li>Steps 3–4: next id and a random temporary password; the record stores only <span class="mono">hashPassword(tempPassword, id)</span>.</li>
     <li>Steps 5–7: append (sorted by id), index the e-mail, push one Undo step, log it, and return the temporary password once so the screen can show it.</li>
   </ol>
-  <p class="code-head"><span class="mono">assets/js/backend/staff.js</span> · lines 164–192</p><pre class="code"><span class="ln">164</span><span class="cm">/**</span>
-<span class="ln">165</span><span class="cm"> * setStaffStatus — suspend, reactivate or delete a staff account.</span>
-<span class="ln">166</span><span class="cm"> * Time O(log n)</span>
-<span class="ln">167</span><span class="cm"> */</span>
-<span class="ln">168</span><span class="kw">function</span> setStaffStatus(id, status, actor) {
-<span class="ln">169</span>  <span class="kw">const</span> stepUp = stepUpRequired();            <span class="cm">// 0. two-step verification: a Google Authenticator code in the last 5 minutes</span>
-<span class="ln">170</span>  <span class="kw">if</span> (stepUp) {
-<span class="ln">171</span>    <span class="kw">return</span> stepUp;
-<span class="ln">172</span>  }
-<span class="ln">173</span>  <span class="kw">const</span> member = findStaffById(id);
-<span class="ln">174</span>  <span class="kw">if</span> (!member) {
-<span class="ln">175</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'Staff member not found.'</span> };
-<span class="ln">176</span>  }
-<span class="ln">177</span>  <span class="kw">if</span> (!canManageMember(actor, member)) {
-<span class="ln">178</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'You can’t change this account.'</span> };
-<span class="ln">179</span>  }
-<span class="ln">180</span>  <span class="kw">const</span> allowed = (member.status === <span class="st">'Active'</span> &amp;&amp; (status === <span class="st">'Suspended'</span> || status === <span class="st">'Deleted'</span>))
-<span class="ln">181</span>    || (member.status === <span class="st">'Suspended'</span> &amp;&amp; (status === <span class="st">'Active'</span> || status === <span class="st">'Deleted'</span>));
-<span class="ln">182</span>  <span class="kw">if</span> (!allowed) {
-<span class="ln">183</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'That change is not allowed.'</span> };
+  <p class="code-head"><span class="mono">assets/js/backend/staff.js</span> · lines 168–198</p><pre class="code"><span class="ln">168</span><span class="cm">/**</span>
+<span class="ln">169</span><span class="cm"> * setStaffStatus — suspend, reactivate, archive or restore a staff account</span>
+<span class="ln">170</span><span class="cm"> * (accounts are archived, never deleted).</span>
+<span class="ln">171</span><span class="cm"> * Time O(log n)</span>
+<span class="ln">172</span><span class="cm"> */</span>
+<span class="ln">173</span><span class="kw">function</span> setStaffStatus(id, status, actor) {
+<span class="ln">174</span>  <span class="kw">const</span> stepUp = stepUpRequired();            <span class="cm">// 0. two-step verification: a Google Authenticator code in the last 5 minutes</span>
+<span class="ln">175</span>  <span class="kw">if</span> (stepUp) {
+<span class="ln">176</span>    <span class="kw">return</span> stepUp;
+<span class="ln">177</span>  }
+<span class="ln">178</span>  <span class="kw">const</span> member = findStaffById(id);
+<span class="ln">179</span>  <span class="kw">if</span> (!member) {
+<span class="ln">180</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'Staff member not found.'</span> };
+<span class="ln">181</span>  }
+<span class="ln">182</span>  <span class="kw">if</span> (!canManageMember(actor, member)) {
+<span class="ln">183</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'You can’t change this account.'</span> };
 <span class="ln">184</span>  }
-<span class="ln">185</span>  <span class="kw">const</span> verbs = { Active: <span class="st">'Reactivate'</span>, Suspended: <span class="st">'Suspend'</span>, Deleted: <span class="st">'Delete'</span> };
-<span class="ln">186</span>  <span class="kw">const</span> before = snapshotFields(member, [<span class="st">'status'</span>]);
-<span class="ln">187</span>  member.status = status;
-<span class="ln">188</span>  pushUndo(verbs[status] + <span class="st">' '</span> + member.fullName, [updateOperation(<span class="st">'staffMembers'</span>, id, before)], nameOfActor(actor));
-<span class="ln">189</span>  logActivity(<span class="st">'staff'</span>, verbs[status] + <span class="st">'d '</span> + member.fullName, nameOfActor(actor));
-<span class="ln">190</span>  markDataChanged();
-<span class="ln">191</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, staff: member };
-<span class="ln">192</span>}
+<span class="ln">185</span>  <span class="kw">const</span> allowed = (member.status === <span class="st">'Active'</span> &amp;&amp; (status === <span class="st">'Suspended'</span> || status === <span class="st">'Archived'</span>))
+<span class="ln">186</span>    || (member.status === <span class="st">'Suspended'</span> &amp;&amp; (status === <span class="st">'Active'</span> || status === <span class="st">'Archived'</span>))
+<span class="ln">187</span>    || (member.status === <span class="st">'Archived'</span> &amp;&amp; status === <span class="st">'Active'</span>);
+<span class="ln">188</span>  <span class="kw">if</span> (!allowed) {
+<span class="ln">189</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">'That change is not allowed.'</span> };
+<span class="ln">190</span>  }
+<span class="ln">191</span>  <span class="kw">const</span> verbs = { Active: member.status === <span class="st">'Archived'</span> ? <span class="st">'Restore'</span> : <span class="st">'Reactivate'</span>, Suspended: <span class="st">'Suspend'</span>, Archived: <span class="st">'Archive'</span> };
+<span class="ln">192</span>  <span class="kw">const</span> before = snapshotFields(member, [<span class="st">'status'</span>]);
+<span class="ln">193</span>  member.status = status;
+<span class="ln">194</span>  pushUndo(verbs[status] + <span class="st">' '</span> + member.fullName, [updateOperation(<span class="st">'staffMembers'</span>, id, before)], nameOfActor(actor));
+<span class="ln">195</span>  logActivity(<span class="st">'staff'</span>, verbs[status] + <span class="st">'d '</span> + member.fullName, nameOfActor(actor));
+<span class="ln">196</span>  markDataChanged();
+<span class="ln">197</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, staff: member };
+<span class="ln">198</span>}
 </pre>
   <ol class="explain">
-    <li>Binary search for the member; <span class="mono">canManageMember</span> applies the role rules (not yourself, Admins can’t change the Owner, not a deleted account).</li>
+    <li>Binary search for the member; <span class="mono">canManageMember</span> applies the role rules (not yourself, Admins can’t change the Owner; an archived account can only be restored).</li>
     <li>Only allowed moves pass; the old status is snapshotted for Undo.</li>
   </ol>
   <p class="code-head"><span class="mono">assets/js/dsa/hashtable.js</span> · lines 78–94</p><pre class="code"><span class="ln">78</span><span class="cm">/**</span>
@@ -3225,7 +3232,7 @@
   <div class="qa"><p class="qq">Aren’t O(n²) sorts too slow?</p><p class="aa">Not for our data: the lists have tens to hundreds of records, and the tables are usually already in order, which is insertion sort’s best case — O(n). They are also simple to verify, and insertion and bubble sort are stable. The <em>Benchmark lab</em> on the Algorithms page runs the three sorts on the same random data and shows the exact comparison counts, so the difference can be seen live.</p></div>
   <div class="qa"><p class="qq">Why keep the arrays sorted instead of sorting when needed?</p><p class="aa">Records are looked up far more often than they are added. Keeping each array sorted by its key (append when ids only grow, sorted insert otherwise) lets every look-up be a binary search — O(log n) — instead of a linear search, and each month of bills becomes one contiguous block (Module 11).</p></div>
   <div class="qa"><p class="qq">Why hash tables, when you already have binary search?</p><p class="aa">Binary search only works on the key the array is sorted by. Staff are sorted by id, but sign-in searches by e-mail; payments are sorted by id, but the duplicate check searches by reference number; wrong sign-in tries are counted per e-mail. A hash table indexes that second key and answers in O(1) on average, without a second sorted copy that would cost O(n) per insert.</p></div>
-  <div class="qa"><p class="qq">How does Undo work?</p><p class="aa">It is a stack. Every admin action pushes one step holding its operations (insert / update / remove) and the “before” values. Undo pops the newest step and reverses its operations. One step can hold many operations — generating a month of bills, or confirming a payment (payment + bill). Only the last 25 steps are kept, and the stack is cleared at sign-in and sign-out so staff only ever undo their own work. Customers’ actions are not on the stack, so Undo refuses a step that would break one — e.g. deleting a bill a customer already reported a payment for, or re-opening a declined payment after the customer sent a new report. Each toast’s Undo only reverses the action that toast announced.</p></div>
+  <div class="qa"><p class="qq">How does Undo work?</p><p class="aa">It is a stack. Every admin action pushes one step holding its operations (insert / update / remove) and the “before” values. Undo pops the newest step and reverses its operations. One step can hold many operations — generating a month of bills, or confirming a payment (payment + bill). Only the last 25 steps are kept, and the stack is cleared at sign-in and sign-out so staff only ever undo their own work. Customers’ actions are not on the stack, so Undo refuses a step that would break one — e.g. removing a generated bill a customer already reported a payment for, or re-opening a declined payment after the customer sent a new report. Each toast’s Undo only reverses the action that toast announced.</p></div>
   <div class="qa"><p class="qq">How secure is it?</p><p class="aa">It is a class project that runs entirely in the browser, so we are honest about the limits. What we did: passwords are stored only as a salted hash (FNV-1a repeated 400 times — a demo, not a real password hash), five wrong passwords in a row for one e-mail (counted in a hash table) pause sign-in for 30 seconds, the sign-in error never says whether the e-mail or the password was wrong — nor, through the registration messages, which e-mails belong to staff — staff screens need a signed-in account, and everything shown on screen is escaped so typed text can’t run as code. A real deployment would need a server and database, a proper password hash (bcrypt or Argon2) and HTTPS, because anything in the browser can be read with developer tools.</p></div>
   <div class="qa"><p class="qq">How do you prove the complexities?</p><p class="aa">Every search and sort records its comparisons and moves; the Algorithms page shows the last runs, the live sizes of every structure and the benchmark. The traces in this reviewer were produced by running our actual functions on the sample data.</p></div>
   <div class="qa"><p class="qq">Did you use the Date object?</p><p class="aa">Only to read the clock: <span class="mono">readClock</span> reads today’s date from the computer, and <span class="mono">Date.now()</span> / <span class="mono">performance.now()</span> give timestamps for the sign-in pause, the activity log and the sort stopwatch. All date maths — adding days, next month, days between two dates, leap years — is our own day-number arithmetic in <span class="mono">backend/utils.js</span>.</p></div>

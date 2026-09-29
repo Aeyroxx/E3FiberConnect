@@ -2,7 +2,11 @@
    E3 Fiber Connect · backend/staff.js
    Staff accounts.
 
-     Active ◀──suspend / reactivate──▶ Suspended        Active or Suspended ──▶ Deleted
+     Active ◀──suspend / reactivate──▶ Suspended        Active or Suspended ──archive──▶ Archived
+                                                        Archived ──restore──▶ Active
+
+   Accounts are never deleted: an archived account can't sign in, but its
+   record, history and e-mail stay, and it can be restored.
 
    Owners and Admins manage staff (never themselves; an Admin can't change an
    Owner). Staff they add get a temporary password and must change it when they
@@ -15,7 +19,7 @@
 
 'use strict';
 
-const STAFF_STATUSES = ['Active', 'Suspended', 'Deleted'];
+const STAFF_STATUSES = ['Active', 'Suspended', 'Archived'];
 const ROLE_RANK = { Owner: 1, Admin: 2, Support: 3 };
 const TEMP_PASSWORD_LETTERS = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz'; // no I, L, O, i, l, o
 const TEMP_PASSWORD_DIGITS = '23456789';                                         // no 0 or 1
@@ -59,7 +63,7 @@ function canManageStaff(actor) {
 
 /** canManageMember — may `actor` change this particular member? O(1) */
 function canManageMember(actor, member) {
-  if (!canManageStaff(actor) || !member || actor.id === member.id || member.status === 'Deleted') {
+  if (!canManageStaff(actor) || !member || actor.id === member.id) {
     return false;
   }
   return actor.role === 'Owner' || member.role !== 'Owner';
@@ -162,7 +166,8 @@ function addStaff(data, actor) {
 }
 
 /**
- * setStaffStatus — suspend, reactivate or delete a staff account.
+ * setStaffStatus — suspend, reactivate, archive or restore a staff account
+ * (accounts are archived, never deleted).
  * Time O(log n)
  */
 function setStaffStatus(id, status, actor) {
@@ -177,12 +182,13 @@ function setStaffStatus(id, status, actor) {
   if (!canManageMember(actor, member)) {
     return { ok: false, error: 'You can’t change this account.' };
   }
-  const allowed = (member.status === 'Active' && (status === 'Suspended' || status === 'Deleted'))
-    || (member.status === 'Suspended' && (status === 'Active' || status === 'Deleted'));
+  const allowed = (member.status === 'Active' && (status === 'Suspended' || status === 'Archived'))
+    || (member.status === 'Suspended' && (status === 'Active' || status === 'Archived'))
+    || (member.status === 'Archived' && status === 'Active');
   if (!allowed) {
     return { ok: false, error: 'That change is not allowed.' };
   }
-  const verbs = { Active: 'Reactivate', Suspended: 'Suspend', Deleted: 'Delete' };
+  const verbs = { Active: member.status === 'Archived' ? 'Restore' : 'Reactivate', Suspended: 'Suspend', Archived: 'Archive' };
   const before = snapshotFields(member, ['status']);
   member.status = status;
   pushUndo(verbs[status] + ' ' + member.fullName, [updateOperation('staffMembers', id, before)], nameOfActor(actor));
@@ -203,6 +209,9 @@ function resetStaffPassword(id, actor) {
   }
   if (!canManageMember(actor, member)) {
     return { ok: false, error: 'You can’t reset this password.' };
+  }
+  if (member.status === 'Archived') {
+    return { ok: false, error: 'Restore the account first.' };
   }
   const tempPassword = generateTempPassword();
   setStaffPassword(member, tempPassword);
@@ -229,6 +238,9 @@ function resetStaffTwoFactor(id, actor) {
   }
   if (!canManageMember(actor, member)) {
     return { ok: false, error: 'You can’t reset this account’s two-step verification.' };
+  }
+  if (member.status === 'Archived') {
+    return { ok: false, error: 'Restore the account first.' };
   }
   if (member.role !== 'Support' && actor.role !== 'Owner') {   // together with a password reset it would hand over the account
     return { ok: false, error: 'Only an Owner can reset an Admin’s authenticator.' };
@@ -317,7 +329,7 @@ function listStaff(options) {
 
 /** countStaffByStatus — one pass. O(n) */
 function countStaffByStatus() {
-  const counts = { all: staffMembers.length, Active: 0, Suspended: 0, Deleted: 0 };
+  const counts = { all: staffMembers.length, Active: 0, Suspended: 0, Archived: 0 };
   for (let i = 0; i < staffMembers.length; i++) {
     counts[staffMembers[i].status] = counts[staffMembers[i].status] + 1;
   }

@@ -4690,6 +4690,205 @@ a.kpi:hover {
   }
 }
 
+/* ---------------------------------------------------------- Forgot password */
+.login-forgot {
+  margin: 0.375rem 0 0;
+  text-align: right;
+  font-size: 0.875rem;
+}
+
+.forgot-card {
+  text-align: center;
+}
+
+.forgot-card .field,
+.forgot-card .form-alert {
+  text-align: left;
+}
+
+.forgot-badge {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: var(--accent-tint);
+  color: var(--accent);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.forgot-badge .icon {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  transition: opacity 0.2s ease, transform 0.4s var(--ease-spring);
+}
+
+.forgot-badge-check {
+  opacity: 0;
+  transform: scale(0.6);
+  stroke-width: 2.4;
+}
+
+.forgot-card.is-done .forgot-badge {
+  background: var(--green-tint, rgba(52, 199, 89, 0.14));
+  color: var(--green);
+}
+
+.forgot-card.is-done .forgot-badge-lock {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.forgot-card.is-done .forgot-badge-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.forgot-card .otp-code {
+  margin: 0.5rem 0 0;
+}
+
+/* The card is narrower than the sheet: the six boxes share its width (never wider than 3rem). */
+.forgot-card .otp-digit {
+  flex: 1 1 2rem;
+  width: 2rem;               /* small base size, so the card can shrink; the boxes then grow to fill it */
+  min-width: 0;
+  max-width: 3rem;
+}
+
+.forgot-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 1rem;
+  margin-top: 0.75rem;
+}
+
+.forgot-links .btn {
+  color: var(--link);
+}
+
+.forgot-links .btn:disabled {
+  color: var(--label-3);
+  opacity: 1;
+}
+
+/* The code arrives like a phone notification: a translucent banner that drops
+   in from the top, can be tapped (fills the code) or pushed back up. */
+.notify-banner {
+  position: fixed;
+  top: max(0.75rem, env(safe-area-inset-top));
+  left: 50%;
+  z-index: 1095;
+  width: min(420px, calc(100vw - 1.5rem));
+  margin-left: calc(min(420px, calc(100vw - 1.5rem)) / -2);
+  transform: translateY(calc(-100% - 2rem));
+  opacity: 0;
+  transition: transform 0.5s var(--ease-spring), opacity 0.25s ease;
+  touch-action: none;
+}
+
+.notify-banner.is-open {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.notify-banner.is-dragging {
+  transition: none;
+}
+
+.notify-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--material-edge);
+  border-radius: 22px;
+  background: var(--material-menu);
+  -webkit-backdrop-filter: saturate(180%) blur(28px);
+  backdrop-filter: saturate(180%) blur(28px);
+  box-shadow: var(--shadow-xl);
+  color: var(--label);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.notify-card:active {
+  transform: scale(0.98);
+}
+
+.notify-icon {
+  flex: none;
+  width: 38px;
+  height: auto;
+  padding: 5px;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12);
+}
+
+.notify-content {
+  display: grid;
+  gap: 0.0625rem;
+  min-width: 0;
+}
+
+.notify-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--label-2);
+  letter-spacing: 0.01em;
+}
+
+.notify-app {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.notify-title {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.notify-message {
+  font-size: 0.9375rem;
+  line-height: 1.35;
+}
+
+.notify-hint {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--link);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notify-banner,
+  .forgot-badge .icon {
+    transition: opacity 0.2s ease;
+  }
+
+  .notify-banner {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .notify-card {
+    background: var(--bg-elevated);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
 /* Account page panel */
 .twofactor-row {
   display: flex;

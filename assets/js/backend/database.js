@@ -172,7 +172,7 @@ const SEED_STAFF = [
   { fullName: 'Juan Dela Cruz', email: 'juan.delacruz@e3fiberconnect.ph', role: 'Admin', status: 'Active', startDate: '2026-01-05', password: 'e3admin', lastSignInDaysAgo: 0 },
   { fullName: 'Paolo Reyes', email: 'paolo.reyes@e3fiberconnect.ph', role: 'Support', status: 'Active', startDate: '2026-02-16', password: 'support123', lastSignInDaysAgo: 2 },
   { fullName: 'Grace Lim', email: 'grace.lim@e3fiberconnect.ph', role: 'Support', status: 'Suspended', startDate: '2026-03-02', password: 'grace1234', lastSignInDaysAgo: 30 },
-  { fullName: 'Daniel Tan', email: 'daniel.tan@e3fiberconnect.ph', role: 'Admin', status: 'Deleted', startDate: '2026-03-20', password: 'daniel1234', lastSignInDaysAgo: 45 },
+  { fullName: 'Daniel Tan', email: 'daniel.tan@e3fiberconnect.ph', role: 'Admin', status: 'Archived', startDate: '2026-03-20', password: 'daniel1234', lastSignInDaysAgo: 45 },
 ];
 
 // Staff registrations ("Request access"), oldest first. Grace Lim's account came

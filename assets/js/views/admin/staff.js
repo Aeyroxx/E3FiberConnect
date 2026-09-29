@@ -1,7 +1,8 @@
 /* ==========================================================================
    E3 Fiber Connect · views/admin/staff.js
    Staff accounts: list, add (with a one-time temporary password), suspend,
-   reactivate, reset password and delete. Owners and Admins only.
+   reactivate, reset password, archive and restore. Owners and Admins only.
+   Accounts are never deleted — archiving keeps the record and can be undone.
    Defense module: Admin/Staff Creation & Management — presented by Dela Cruz Riceerich.
    ========================================================================== */
 
@@ -19,6 +20,9 @@ function staffRowActions(actor, member) {
   }
   const id = escapeHTML(member.id);
   const name = escapeHTML(member.fullName);
+  if (member.status === 'Archived') {
+    return '<button class="btn btn-tinted btn-xs" type="button" data-action="restore" data-staff="' + id + '" aria-label="Restore ' + name + '">Restore</button>';
+  }
   let html = '';
   if (member.status === 'Active') {
     html += '<button class="btn btn-gray btn-xs" type="button" data-action="suspend" data-staff="' + id + '" aria-label="Suspend ' + name + '">Suspend</button>'
@@ -29,7 +33,7 @@ function staffRowActions(actor, member) {
   if (member.totpEnabled && (member.role === 'Support' || actor.role === 'Owner')) {
     html += '<button class="btn btn-gray btn-xs" type="button" data-action="reset-2fa" data-staff="' + id + '" aria-label="Reset the Google Authenticator of ' + name + '">Reset authenticator</button>';
   }
-  html += '<button class="btn btn-danger-tinted btn-xs" type="button" data-action="delete" data-staff="' + id + '" aria-label="Delete ' + name + '">Delete</button>';
+  html += '<button class="btn btn-gray btn-xs" type="button" data-action="archive" data-staff="' + id + '" aria-label="Archive ' + name + '">Archive</button>';
   return html;
 }
 
@@ -140,23 +144,33 @@ function runStaffAction(action, id) {
         });
       },
     });
-  } else if (action === 'delete') {
+  } else if (action === 'archive') {
     askToConfirm({
-      title: 'Delete ' + member.fullName + '?',
-      text: 'They won’t be able to sign in. Their e-mail stays reserved, and you can undo this right after.',
-      confirmLabel: 'Delete account',
-      danger: true,
+      title: 'Archive ' + member.fullName + '?',
+      text: 'They won’t be able to sign in. Their record, activity and e-mail are kept, and you can restore the account at any time.',
+      confirmLabel: 'Archive account',
+      danger: false,
       onConfirm: function () {
-        requireStepUp('delete the account of ' + member.fullName, function () {
-          const result = setStaffStatus(id, 'Deleted', currentStaff());
+        requireStepUp('archive the account of ' + member.fullName, function () {
+          const result = setStaffStatus(id, 'Archived', currentStaff());
           if (!result.ok) {
             reportFailure(result);
           } else {
-            announce('Deleted ' + member.fullName);
+            announce('Archived ' + member.fullName);
           }
           renderStaffView();
         });
       },
+    });
+  } else if (action === 'restore') {
+    requireStepUp('restore the account of ' + member.fullName, function () {
+      const result = setStaffStatus(id, 'Active', currentStaff());
+      if (!result.ok) {
+        reportFailure(result);
+      } else {
+        announce('Restored ' + member.fullName + ' — they can sign in again');
+      }
+      renderStaffView();
     });
   }
 }

@@ -14,7 +14,7 @@
    arrays of numbers (bytes 0–255) and 32-bit bit operations. No crypto
    library, no built-in helpers.
 
-   Account changes (passwords, adding / approving / suspending / deleting
+   Account changes (passwords, adding / approving / suspending / archiving
    staff, subscriber status or plan, and undoing any of these) need a
    verified code. A correct code opens a 5-minute window ("step-up"), so
    several changes in a row don't ask again. The window belongs to the person

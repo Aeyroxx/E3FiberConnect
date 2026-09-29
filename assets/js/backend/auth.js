@@ -57,13 +57,14 @@ function signIn(email, password) {
     hashPut(authState.failedByEmail, emailKey, tries);
     return { ok: false, error: 'The e-mail or password is incorrect.' };
   }
-  if (member.status !== 'Active') {                           // 5. suspended or deleted accounts can't sign in
-    return { ok: false, error: 'This account is ' + toLowerText(member.status) + '. Ask the owner to reactivate it.' };
+  if (member.status !== 'Active') {                           // 5. suspended or archived accounts can't sign in
+    return { ok: false, error: 'This account is ' + toLowerText(member.status) + '. Ask the owner to ' + (member.status === 'Archived' ? 'restore' : 'reactivate') + ' it.' };
   }
   hashPut(authState.failedByEmail, emailKey, 0);              // 6. success: this e-mail's count starts again; remember who is signed in
   authState.staffId = member.id;
   clearUndoHistory(); // Undo only ever reverses your own actions from this sign-in
   endStepUp();        // a new sign-in must verify its own Google Authenticator code
+  clearPasswordReset(); // … and ends any "forgot password" in progress in this browser
   member.lastSignIn = nowISO();
   logActivity('auth', member.fullName + ' signed in', member.fullName);
   return { ok: true, staff: member };
@@ -82,7 +83,7 @@ function signOut() {
 
 /**
  * currentStaff — the signed-in staff member, or null. If the account was
- * suspended or deleted in the meantime, the session ends immediately.
+ * suspended or archived in the meantime, the session ends immediately.
  * Time O(log n)
  */
 function currentStaff() {
