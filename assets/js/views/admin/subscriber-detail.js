@@ -3,7 +3,7 @@
    Isang subscriber: account, billing history, balance (inuuna bayaran yung
    PINAKALUMANG unpaid na bill - parang queue), plan changes, suspend / reactivate /
    terminate, payment reports at support tickets.
-   Module sa defense: Accounts management (Subscribers) - si Dela Cruz Riceerich ang mag-eexplain.
+   Module sa defense: Accounts management (Subscribers) - si Justin Banaag ang mag-eexplain.
    ========================================================================== */
 
 'use strict';

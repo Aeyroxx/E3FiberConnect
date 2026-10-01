@@ -12,7 +12,7 @@
      Create Account           - si Justin Banaag
        (previewSubscriberAccount, validateAccountDetails, createSubscriberAccount,
         createSubscriberFromApplication)
-     Accounts management      - si Dela Cruz Riceerich
+     Accounts management      - si Justin Banaag
        (findSubscriber, listSubscribers, setSubscriberStatus, changeSubscriberPlan)
    ========================================================================== */
 
