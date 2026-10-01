@@ -14,7 +14,7 @@ const NEW_APP_FIELDS = {
   fullName: 'newAppFullName', email: 'newAppEmail', contactNumber: 'newAppMobile', birthDate: 'newAppBirthDate',
   barangay: 'newAppBarangay', completeAddress: 'newAppAddress', landmark: 'newAppLandmark',
   idType: 'newAppIdType', idNumber: 'newAppIdNumber', idPhoto: 'newAppIdPhoto', idChecked: 'newAppIdChecked',
-  consent: 'newAppConsent',
+  consent: 'newAppConsent', additionalLine: 'newAppAdditional',
 };
 
 function readNewApplicationForm() {
@@ -36,6 +36,7 @@ function readNewApplicationForm() {
     idPhotoSize: photo ? photo.size : 0,
     idChecked: isChecked('newAppIdChecked'),
     consent: isChecked('newAppConsent'),
+    additionalLine: isChecked('newAppAdditional'),
   };
 }
 
@@ -61,6 +62,7 @@ function resetNewApplicationForm() {
   setUploadState('newAppUpload', 'newAppUploadTitle', 'newAppUploadText', null, 'Choose a file');
   clearFieldErrors(NEW_APP_FIELDS);
   setFormAlert('newAppAlert', '');
+  toggleElement(byId('newAppAdditionalField'), false);
   updateCoverageHint('newAppBarangay', 'newAppCoverageHint');
   updateNewApplicationSummary();
 }
@@ -106,6 +108,9 @@ function initNewApplicationView() {
   byId('newAppConsent').addEventListener('change', function () {
     setFieldError('newAppConsent', newApplicationFieldError('consent'));
   });
+  byId('newAppAdditional').addEventListener('change', function () {
+    setFieldError('newAppAdditional', '');
+  });
   byId('newAppIdType').addEventListener('change', function () {
     setFieldError('newAppIdType', newApplicationFieldError('idType'));
   });
@@ -122,7 +127,10 @@ function initNewApplicationView() {
     event.preventDefault();
     const result = submitApplication(readNewApplicationForm(), 'walk-in', currentStaff());
     if (!result.ok) {
-      setFormAlert('newAppAlert', 'Please check the highlighted fields.', 'error');
+      if (result.errors.additionalLine) {
+        toggleElement(byId('newAppAdditionalField'), true);   // may in progress na yung customer: 2nd internet ba ito?
+      }
+      setFormAlert('newAppAlert', result.errors.additionalLine ? 'This customer already has an application in progress.' : 'Please check the highlighted fields.', 'error');
       focusInvalid(applyFieldErrors(NEW_APP_FIELDS, result.errors));
       return;
     }

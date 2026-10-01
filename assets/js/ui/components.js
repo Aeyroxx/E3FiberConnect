@@ -8,6 +8,26 @@
 
 'use strict';
 
+/**
+ * clientConnectionsHTML - links papunta sa ibang application at account ng parehong client
+ * (galing sa clientConnections). Blangko kung wala. O(n)
+ */
+function clientConnectionsHTML(connections) {
+  let html = '';
+  for (let i = 0; i < connections.subscribers.length; i++) {
+    const sub = connections.subscribers[i];
+    html += '<a class="connection-link" href="#/admin/subscribers/' + escapeHTML(sub.accountNo) + '"><span class="mono">' + escapeHTML(sub.accountNo) + '</span> ' + statusBadge(sub.status) + ' <span class="caption-text">' + escapeHTML(planName(sub.planId)) + '</span></a>';
+  }
+  for (let i = 0; i < connections.applications.length; i++) {
+    const app = connections.applications[i];
+    if (app.status === 'Completed') {
+      continue;                                  // naging subscriber na, nasa taas na siya
+    }
+    html += '<a class="connection-link" href="#/admin/applications/' + escapeHTML(app.referenceNo) + '"><span class="mono">' + escapeHTML(app.referenceNo) + '</span> ' + statusBadge(app.status) + ' <span class="caption-text">' + escapeHTML(planName(app.planId)) + '</span></a>';
+  }
+  return html;
+}
+
 // status -> anong kulay at anong salita yung lalabas (linear search lang, mga 20 entries)
 const STATUS_STYLES = [
   { status: 'Pending', tone: 'orange', label: 'Pending' },

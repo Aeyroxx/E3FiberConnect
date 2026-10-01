@@ -17,7 +17,7 @@ const APPLY_STEP_FIELDS = [
   { planId: 'applyPlanChoices' },
   { fullName: 'applyFullName', email: 'applyEmail', contactNumber: 'applyMobile', birthDate: 'applyBirthDate' },
   { barangay: 'applyBarangay', completeAddress: 'applyAddress', landmark: 'applyLandmark' },
-  { idType: 'applyIdType', idNumber: 'applyIdNumber', idPhoto: 'applyIdPhoto', consent: 'applyConsent' },
+  { idType: 'applyIdType', idNumber: 'applyIdNumber', idPhoto: 'applyIdPhoto', consent: 'applyConsent', additionalLine: 'applyAdditional' },
   {},
 ];
 
@@ -39,6 +39,7 @@ function readApplyForm() {
     idPhotoType: photo ? photo.type : '',
     idPhotoSize: photo ? photo.size : 0,
     consent: isChecked('applyConsent'),
+    additionalLine: isChecked('applyAdditional'),
   };
 }
 
@@ -185,6 +186,7 @@ function resetApplyForm() {
     clearFieldErrors(APPLY_STEP_FIELDS[step]);
   }
   setFormAlert('applyAlert', '');
+  toggleElement(byId('applyAdditionalField'), false);   // lalabas lang ulit pag may in progress na application
   setCheckedValue('applyPlan', applyState.planId, byId('applyPlanChoices'));
   updateCoverageHint('applyBarangay', 'applyCoverageHint');
   goToApplyStep(1, '');
@@ -198,10 +200,13 @@ function submitApplyForm() {
       firstKey = key;
       break;
     }
+    if (result.errors.additionalLine) {
+      toggleElement(byId('applyAdditionalField'), true);   // may in progress na: itanong kung 2nd internet ito
+    }
     const step = stepForField(firstKey);
     goToApplyStep(step, 'back');
     focusInvalid(applyFieldErrors(APPLY_STEP_FIELDS[step], result.errors));
-    setFormAlert('applyAlert', 'Please check the highlighted field.', 'error');
+    setFormAlert('applyAlert', result.errors.additionalLine ? 'You already have an application in progress.' : 'Please check the highlighted field.', 'error');
     return;
   }
   const referenceNo = result.application.referenceNo;
@@ -249,6 +254,9 @@ function initApplyView() {
   upload.addEventListener('drop', function () { upload.classList.remove('is-dragover'); });
   byId('applyConsent').addEventListener('change', function () {
     setFieldError('applyConsent', applyFieldError('consent'));
+  });
+  byId('applyAdditional').addEventListener('change', function () {
+    setFieldError('applyAdditional', '');
   });
 
   const live = [

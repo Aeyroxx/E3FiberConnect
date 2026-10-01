@@ -191,6 +191,11 @@ Every account-changing backend function (`addStaff`, `approveRegistration`, `set
 `subscribers` operation in the entry (O(n)). First setup needs the password (`startTotpSetup`); five wrong
 tries pause entry for 30 s, doubling each time up to 15 minutes.
 
+### More than one connection per customer — `assets/js/backend/applications.js`
+`openApplicationsFor` is a **linear search** (O(n)) that collects a customer’s open applications by e-mail or
+mobile; 0 = save, 1–2 = the customer must confirm an additional connection, 3 = refused. `clientConnections`
+scans the applications and subscribers (O(n)) for the “Other connections” links on the staff pages.
+
 ### Forgot password — `assets/js/backend/recovery.js`
 `requestPasswordReset` finds the account with the e-mail **hash table** (O(1) average) and makes a random
 6-digit code (10 minutes, one per 30 s for any e-mail; 5 wrong codes pause entry, doubling up to 15 minutes); `verifyResetCode` checks it in O(1); `completePasswordReset`

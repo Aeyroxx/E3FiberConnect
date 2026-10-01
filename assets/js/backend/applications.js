@@ -25,6 +25,7 @@ const OPEN_APPLICATION_STATUSES = ['Pending', 'Approved', 'For Installation'];
 const ID_PHOTO_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf'];
 const ID_PHOTO_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
 const MAX_ID_PHOTO_BYTES = 10 * 1024 * 1024;
+const MAX_OPEN_APPLICATIONS_PER_CLIENT = 3;   // pwede ang 2nd (o 3rd) na internet, pero hindi walang limit
 
 /**
  * findApplication - hanapin yung application gamit yung reference number, null kung wala.
@@ -77,26 +78,6 @@ function isAllowedIdPhoto(fileName, fileType) {
   }
   const typeOk = !fileType || linearSearchValue(ID_PHOTO_TYPES, fileType) !== -1;
   return extensionOk && typeOk;
-}
-
-/**
- * findOpenApplicationFor - hanapin kung may application pa na in progress na pareho
- * yung e-mail o mobile number (para walang duplicate na application). Linear search.
- * Time: O(n), Space: O(1)
- */
-function findOpenApplicationFor(email, mobile) {
-  const wantedEmail = toLowerText(trimText(email));
-  const wantedMobile = digitsOnly(normalizeMobile(mobile));
-  for (let i = 0; i < applications.length; i++) {
-    const app = applications[i];
-    if (linearSearchValue(OPEN_APPLICATION_STATUSES, app.status) === -1) {
-      continue;
-    }
-    if (toLowerText(app.email) === wantedEmail || (wantedMobile !== '' && digitsOnly(app.contactNumber) === wantedMobile)) {
-      return app;
-    }
-  }
-  return null;
 }
 
 /**
@@ -187,9 +168,62 @@ function validateApplication(data, source) {
 }
 
 /**
+ * openApplicationsFor - LAHAT ng application na in progress pa na pareho yung e-mail
+ * o mobile number. Kailangan ito kasi pwede na mag-apply ng 2nd internet yung isang client.
+ * Linear search. Time: O(n), Space: O(n)
+ */
+function openApplicationsFor(email, mobile) {
+  const wantedEmail = toLowerText(trimText(email));
+  const wantedMobile = digitsOnly(normalizeMobile(mobile));
+  const found = [];
+  for (let i = 0; i < applications.length; i++) {
+    const app = applications[i];
+    if (linearSearchValue(OPEN_APPLICATION_STATUSES, app.status) === -1) {
+      continue;
+    }
+    if (toLowerText(app.email) === wantedEmail || (wantedMobile !== '' && digitsOnly(app.contactNumber) === wantedMobile)) {
+      arrayAppend(found, app);
+    }
+  }
+  return found;
+}
+
+/**
+ * sameClient - iisang client ba yung dalawang record? Pareho yung e-mail o yung mobile. O(n)
+ */
+function sameClient(a, b) {
+  const mobileA = digitsOnly(a.contactNumber);
+  return toLowerText(a.email) === toLowerText(b.email) || (mobileA !== '' && mobileA === digitsOnly(b.contactNumber));
+}
+
+/**
+ * clientConnections - yung ibang application at subscriber account ng parehong client
+ * (para makita ng staff na 2nd internet pala ito). Hindi kasama yung record mismo.
+ * Linear search sa dalawang table. Time: O(n), Space: O(n)
+ */
+function clientConnections(record) {
+  const ownRef = record.referenceNo || record.accountNo;
+  const result = { applications: [], subscribers: [] };
+  for (let i = 0; i < applications.length; i++) {
+    if (applications[i].referenceNo !== ownRef && sameClient(applications[i], record)) {
+      arrayAppend(result.applications, applications[i]);
+    }
+  }
+  for (let i = 0; i < subscribers.length; i++) {
+    if (subscribers[i].accountNo !== ownRef && sameClient(subscribers[i], record)) {
+      arrayAppend(result.subscribers, subscribers[i]);
+    }
+  }
+  return result;
+}
+
+/**
  * submitApplication - i-validate muna, tapos mag-add ng bagong application gamit yung
  * susunod na reference number. Yung online galing sa customer; yung walk-in naman
  * tinatype ng staff (at pwedeng i-undo).
+ * Pwede na ang ilang application sa iisang client (halimbawa 2 internet), pero kung may
+ * in progress pa siya, kailangan munang i-tick na "additional connection" ito para
+ * hindi madoble pag aksidenteng na-submit ulit. Hanggang 3 na in progress lang.
  * Time: O(n) (duplicate check) + O(1) append, Space: O(1)
  */
 function submitApplication(data, source, actor) {
@@ -197,9 +231,13 @@ function submitApplication(data, source, actor) {
   if (hasAnyErrors(errors)) {
     return { ok: false, errors: errors };
   }
-  const duplicate = findOpenApplicationFor(data.email, data.contactNumber); // 2. isang open application lang bawat tao
-  if (duplicate) {
-    return { ok: false, errors: { email: 'An application for this e-mail or mobile number is already in progress (' + duplicate.referenceNo + ').' } };
+  const open = openApplicationsFor(data.email, data.contactNumber);       // 2. may in progress pa ba ang client na ito?
+  if (open.length >= MAX_OPEN_APPLICATIONS_PER_CLIENT) {
+    return { ok: false, errors: { email: 'There are already ' + MAX_OPEN_APPLICATIONS_PER_CLIENT + ' applications in progress for this e-mail or mobile number. Please wait until one is installed.' } };
+  }
+  if (open.length > 0 && data.additionalLine !== true) {                  //    meron: dapat sinadya (2nd internet), hindi double submit
+    const which = source === 'online' ? 'An application' : 'Application ' + open[0].referenceNo;   // sa public form, hindi namin pinapakita yung reference
+    return { ok: false, needsConfirm: true, errors: { additionalLine: which + ' for this e-mail or mobile number is already in progress. Tick the box if this is for an additional internet connection.' } };
   }
 
   counters.reference = counters.reference + 1;                             // 3. kunin yung susunod na reference number
@@ -230,7 +268,8 @@ function submitApplication(data, source, actor) {
     installDate: null,
     installSlot: null,
     rejectReason: '',
-    history: [{ status: 'Pending', at: now, by: byName, note: source === 'online' ? 'Application received online' : 'Walk-in application at the office' }],
+    additionalLine: data.additionalLine === true,  // 2nd (o 3rd) na internet ng parehong client
+    history: [{ status: 'Pending', at: now, by: byName, note: (source === 'online' ? 'Application received online' : 'Walk-in application at the office') + (data.additionalLine === true ? ' (additional connection)' : '') }],
   };
   arrayAppend(applications, application); // 4. pinakamalaki yung bagong number -> naka-sort pa rin yung table
 

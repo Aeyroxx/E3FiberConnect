@@ -61,12 +61,14 @@ function renderSubscriberDetailView(params) {
     + statusBadge(subscriber.status, 'lg'));
   setHTML('subActions', subscriberDetailActions(subscriber));
 
+  const otherAccounts = clientConnectionsHTML(clientConnections(subscriber));   // may 2nd internet ba siya?
   setHTML('subAccount',
     kvRow('E-mail', '<a href="mailto:' + escapeHTML(subscriber.email) + '">' + escapeHTML(subscriber.email) + '</a>')
     + kvRow('Mobile', '<a href="tel:' + escapeHTML(digitsOnly(subscriber.contactNumber)) + '">' + escapeHTML(subscriber.contactNumber) + '</a>')
     + kvRow('Address', escapeHTML(subscriber.completeAddress + ', Brgy. ' + subscriber.barangay))
     + kvRow('Landmark', escapeHTML(subscriber.landmark || '—'))
     + (subscriber.applicationRef ? kvRow('Application', '<a class="mono" href="#/admin/applications/' + escapeHTML(subscriber.applicationRef) + '">' + escapeHTML(subscriber.applicationRef) + '</a>') : '')
+    + (otherAccounts !== '' ? kvRow('Other connections', '<div class="connection-list">' + otherAccounts + '</div>') : '')
     + (subscriber.modemSerial ? kvRow('Modem serial', '<span class="mono">' + escapeHTML(subscriber.modemSerial) + '</span>') : '')
     + (subscriber.status !== 'Active' && subscriber.statusChangedAt ? kvRow(subscriber.status + ' on', escapeHTML(formatDate(subscriber.statusChangedAt))) : ''));
 

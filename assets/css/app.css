@@ -4889,6 +4889,26 @@ a.kpi:hover {
   }
 }
 
+/* Ibang application o account ng parehong client (halimbawa 2nd internet) */
+.connection-list {
+  display: grid;
+  gap: 0.375rem;
+  justify-items: end;
+}
+
+.connection-link {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.375rem;
+  text-decoration: none;
+}
+
+.connection-link:hover .mono {
+  text-decoration: underline;
+}
+
 /* Panel sa Account page */
 .twofactor-row {
   display: flex;

@@ -44,15 +44,18 @@ function renderApplicationDetailView(params) {
   setText('appTitle', app.fullName);
   setHTML('appMeta', '<span class="mono">' + escapeHTML(app.referenceNo) + '</span>'
     + '<span>' + (app.source === 'walk-in' ? 'Walk-in' : 'Online') + ' · ' + escapeHTML(formatDateTime(app.submittedAt)) + '</span>'
-    + statusBadge(app.status, 'lg'));
+    + statusBadge(app.status, 'lg')
+    + (app.additionalLine ? tonePill('Additional line', 'purple') : ''));
   setHTML('appActions', applicationDetailActions(app));
 
+  const connections = clientConnectionsHTML(clientConnections(app));   // ibang application/account ng client (2nd internet)
   const age = isValidISODate(app.birthDate) ? ageOn(app.birthDate, todayISO()) : 0;
   setHTML('appApplicant',
     kvRow('Full name', escapeHTML(app.fullName))
     + kvRow('E-mail', '<a href="mailto:' + escapeHTML(app.email) + '">' + escapeHTML(app.email) + '</a>')
     + kvRow('Mobile', '<a href="tel:' + escapeHTML(digitsOnly(app.contactNumber)) + '">' + escapeHTML(app.contactNumber) + '</a>')
-    + kvRow('Birth date', escapeHTML(formatDate(app.birthDate)) + ' · ' + age + ' years old'));
+    + kvRow('Birth date', escapeHTML(formatDate(app.birthDate)) + ' · ' + age + ' years old')
+    + (connections !== '' ? kvRow('Other connections', '<div class="connection-list">' + connections + '</div>') : ''));
   setHTML('appAddress',
     kvRow('City', escapeHTML(app.city + ', ' + SERVICE_PROVINCE))
     + kvRow('Barangay', escapeHTML(app.barangay))
