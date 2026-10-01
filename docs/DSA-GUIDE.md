@@ -193,7 +193,8 @@ tries pause entry for 30 s, doubling each time up to 15 minutes.
 
 ### More than one connection per customer — `assets/js/backend/applications.js`
 `openApplicationsFor` is a **linear search** (O(n)) that collects a customer’s open applications by e-mail or
-mobile; 0 = save, 1–2 = the customer must confirm an additional connection, 3 = refused. `clientConnections`
+mobile. Fewer than 3 = saved (tagged “additional line” if any exist); the same plan at the same address in that list
+= a double submission, refused; 3 = refused. `clientConnections`
 scans the applications and subscribers (O(n)) for the “Other connections” links on the staff pages.
 
 ### Forgot password — `assets/js/backend/recovery.js`

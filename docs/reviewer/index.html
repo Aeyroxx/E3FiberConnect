@@ -423,7 +423,7 @@
   <h3 class="q"><span class="n">1</span>Business process</h3>
   <p class="ask">What task or problem from the client are you solving?</p>
   <div class="answer">
-    <p>Before, customers filled in paper forms at the office and details were often incomplete or unreadable. The online application lets anyone in Santa Maria apply from home, <strong>checks every field before it is saved</strong> (valid e-mail and mobile, 18 years or older, a barangay in the service area, a valid ID, consent), <strong>catches duplicate applications</strong> from the same person (a second internet connection is allowed, but the customer must confirm it, up to 3 in progress), and gives a <strong>reference number</strong> that the customer uses to track the application — and that later becomes the account number.</p>
+    <p>Before, customers filled in paper forms at the office and details were often incomplete or unreadable. The online application lets anyone in Santa Maria apply from home, <strong>checks every field before it is saved</strong> (valid e-mail and mobile, 18 years or older, a barangay in the service area, a valid ID, consent), <strong>catches duplicate applications</strong> from the same person (a second internet connection is accepted and tagged for staff; only a repeat of the same plan at the same address is stopped, and up to 3 can be in progress), and gives a <strong>reference number</strong> that the customer uses to track the application — and that later becomes the account number.</p>
   </div>
 
   <h3 class="q"><span class="n">2</span>Input</h3>
@@ -460,7 +460,7 @@
     <ol class="steps">
       <li><strong>Wizard:</strong> “Continue” validates only the current step with the same <span class="mono">validateApplication</span> the backend uses, and shows the message under each wrong field (<span class="mono">stepForField</span> is a linear search that finds which step owns a field).</li>
       <li><strong>Validate everything</strong> again on submit: text checks loop over the characters (no regular expressions); age uses our date maths (<span class="mono">ageOn</span>); the barangay is found by <strong>binary search</strong> on the 24 barangays sorted by name; the ID type by linear search.</li>
-      <li><strong>Duplicate check</strong> (<span class="mono">openApplicationsFor</span>): a <strong>linear search</strong> that collects the applications still Pending, Approved or For Installation for the same e-mail or mobile number. None → saved. Some → the customer must tick “This is for an additional internet connection” (for a second line); 3 already → refused.</li>
+      <li><strong>Duplicate check</strong> (<span class="mono">openApplicationsFor</span>): a <strong>linear search</strong> that collects the applications still Pending, Approved or For Installation for the same e-mail or mobile number. Fewer than 3 → saved (tagged “additional line” when there are others). The same plan at the same address among them → a double submission, refused. 3 already → refused.</li>
       <li><strong>Reference number:</strong> the counter goes up by one → <span class="mono">E3-2026-004887</span>.</li>
       <li><strong>Save:</strong> <span class="mono">arrayAppend</span> puts the record at the end. It has the largest number, so the array stays sorted — no sort is needed and binary search keeps working.</li>
       <li>The record starts with status Pending and one history step; it is automatically part of the staff’s <strong>review queue</strong> (first come, first served).</li>
@@ -518,75 +518,78 @@
   </div>
 
   <h3>Code walkthrough</h3>
-  <p class="code-head"><span class="mono">assets/js/backend/applications.js</span> · lines 220–284</p><pre class="code"><span class="ln">220</span><span class="cm">/**</span>
-<span class="ln">221</span><span class="cm"> * submitApplication - i-validate muna, tapos mag-add ng bagong application gamit yung</span>
-<span class="ln">222</span><span class="cm"> * susunod na reference number. Yung online galing sa customer; yung walk-in naman</span>
-<span class="ln">223</span><span class="cm"> * tinatype ng staff (at pwedeng i-undo).</span>
-<span class="ln">224</span><span class="cm"> * Pwede na ang ilang application sa iisang client (halimbawa 2 internet), pero kung may</span>
-<span class="ln">225</span><span class="cm"> * in progress pa siya, kailangan munang i-tick na &quot;additional connection&quot; ito para</span>
-<span class="ln">226</span><span class="cm"> * hindi madoble pag aksidenteng na-submit ulit. Hanggang 3 na in progress lang.</span>
-<span class="ln">227</span><span class="cm"> * Time: O(n) (duplicate check) + O(1) append, Space: O(1)</span>
-<span class="ln">228</span><span class="cm"> */</span>
-<span class="ln">229</span><span class="kw">function</span> submitApplication(data, source, actor) {
-<span class="ln">230</span>  <span class="kw">const</span> errors = validateApplication(data, source);                        <span class="cm">// 1. i-check lahat ng field</span>
-<span class="ln">231</span>  <span class="kw">if</span> (hasAnyErrors(errors)) {
-<span class="ln">232</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: errors };
-<span class="ln">233</span>  }
-<span class="ln">234</span>  <span class="kw">const</span> open = openApplicationsFor(data.email, data.contactNumber);       <span class="cm">// 2. may in progress pa ba ang client na ito?</span>
-<span class="ln">235</span>  <span class="kw">if</span> (open.length &gt;= MAX_OPEN_APPLICATIONS_PER_CLIENT) {
-<span class="ln">236</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: { email: <span class="st">'There are already '</span> + MAX_OPEN_APPLICATIONS_PER_CLIENT + <span class="st">' applications in progress for this e-mail or mobile number. Please wait until one is installed.'</span> } };
-<span class="ln">237</span>  }
-<span class="ln">238</span>  <span class="kw">if</span> (open.length &gt; 0 &amp;&amp; data.additionalLine !== <span class="kw">true</span>) {                  <span class="cm">//    meron: dapat sinadya (2nd internet), hindi double submit</span>
-<span class="ln">239</span>    <span class="kw">const</span> which = source === <span class="st">'online'</span> ? <span class="st">'An application'</span> : <span class="st">'Application '</span> + open[0].referenceNo;   <span class="cm">// sa public form, hindi namin pinapakita yung reference</span>
-<span class="ln">240</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, needsConfirm: <span class="kw">true</span>, errors: { additionalLine: which + <span class="st">' for this e-mail or mobile number is already in progress. Tick the box if this is for an additional internet connection.'</span> } };
-<span class="ln">241</span>  }
-<span class="ln">242</span>
-<span class="ln">243</span>  counters.reference = counters.reference + 1;                             <span class="cm">// 3. kunin yung susunod na reference number</span>
-<span class="ln">244</span>  <span class="kw">const</span> now = nowISO();
-<span class="ln">245</span>  <span class="kw">const</span> referenceNo = formatReferenceNo(readClock().year, counters.reference);
-<span class="ln">246</span>  <span class="kw">const</span> barangay = findBarangay(data.barangay);
-<span class="ln">247</span>  <span class="kw">const</span> byName = source === <span class="st">'online'</span> ? <span class="st">'Online form'</span> : nameOfActor(actor) + <span class="st">' (walk-in)'</span>;
-<span class="ln">248</span>  <span class="kw">const</span> application = {
-<span class="ln">249</span>    referenceNo: referenceNo,
-<span class="ln">250</span>    fullName: collapseSpaces(data.fullName),
-<span class="ln">251</span>    email: trimText(data.email),
-<span class="ln">252</span>    contactNumber: normalizeMobile(data.contactNumber),
-<span class="ln">253</span>    birthDate: data.birthDate,
-<span class="ln">254</span>    city: SERVICE_CITY,
-<span class="ln">255</span>    barangay: barangay.name,
-<span class="ln">256</span>    completeAddress: collapseSpaces(data.completeAddress),
-<span class="ln">257</span>    landmark: collapseSpaces(data.landmark),
-<span class="ln">258</span>    planId: data.planId,
-<span class="ln">259</span>    customPrice: data.planId === <span class="st">'custom'</span> ? Number(data.customPrice) : <span class="kw">null</span>,
-<span class="ln">260</span>    idType: data.idType,
-<span class="ln">261</span>    idNumber: trimText(data.idNumber),
-<span class="ln">262</span>    idPhotoName: textOf(data.idPhotoName),
-<span class="ln">263</span>    status: <span class="st">'Pending'</span>,
-<span class="ln">264</span>    submittedAt: now,
-<span class="ln">265</span>    consentAt: now,                       <span class="cm">// proof na pumayag sila (Data Privacy Act, RA 10173)</span>
-<span class="ln">266</span>    source: source,
-<span class="ln">267</span>    notes: <span class="st">''</span>,
-<span class="ln">268</span>    installDate: <span class="kw">null</span>,
-<span class="ln">269</span>    installSlot: <span class="kw">null</span>,
-<span class="ln">270</span>    rejectReason: <span class="st">''</span>,
-<span class="ln">271</span>    additionalLine: data.additionalLine === <span class="kw">true</span>,  <span class="cm">// 2nd (o 3rd) na internet ng parehong client</span>
-<span class="ln">272</span>    history: [{ status: <span class="st">'Pending'</span>, at: now, by: byName, note: (source === <span class="st">'online'</span> ? <span class="st">'Application received online'</span> : <span class="st">'Walk-in application at the office'</span>) + (data.additionalLine === <span class="kw">true</span> ? <span class="st">' (additional connection)'</span> : <span class="st">''</span>) }],
-<span class="ln">273</span>  };
-<span class="ln">274</span>  arrayAppend(applications, application); <span class="cm">// 4. pinakamalaki yung bagong number -&gt; naka-sort pa rin yung table</span>
-<span class="ln">275</span>
-<span class="ln">276</span>  <span class="kw">if</span> (source === <span class="st">'online'</span>) {              <span class="cm">// 5. i-log (yung walk-in na tinype ng staff, pwede ring i-undo)</span>
-<span class="ln">277</span>    logActivity(<span class="st">'application'</span>, <span class="st">'New online application '</span> + referenceNo + <span class="st">' from '</span> + application.fullName, <span class="st">'Customer'</span>);
-<span class="ln">278</span>  } <span class="kw">else</span> {
-<span class="ln">279</span>    logActivity(<span class="st">'application'</span>, <span class="st">'Walk-in application '</span> + referenceNo + <span class="st">' for '</span> + application.fullName, nameOfActor(actor));
-<span class="ln">280</span>    pushUndo(<span class="st">'Create walk-in application '</span> + referenceNo, [insertOperation(<span class="st">'applications'</span>, referenceNo)], nameOfActor(actor));
-<span class="ln">281</span>  }
-<span class="ln">282</span>  markDataChanged();
-<span class="ln">283</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, application: application };
-<span class="ln">284</span>}
+  <p class="code-head"><span class="mono">assets/js/backend/applications.js</span> · lines 252–319</p><pre class="code"><span class="ln">252</span><span class="cm">/**</span>
+<span class="ln">253</span><span class="cm"> * submitApplication - i-validate muna, tapos mag-add ng bagong application gamit yung</span>
+<span class="ln">254</span><span class="cm"> * susunod na reference number. Yung online galing sa customer; yung walk-in naman</span>
+<span class="ln">255</span><span class="cm"> * tinatype ng staff (at pwedeng i-undo).</span>
+<span class="ln">256</span><span class="cm"> * Pwede ang ilang application sa iisang client (halimbawa 2 internet) - tinatanggap lang</span>
+<span class="ln">257</span><span class="cm"> * namin at nilalagyan ng tag na &quot;additional line&quot;. Ang bawal lang: yung parehong plan sa</span>
+<span class="ln">258</span><span class="cm"> * parehong address na in progress pa (ibig sabihin na-double submit lang), at higit sa 3</span>
+<span class="ln">259</span><span class="cm"> * na sabay-sabay na in progress.</span>
+<span class="ln">260</span><span class="cm"> * Time: O(n) (duplicate check) + O(1) append, Space: O(1)</span>
+<span class="ln">261</span><span class="cm"> */</span>
+<span class="ln">262</span><span class="kw">function</span> submitApplication(data, source, actor) {
+<span class="ln">263</span>  <span class="kw">const</span> errors = validateApplication(data, source);                        <span class="cm">// 1. i-check lahat ng field</span>
+<span class="ln">264</span>  <span class="kw">if</span> (hasAnyErrors(errors)) {
+<span class="ln">265</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: errors };
+<span class="ln">266</span>  }
+<span class="ln">267</span>  <span class="kw">const</span> open = openApplicationsFor(data.email, data.contactNumber);       <span class="cm">// 2. may in progress pa ba ang client na ito?</span>
+<span class="ln">268</span>  <span class="kw">if</span> (open.length &gt;= MAX_OPEN_APPLICATIONS_PER_CLIENT) {
+<span class="ln">269</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: { email: <span class="st">'There are already '</span> + MAX_OPEN_APPLICATIONS_PER_CLIENT + <span class="st">' applications in progress for this e-mail or mobile number. Please wait until one is installed.'</span> } };
+<span class="ln">270</span>  }
+<span class="ln">271</span>  <span class="kw">const</span> repeat = sameRequestIn(open, data);                                <span class="cm">//    parehong plan sa parehong address = na-double submit lang</span>
+<span class="ln">272</span>  <span class="kw">if</span> (repeat) {
+<span class="ln">273</span>    <span class="kw">const</span> which = source === <span class="st">'online'</span> ? <span class="st">'You already applied'</span> : <span class="st">'Application '</span> + repeat.referenceNo + <span class="st">' is already in progress'</span>;   <span class="cm">// sa public form, walang reference na pinapakita</span>
+<span class="ln">274</span>    <span class="kw">return</span> { ok: <span class="kw">false</span>, errors: { completeAddress: which + <span class="st">' for this plan at this address. Choose another plan or address for an additional connection.'</span> } };
+<span class="ln">275</span>  }
+<span class="ln">276</span>  <span class="kw">const</span> additionalLine = open.length &gt; 0 || hasSubscriberAccount(data.email, data.contactNumber);   <span class="cm">// may iba na siyang application o account</span>
+<span class="ln">277</span>
+<span class="ln">278</span>  counters.reference = counters.reference + 1;                             <span class="cm">// 3. kunin yung susunod na reference number</span>
+<span class="ln">279</span>  <span class="kw">const</span> now = nowISO();
+<span class="ln">280</span>  <span class="kw">const</span> referenceNo = formatReferenceNo(readClock().year, counters.reference);
+<span class="ln">281</span>  <span class="kw">const</span> barangay = findBarangay(data.barangay);
+<span class="ln">282</span>  <span class="kw">const</span> byName = source === <span class="st">'online'</span> ? <span class="st">'Online form'</span> : nameOfActor(actor) + <span class="st">' (walk-in)'</span>;
+<span class="ln">283</span>  <span class="kw">const</span> application = {
+<span class="ln">284</span>    referenceNo: referenceNo,
+<span class="ln">285</span>    fullName: collapseSpaces(data.fullName),
+<span class="ln">286</span>    email: trimText(data.email),
+<span class="ln">287</span>    contactNumber: normalizeMobile(data.contactNumber),
+<span class="ln">288</span>    birthDate: data.birthDate,
+<span class="ln">289</span>    city: SERVICE_CITY,
+<span class="ln">290</span>    barangay: barangay.name,
+<span class="ln">291</span>    completeAddress: collapseSpaces(data.completeAddress),
+<span class="ln">292</span>    landmark: collapseSpaces(data.landmark),
+<span class="ln">293</span>    planId: data.planId,
+<span class="ln">294</span>    customPrice: data.planId === <span class="st">'custom'</span> ? Number(data.customPrice) : <span class="kw">null</span>,
+<span class="ln">295</span>    idType: data.idType,
+<span class="ln">296</span>    idNumber: trimText(data.idNumber),
+<span class="ln">297</span>    idPhotoName: textOf(data.idPhotoName),
+<span class="ln">298</span>    status: <span class="st">'Pending'</span>,
+<span class="ln">299</span>    submittedAt: now,
+<span class="ln">300</span>    consentAt: now,                       <span class="cm">// proof na pumayag sila (Data Privacy Act, RA 10173)</span>
+<span class="ln">301</span>    source: source,
+<span class="ln">302</span>    notes: <span class="st">''</span>,
+<span class="ln">303</span>    installDate: <span class="kw">null</span>,
+<span class="ln">304</span>    installSlot: <span class="kw">null</span>,
+<span class="ln">305</span>    rejectReason: <span class="st">''</span>,
+<span class="ln">306</span>    additionalLine: additionalLine,              <span class="cm">// 2nd (o 3rd) na internet ng parehong client</span>
+<span class="ln">307</span>    history: [{ status: <span class="st">'Pending'</span>, at: now, by: byName, note: (source === <span class="st">'online'</span> ? <span class="st">'Application received online'</span> : <span class="st">'Walk-in application at the office'</span>) + (additionalLine ? <span class="st">' (additional connection)'</span> : <span class="st">''</span>) }],
+<span class="ln">308</span>  };
+<span class="ln">309</span>  arrayAppend(applications, application); <span class="cm">// 4. pinakamalaki yung bagong number -&gt; naka-sort pa rin yung table</span>
+<span class="ln">310</span>
+<span class="ln">311</span>  <span class="kw">if</span> (source === <span class="st">'online'</span>) {              <span class="cm">// 5. i-log (yung walk-in na tinype ng staff, pwede ring i-undo)</span>
+<span class="ln">312</span>    logActivity(<span class="st">'application'</span>, <span class="st">'New online application '</span> + referenceNo + <span class="st">' from '</span> + application.fullName, <span class="st">'Customer'</span>);
+<span class="ln">313</span>  } <span class="kw">else</span> {
+<span class="ln">314</span>    logActivity(<span class="st">'application'</span>, <span class="st">'Walk-in application '</span> + referenceNo + <span class="st">' for '</span> + application.fullName, nameOfActor(actor));
+<span class="ln">315</span>    pushUndo(<span class="st">'Create walk-in application '</span> + referenceNo, [insertOperation(<span class="st">'applications'</span>, referenceNo)], nameOfActor(actor));
+<span class="ln">316</span>  }
+<span class="ln">317</span>  markDataChanged();
+<span class="ln">318</span>  <span class="kw">return</span> { ok: <span class="kw">true</span>, application: application };
+<span class="ln">319</span>}
 </pre>
   <ol class="explain">
     <li>Step 1 calls the validator; if any field has a message, the errors are returned to the form and nothing is saved.</li>
-    <li>Step 2 looks for open applications of the same e-mail or mobile number (linear search, below). A second internet connection is allowed only when the customer ticks “additional connection” — that stops accidental double submissions — and at most 3 can be in progress.</li>
+    <li>Step 2 looks for open applications of the same e-mail or mobile number (linear search, below). A second internet connection is simply accepted and tagged “additional line”; only the same plan at the same address (an accidental double submission) is refused, and at most 3 can be in progress.</li>
     <li>Step 3 builds the next reference number from the counter and the current year.</li>
     <li>The record is built with tidy values (<span class="mono">collapseSpaces</span>, <span class="mono">normalizeMobile</span>) and one history step.</li>
     <li>Step 4 appends it — the key order stays sorted. Step 5 writes the activity log; a walk-in (staff) application also gets an Undo step.</li>
@@ -615,7 +618,7 @@
   <ol class="explain">
     <li>The typed e-mail is lower-cased and the mobile reduced to its digits, so “JUAN@…” and “juan@…” match.</li>
     <li>The loop visits every application (linear search) but skips finished ones using <span class="mono">linearSearchValue</span> on the list of open statuses.</li>
-    <li>Every open application with the same e-mail or mobile is collected with <span class="mono">arrayAppend</span>; an empty array means no duplicate. The count decides: 0 = save, 1–2 = ask to confirm a second line, 3 = refuse.</li>
+    <li>Every open application with the same e-mail or mobile is collected with <span class="mono">arrayAppend</span>; an empty array means no duplicate. The count decides: fewer than 3 = save (another line if the list isn’t empty), 3 = refuse. <span class="mono">sameRequestIn</span> then checks the list for the same plan and address — a double submission.</li>
   </ol>
   <p class="code-head"><span class="mono">assets/js/backend/applications.js</span> · lines 102–121 (part of <span class="mono">validateApplication</span>)</p><pre class="code"><span class="ln">102</span>  <span class="kw">const</span> name = collapseSpaces(data.fullName);
 <span class="ln">103</span>  <span class="kw">if</span> (name.length &lt; 3 || textFind(name, <span class="st">' '</span>) === -1) {
@@ -973,27 +976,27 @@
   </div>
 
   <h3>Code walkthrough</h3>
-  <p class="code-head"><span class="mono">assets/js/backend/applications.js</span> · lines 304–324</p><pre class="code"><span class="ln">304</span><span class="cm">/**</span>
-<span class="ln">305</span><span class="cm"> * listApplications - i-filter by status (linear search), hanapin yung text</span>
-<span class="ln">306</span><span class="cm"> * (naive string matching), tapos i-sort gamit yung napiling algorithm.</span>
-<span class="ln">307</span><span class="cm"> * options: { status, query, sortField, sortOrder, algorithm }</span>
-<span class="ln">308</span><span class="cm"> * Time: O(n²) search + O(n²) sort, Space: O(n)</span>
-<span class="ln">309</span><span class="cm"> */</span>
-<span class="ln">310</span><span class="kw">function</span> listApplications(options) {
-<span class="ln">311</span>  <span class="kw">const</span> status = options.status || <span class="st">'all'</span>;
-<span class="ln">312</span>  <span class="kw">const</span> base = status === <span class="st">'all'</span> ? applications : linearSearchAll(applications, <span class="st">'status'</span>, status);  <span class="cm">// 1. i-filter by status</span>
-<span class="ln">313</span>  <span class="kw">const</span> found = textSearchRecords(base, [<span class="st">'fullName'</span>, <span class="st">'email'</span>, <span class="st">'referenceNo'</span>, <span class="st">'barangay'</span>, <span class="st">'contactNumber'</span>], options.query || <span class="st">''</span>); <span class="cm">// 2. galing sa search box</span>
-<span class="ln">314</span>  <span class="kw">const</span> rows = [];
-<span class="ln">315</span>  <span class="kw">for</span> (<span class="kw">let</span> i = 0; i &lt; found.length; i++) {                  <span class="cm">// 3. lagyan ng plan name at presyo bawat row</span>
-<span class="ln">316</span>    arrayAppend(rows, applicationRow(found[i]));
-<span class="ln">317</span>  }
-<span class="ln">318</span>  <span class="kw">const</span> started = stopwatchStart();
-<span class="ln">319</span>  <span class="kw">const</span> sorted = sortRecords(rows, options.sortField || <span class="st">'submittedAt'</span>, options.sortOrder || <span class="st">'desc'</span>, options.algorithm || <span class="st">'insertion'</span>); <span class="cm">// 4. i-sort</span>
-<span class="ln">320</span>  <span class="kw">const</span> ms = stopwatchMs(started);
-<span class="ln">321</span>  <span class="kw">const</span> stats = { algorithm: dsaLastRun.algorithm, comparisons: dsaLastRun.comparisons, moves: dsaLastRun.moves, ms: ms, n: rows.length };
-<span class="ln">322</span>  logOperation(stats.algorithm, <span class="st">'Applications list'</span>, rows.length, stats.comparisons, stats.moves, ms); <span class="cm">// 5. ipakita yung cost</span>
-<span class="ln">323</span>  <span class="kw">return</span> { rows: sorted, total: applications.length, stats: stats };
-<span class="ln">324</span>}
+  <p class="code-head"><span class="mono">assets/js/backend/applications.js</span> · lines 339–359</p><pre class="code"><span class="ln">339</span><span class="cm">/**</span>
+<span class="ln">340</span><span class="cm"> * listApplications - i-filter by status (linear search), hanapin yung text</span>
+<span class="ln">341</span><span class="cm"> * (naive string matching), tapos i-sort gamit yung napiling algorithm.</span>
+<span class="ln">342</span><span class="cm"> * options: { status, query, sortField, sortOrder, algorithm }</span>
+<span class="ln">343</span><span class="cm"> * Time: O(n²) search + O(n²) sort, Space: O(n)</span>
+<span class="ln">344</span><span class="cm"> */</span>
+<span class="ln">345</span><span class="kw">function</span> listApplications(options) {
+<span class="ln">346</span>  <span class="kw">const</span> status = options.status || <span class="st">'all'</span>;
+<span class="ln">347</span>  <span class="kw">const</span> base = status === <span class="st">'all'</span> ? applications : linearSearchAll(applications, <span class="st">'status'</span>, status);  <span class="cm">// 1. i-filter by status</span>
+<span class="ln">348</span>  <span class="kw">const</span> found = textSearchRecords(base, [<span class="st">'fullName'</span>, <span class="st">'email'</span>, <span class="st">'referenceNo'</span>, <span class="st">'barangay'</span>, <span class="st">'contactNumber'</span>], options.query || <span class="st">''</span>); <span class="cm">// 2. galing sa search box</span>
+<span class="ln">349</span>  <span class="kw">const</span> rows = [];
+<span class="ln">350</span>  <span class="kw">for</span> (<span class="kw">let</span> i = 0; i &lt; found.length; i++) {                  <span class="cm">// 3. lagyan ng plan name at presyo bawat row</span>
+<span class="ln">351</span>    arrayAppend(rows, applicationRow(found[i]));
+<span class="ln">352</span>  }
+<span class="ln">353</span>  <span class="kw">const</span> started = stopwatchStart();
+<span class="ln">354</span>  <span class="kw">const</span> sorted = sortRecords(rows, options.sortField || <span class="st">'submittedAt'</span>, options.sortOrder || <span class="st">'desc'</span>, options.algorithm || <span class="st">'insertion'</span>); <span class="cm">// 4. i-sort</span>
+<span class="ln">355</span>  <span class="kw">const</span> ms = stopwatchMs(started);
+<span class="ln">356</span>  <span class="kw">const</span> stats = { algorithm: dsaLastRun.algorithm, comparisons: dsaLastRun.comparisons, moves: dsaLastRun.moves, ms: ms, n: rows.length };
+<span class="ln">357</span>  logOperation(stats.algorithm, <span class="st">'Applications list'</span>, rows.length, stats.comparisons, stats.moves, ms); <span class="cm">// 5. ipakita yung cost</span>
+<span class="ln">358</span>  <span class="kw">return</span> { rows: sorted, total: applications.length, stats: stats };
+<span class="ln">359</span>}
 </pre>
   <ol class="explain">
     <li>If a status is chosen, <span class="mono">linearSearchAll</span> keeps only those applications.</li>
@@ -1071,20 +1074,20 @@
     <li>For each record, each field is lower-cased and <span class="mono">textContains</span> (naive string matching) looks for the query.</li>
     <li><span class="mono">break</span> stops checking the other fields as soon as one matches, so a record is added only once.</li>
   </ol>
-  <p class="code-head"><span class="mono">assets/js/backend/applications.js</span> · lines 338–351</p><pre class="code"><span class="ln">338</span><span class="cm">/**</span>
-<span class="ln">339</span><span class="cm"> * buildReviewQueue - QUEUE ng mga pending na application, yung pinakaluma una.</span>
-<span class="ln">340</span><span class="cm"> * Naka-order na by submission yung table, kaya isang loop lang tapos enqueue na (FIFO).</span>
-<span class="ln">341</span><span class="cm"> * Time: O(n), Space: O(n) para sa mga pending</span>
-<span class="ln">342</span><span class="cm"> */</span>
-<span class="ln">343</span><span class="kw">function</span> buildReviewQueue() {
-<span class="ln">344</span>  <span class="kw">const</span> queue = createQueue(8);
-<span class="ln">345</span>  <span class="kw">for</span> (<span class="kw">let</span> i = 0; i &lt; applications.length; i++) {
-<span class="ln">346</span>    <span class="kw">if</span> (applications[i].status === <span class="st">'Pending'</span>) {
-<span class="ln">347</span>      enqueue(queue, applications[i]);
-<span class="ln">348</span>    }
-<span class="ln">349</span>  }
-<span class="ln">350</span>  <span class="kw">return</span> queue;
-<span class="ln">351</span>}
+  <p class="code-head"><span class="mono">assets/js/backend/applications.js</span> · lines 373–386</p><pre class="code"><span class="ln">373</span><span class="cm">/**</span>
+<span class="ln">374</span><span class="cm"> * buildReviewQueue - QUEUE ng mga pending na application, yung pinakaluma una.</span>
+<span class="ln">375</span><span class="cm"> * Naka-order na by submission yung table, kaya isang loop lang tapos enqueue na (FIFO).</span>
+<span class="ln">376</span><span class="cm"> * Time: O(n), Space: O(n) para sa mga pending</span>
+<span class="ln">377</span><span class="cm"> */</span>
+<span class="ln">378</span><span class="kw">function</span> buildReviewQueue() {
+<span class="ln">379</span>  <span class="kw">const</span> queue = createQueue(8);
+<span class="ln">380</span>  <span class="kw">for</span> (<span class="kw">let</span> i = 0; i &lt; applications.length; i++) {
+<span class="ln">381</span>    <span class="kw">if</span> (applications[i].status === <span class="st">'Pending'</span>) {
+<span class="ln">382</span>      enqueue(queue, applications[i]);
+<span class="ln">383</span>    }
+<span class="ln">384</span>  }
+<span class="ln">385</span>  <span class="kw">return</span> queue;
+<span class="ln">386</span>}
 </pre>
   <ol class="explain">
     <li>A new circular-buffer queue is created.</li>
@@ -2074,7 +2077,7 @@
     </div>
     <figure class="fig-narrow"><img src="img/m9-list-after.jpg" alt="Staff list"><figcaption>The staff list with the new member (“Temporary password”).</figcaption></figure>
     <h4>Trace — adding a member and the role rules (computed by our code)</h4>
-    <table class="t"><thead><tr><th>Step</th><th>Result</th></tr></thead><tbody><tr><td>Validate (hash-table look-up for the e-mail)</td><td><span class="ok">✓ no errors</span></td></tr><tr><td>New id (counter + 1, appended → ids stay sorted)</td><td><strong>STF-0006</strong></td></tr><tr><td>E-mail stored in lower case</td><td><span class="mono">paula.ignacio@e3fiberconnect.ph</span></td></tr><tr><td>Temporary password</td><td>10 random characters, shown once; stored only as hash <span class="mono">eb61d945</span></td></tr><tr><td>Must change it at first sign-in</td><td><span class="ok">✓ yes</span></td></tr><tr><td>hashPut(e-mail → id)</td><td>bucket <strong>1</strong>: paula.ignacio@e3fiberconnect.ph → STF-0006</td></tr><tr><td>Hash table size</td><td>5 → 6 keys in 17 buckets (load 0.35 ≤ 0.75, so no resize)</td></tr></tbody></table><table class="t"><thead><tr><th>Rule checked</th><th>Message</th></tr></thead><tbody><tr><td>Same e-mail in capitals</td><td><span class="no">✗ That e-mail already has an account.</span></td></tr><tr><td>An Admin adding an Owner</td><td><span class="no">✗ Only the Owner can add another Owner.</span></td></tr><tr><td>Changing your own account</td><td><span class="no">✗ You can’t change this account.</span></td></tr><tr><td>An Admin changing the Owner</td><td><span class="no">✗ You can’t change this account.</span></td></tr></tbody></table>
+    <table class="t"><thead><tr><th>Step</th><th>Result</th></tr></thead><tbody><tr><td>Validate (hash-table look-up for the e-mail)</td><td><span class="ok">✓ no errors</span></td></tr><tr><td>New id (counter + 1, appended → ids stay sorted)</td><td><strong>STF-0006</strong></td></tr><tr><td>E-mail stored in lower case</td><td><span class="mono">paula.ignacio@e3fiberconnect.ph</span></td></tr><tr><td>Temporary password</td><td>10 random characters, shown once; stored only as hash <span class="mono">3813bea5</span></td></tr><tr><td>Must change it at first sign-in</td><td><span class="ok">✓ yes</span></td></tr><tr><td>hashPut(e-mail → id)</td><td>bucket <strong>1</strong>: paula.ignacio@e3fiberconnect.ph → STF-0006</td></tr><tr><td>Hash table size</td><td>5 → 6 keys in 17 buckets (load 0.35 ≤ 0.75, so no resize)</td></tr></tbody></table><table class="t"><thead><tr><th>Rule checked</th><th>Message</th></tr></thead><tbody><tr><td>Same e-mail in capitals</td><td><span class="no">✗ That e-mail already has an account.</span></td></tr><tr><td>An Admin adding an Owner</td><td><span class="no">✗ Only the Owner can add another Owner.</span></td></tr><tr><td>Changing your own account</td><td><span class="no">✗ You can’t change this account.</span></td></tr><tr><td>An Admin changing the Owner</td><td><span class="no">✗ You can’t change this account.</span></td></tr></tbody></table>
   </div>
 
   <h3>Code walkthrough</h3>

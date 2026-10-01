@@ -197,6 +197,38 @@ function sameClient(a, b) {
 }
 
 /**
+ * sameRequestIn - sa mga application na in progress, meron bang pareho ang plan, barangay
+ * at address? Kung meron, double submit lang yun, hindi bagong internet. Linear search.
+ * Time: O(n), Space: O(1)
+ */
+function sameRequestIn(openApps, data) {
+  const address = toLowerText(collapseSpaces(data.completeAddress));
+  const barangay = findBarangay(data.barangay);                  // yung form ay key ang pinapasa, pangalan naman ang naka-save
+  const barangayName = barangay ? barangay.name : data.barangay;
+  for (let i = 0; i < openApps.length; i++) {
+    const app = openApps[i];
+    if (app.planId === data.planId && app.barangay === barangayName && toLowerText(collapseSpaces(app.completeAddress)) === address) {
+      return app;
+    }
+  }
+  return null;
+}
+
+/**
+ * hasSubscriberAccount - may subscriber account na ba yung e-mail o mobile na ito? Linear search.
+ * Time: O(n), Space: O(1)
+ */
+function hasSubscriberAccount(email, mobile) {
+  const probe = { email: trimText(email), contactNumber: normalizeMobile(mobile) };
+  for (let i = 0; i < subscribers.length; i++) {
+    if (sameClient(subscribers[i], probe)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * clientConnections - yung ibang application at subscriber account ng parehong client
  * (para makita ng staff na 2nd internet pala ito). Hindi kasama yung record mismo.
  * Linear search sa dalawang table. Time: O(n), Space: O(n)
@@ -221,9 +253,10 @@ function clientConnections(record) {
  * submitApplication - i-validate muna, tapos mag-add ng bagong application gamit yung
  * susunod na reference number. Yung online galing sa customer; yung walk-in naman
  * tinatype ng staff (at pwedeng i-undo).
- * Pwede na ang ilang application sa iisang client (halimbawa 2 internet), pero kung may
- * in progress pa siya, kailangan munang i-tick na "additional connection" ito para
- * hindi madoble pag aksidenteng na-submit ulit. Hanggang 3 na in progress lang.
+ * Pwede ang ilang application sa iisang client (halimbawa 2 internet) - tinatanggap lang
+ * namin at nilalagyan ng tag na "additional line". Ang bawal lang: yung parehong plan sa
+ * parehong address na in progress pa (ibig sabihin na-double submit lang), at higit sa 3
+ * na sabay-sabay na in progress.
  * Time: O(n) (duplicate check) + O(1) append, Space: O(1)
  */
 function submitApplication(data, source, actor) {
@@ -235,10 +268,12 @@ function submitApplication(data, source, actor) {
   if (open.length >= MAX_OPEN_APPLICATIONS_PER_CLIENT) {
     return { ok: false, errors: { email: 'There are already ' + MAX_OPEN_APPLICATIONS_PER_CLIENT + ' applications in progress for this e-mail or mobile number. Please wait until one is installed.' } };
   }
-  if (open.length > 0 && data.additionalLine !== true) {                  //    meron: dapat sinadya (2nd internet), hindi double submit
-    const which = source === 'online' ? 'An application' : 'Application ' + open[0].referenceNo;   // sa public form, hindi namin pinapakita yung reference
-    return { ok: false, needsConfirm: true, errors: { additionalLine: which + ' for this e-mail or mobile number is already in progress. Tick the box if this is for an additional internet connection.' } };
+  const repeat = sameRequestIn(open, data);                                //    parehong plan sa parehong address = na-double submit lang
+  if (repeat) {
+    const which = source === 'online' ? 'You already applied' : 'Application ' + repeat.referenceNo + ' is already in progress';   // sa public form, walang reference na pinapakita
+    return { ok: false, errors: { completeAddress: which + ' for this plan at this address. Choose another plan or address for an additional connection.' } };
   }
+  const additionalLine = open.length > 0 || hasSubscriberAccount(data.email, data.contactNumber);   // may iba na siyang application o account
 
   counters.reference = counters.reference + 1;                             // 3. kunin yung susunod na reference number
   const now = nowISO();
@@ -268,8 +303,8 @@ function submitApplication(data, source, actor) {
     installDate: null,
     installSlot: null,
     rejectReason: '',
-    additionalLine: data.additionalLine === true,  // 2nd (o 3rd) na internet ng parehong client
-    history: [{ status: 'Pending', at: now, by: byName, note: (source === 'online' ? 'Application received online' : 'Walk-in application at the office') + (data.additionalLine === true ? ' (additional connection)' : '') }],
+    additionalLine: additionalLine,              // 2nd (o 3rd) na internet ng parehong client
+    history: [{ status: 'Pending', at: now, by: byName, note: (source === 'online' ? 'Application received online' : 'Walk-in application at the office') + (additionalLine ? ' (additional connection)' : '') }],
   };
   arrayAppend(applications, application); // 4. pinakamalaki yung bagong number -> naka-sort pa rin yung table
 

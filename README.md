@@ -125,9 +125,9 @@ Scripts are plain `<script>` files loaded in order (DSA → backend → UI → s
 
 ## More than one internet connection
 
-A customer can apply for a second (or third) connection, at home or at another address. If they already have an
-application in progress, the form asks them to tick “This is for an additional internet connection”, so an accidental
-double submission is still caught; at most 3 can be in progress at once. Each installed line becomes its own
+A customer can apply for a second (or third) connection, at home or at another address — the application is simply
+accepted and tagged “Additional line” for staff. Only a true double submission is stopped (the same plan at the same
+address while that application is still in progress), and at most 3 can be in progress at once. Each installed line becomes its own
 subscriber account (its own account number and bills), and the staff pages link a customer’s other applications and
 accounts under “Other connections”.
 
