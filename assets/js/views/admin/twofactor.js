@@ -1,27 +1,28 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/twofactor.js
-   The "Verify it's you" sheet for Google Authenticator (two-step verification)
-   and the Two-step verification panel on the Account page.
+   E3 Fiber Connect - views/admin/twofactor.js
+   Dito yung "Verify it's you" sheet para sa Google Authenticator (two-step
+   verification) at yung Two-step verification panel sa Account page.
 
-   requireStepUp(action, then) — every account change goes through it:
-     • verified in the last 5 minutes → run `then` right away;
-     • 2FA already set up → ask for the 6-digit code;
-     • not set up yet     → confirm the password, show the QR code, then ask for the code.
+   requireStepUp(action, then) - lahat ng account change dadaan dito:
+     - na-verify na sa loob ng 5 minutes -> run agad yung `then`;
+     - naka-setup na yung 2FA -> hihingin yung 6-digit code;
+     - wala pang setup -> password muna, tapos ipapakita yung QR code, saka hihingin yung code.
 
-   Design notes (Apple-style): the six boxes react on every key press, jump
-   forward on their own and accept a pasted / auto-filled code; the sixth digit
-   submits by itself. A wrong code gives a short damped shake (a colour change
-   only when "reduce motion" is on) and a light vibration on phones; a right
-   code turns the boxes green with a check before the sheet closes. A ring
-   shows how long the current code in the app has left.
+   Notes sa design (Apple-style): yung anim na box nagre-react sa bawat pindot,
+   kusang lumilipat sa susunod at tumatanggap ng pasted / auto-filled na code;
+   pag na-type na yung pang-anim na digit, kusa na siyang nagsu-submit. Pag mali
+   yung code, may maikling shake (kulay lang ang nagbabago pag naka-on yung
+   "reduce motion") at konting vibrate sa phone; pag tama, nagiging green yung
+   mga box na may check bago magsara yung sheet. Yung ring naman pinapakita kung
+   gaano pa katagal bago mag-expire yung current code sa app.
    ========================================================================== */
 
 'use strict';
 
 const otpView = { mode: 'verify', onVerified: null, setupSecret: '', frame: 0, busy: false, lastSecond: -1 };
-const OTP_RING_LENGTH = 50.27;   // 2 · π · r for the r = 8 timer ring
+const OTP_RING_LENGTH = 50.27;   // 2 x pi x r para sa timer ring na r = 8
 
-/* The six boxes use the shared helpers in ui/codeboxes.js. */
+/* Yung anim na box gumagamit ng shared helpers sa ui/codeboxes.js. */
 function otpDigits() {
   return codeBoxes(byId('otpCode'));
 }
@@ -38,7 +39,7 @@ function focusOtpDigit(index) {
   focusCodeBox(byId('otpCode'), index);
 }
 
-/** setOtpState — '' | 'error' | 'success' on the code boxes and the badge. O(1) */
+/** setOtpState - nilalagay yung '' | 'error' | 'success' sa mga code box at sa badge. O(1) */
 function setOtpState(state) {
   setCodeBoxesState(byId('otpCode'), state);
   byId('sheetOtp').classList.toggle('is-verified', state === 'success');
@@ -50,14 +51,14 @@ function setOtpStatus(text, tone) {
   status.className = 'otp-status' + (tone ? ' text-' + tone : '');
 }
 
-/** buzz — a short vibration on phones that support it (success / error only). O(1) */
+/** buzz - maikling vibrate sa phone na kaya ito (pag success / error lang). O(1) */
 function buzz(pattern) {
   if (navigator.vibrate && !prefersReducedMotion()) {
     navigator.vibrate(pattern);
   }
 }
 
-/** qrSvg — the QR matrix as a crisp SVG with a 4-module quiet zone. O(n²) */
+/** qrSvg - ginagawang malinaw na SVG yung QR matrix, may 4-module na quiet zone. O(n²) */
 function qrSvg(matrix) {
   const quiet = 4;
   const full = matrix.size + quiet * 2;
@@ -73,9 +74,9 @@ function qrSvg(matrix) {
     + '<rect width="' + full + '" height="' + full + '" fill="#fff"></rect><path fill="#000" d="' + path + '"></path></svg>';
 }
 
-/* ------------------------------------------------------------- the timer */
+/* ------------------------------------------------------------- yung timer */
 
-/** tickOtpTimer — one animation frame: ring length and "New code in N s". O(1) */
+/** tickOtpTimer - isang animation frame: haba ng ring at yung "New code in N s". O(1) */
 function tickOtpTimer() {
   if (byId('sheetOtp').hidden) {
     otpView.frame = 0;
@@ -101,11 +102,11 @@ function startOtpTimer() {
   otpView.frame = requestAnimationFrame(tickOtpTimer);
 }
 
-/* ----------------------------------------------------------- the sheet */
+/* ----------------------------------------------------------- yung sheet */
 
 /**
- * openOtpSheet — mode 'verify' (type a code) or 'setup' (QR code + key, then
- * the first code). `onVerified` runs after a correct code.
+ * openOtpSheet - mode 'verify' (magta-type ng code) o 'setup' (QR code + key,
+ * tapos yung unang code). Tatakbo yung `onVerified` pag tama na yung code.
  */
 function openOtpSheet(mode, text, onVerified) {
   const staff = currentStaff();
@@ -116,7 +117,7 @@ function openOtpSheet(mode, text, onVerified) {
   otpView.onVerified = onVerified;
   otpView.busy = false;
   const setup = mode === 'setup';
-  const askPassword = setup;                        // setup always starts with the password: prove it's them
+  const askPassword = setup;                        // sa setup laging password muna, para sure na sila talaga yun
   setText('otpTitle', setup ? 'Set up Google Authenticator' : 'Verify it’s you');
   setText('otpText', text);
   setText('otpSubmit', setup ? 'Turn on and continue' : 'Verify');
@@ -131,7 +132,7 @@ function openOtpSheet(mode, text, onVerified) {
   setOtpStatus('', '');
   openSheet('sheetOtp', document.activeElement);
   startOtpTimer();
-  setTimeout(function () {                // after the sheet's own focus: go to the first field when it is on screen
+  setTimeout(function () {                // pagkatapos ng sariling focus ng sheet: punta sa unang field kung nasa screen na
     if (askPassword) {
       focusElement(byId('otpPassword'));
     } else {
@@ -140,17 +141,17 @@ function openOtpSheet(mode, text, onVerified) {
   }, 60);
 }
 
-/** showOtpSetupStep — the QR code, the phone link and the setup key for a started setup. O(n²) */
+/** showOtpSetupStep - pinapakita yung QR code, phone link at setup key ng sinimulang setup. O(n²) */
 function showOtpSetupStep(started) {
   otpView.setupSecret = started.secret;
   setHTML('otpQr', qrSvg(makeQrMatrix(started.uri)));
   setText('otpKey', started.key);
-  byId('otpOpenApp').setAttribute('href', started.uri);   // on a phone: open the app directly instead of scanning
+  byId('otpOpenApp').setAttribute('href', started.uri);   // pag naka-phone: buksan na lang diretso yung app imbes na i-scan
   toggleElement(byId('otpSetup'), true);
   toggleElement(byId('otpForm'), true);
 }
 
-/** wipeOtpSetup — take the secret off the page (QR, key, link) and forget an unfinished setup. O(1) */
+/** wipeOtpSetup - tanggalin sa page yung secret (QR, key, link) at kalimutan yung hindi natapos na setup. O(1) */
 function wipeOtpSetup() {
   otpView.setupSecret = '';
   setHTML('otpQr', '');
@@ -161,7 +162,7 @@ function wipeOtpSetup() {
   }
 }
 
-/** focusFirstOtpDigit — only when the box is on screen; on a phone, setup waits so the keyboard doesn't cover the QR code. */
+/** focusFirstOtpDigit - kapag nasa screen lang yung box; sa phone, naghihintay muna yung setup para hindi matakpan ng keyboard yung QR code. */
 function focusFirstOtpDigit() {
   const first = otpDigits()[0];
   const body = qs('.sheet-body', byId('sheetOtp'));
@@ -170,7 +171,7 @@ function focusFirstOtpDigit() {
   }
 }
 
-/** submitOtpPassword — first setup, step 1: the password unlocks the QR code. */
+/** submitOtpPassword - first setup, step 1: yung password ang magbubukas ng QR code. */
 function submitOtpPassword() {
   const input = byId('otpPassword');
   const started = startTotpSetup(currentStaff(), input.value);
@@ -188,8 +189,9 @@ function submitOtpPassword() {
 }
 
 /**
- * requireStepUp — run `then` only after a Google Authenticator code (or right
- * away inside the 5-minute window). `action` completes "… to <action>".
+ * requireStepUp - run lang yung `then` pag may Google Authenticator code na
+ * (o diretso na kung nasa loob pa ng 5-minute window). Yung `action` ang
+ * dudugtong sa "... to <action>".
  */
 function requireStepUp(action, then) {
   const staff = currentStaff();
@@ -207,7 +209,7 @@ function requireStepUp(action, then) {
   }
 }
 
-/** submitOtp — check the six digits (setup: confirm the new secret; verify: open the 5-minute window). */
+/** submitOtp - i-check yung anim na digit (setup: i-confirm yung bagong secret; verify: buksan yung 5-minute window). */
 function submitOtp() {
   if (otpView.busy) {
     return;
@@ -239,9 +241,9 @@ function submitOtp() {
   }, prefersReducedMotion() ? 250 : 650);
 }
 
-/* -------------------------------------------------- the Account page panel */
+/* -------------------------------------------------- yung panel sa Account page */
 
-/** renderTwoFactorPanel — status and the one action that fits it. O(1) */
+/** renderTwoFactorPanel - status at yung isang action na bagay dito. O(1) */
 function renderTwoFactorPanel() {
   const staff = currentStaff();
   if (!staff) {
@@ -293,7 +295,7 @@ function initTwoFactorView() {
       cancelAnimationFrame(otpView.frame);
       otpView.frame = 0;
     }
-    otpView.onVerified = null;     // closing without a code cancels the change
+    otpView.onVerified = null;     // pag sinara nang walang code, cancel yung change
   });
   onAction(byId('accountTwoFactor'), function (action) {
     if (action === 'setup-2fa') {

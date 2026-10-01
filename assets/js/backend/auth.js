@@ -1,14 +1,15 @@
 /* ==========================================================================
-   E3 Fiber Connect · backend/auth.js
-   Staff sign-in and the current session (kept in memory, like everything else:
-   reloading the page signs you out).
+   E3 Fiber Connect - backend/auth.js
+   Sign-in ng staff at yung current session (nasa memory lang, tulad ng lahat:
+   pag ni-reload yung page, signed out ka na).
 
-   After 5 wrong passwords in a row, sign-in pauses for 30 seconds.
-   Someone whose staff registration is still waiting (or was not approved) is
-   told so — but only after typing the password they chose when registering.
-   Note: a front-end-only "login" can't truly protect data — anyone can open
-   the browser's developer tools. A real system checks passwords on a server.
-   Defense module: Admin Login — presented by Dela Cruz Riceerich.
+   Pag 5 maling password nang sunod-sunod, naka-pause yung sign-in ng 30 seconds.
+   Kung naghihintay pa (o hindi na-approve) yung staff registration ng isang tao,
+   sasabihan siya - pero pag na-type lang niya yung password na pinili niya nung nag-register.
+   Note: yung "login" na front-end lang ay hindi talaga kayang protektahan yung data -
+   kahit sino pwedeng magbukas ng developer tools ng browser. Sa totoong system, sa
+   server chine-check yung password.
+   Module sa defense: Admin Login (si Dela Cruz Riceerich ang mag-eexplain)
    ========================================================================== */
 
 'use strict';
@@ -16,39 +17,39 @@
 const SIGN_IN_MAX_ATTEMPTS = 5;
 const SIGN_IN_PAUSE_MS = 30000;
 
-// failedByEmail — a hash table: e-mail → wrong tries in a row, so signing in to
-// your own account does not reset the count for someone else's.
-// failedInARow — wrong tries on ANY e-mail since the last pause (a successful sign-in
-// does not reset it), so trying a few passwords on every e-mail ("password
-// spraying") is paused too.
+// failedByEmail - hash table ito: e-mail -> ilang sunod-sunod na maling try, para
+// hindi ma-reset yung count ng iba kapag nag-sign in ka sa sarili mong account.
+// failedInARow - maling tries sa KAHIT ANONG e-mail mula nung huling pause (hindi ito
+// nire-reset ng successful sign-in), para ma-pause din yung nagta-try ng ilang
+// password sa bawat e-mail ("password spraying").
 const SIGN_IN_MAX_TOTAL_ATTEMPTS = 10;
 const authState = { staffId: null, failedByEmail: createHashTable(17), failedInARow: 0, pausedUntil: 0 };
 
 /**
- * signIn — check the e-mail (hash-table look-up) and the password hash.
- * Only Active accounts may sign in.
- * Time O(1) average + one password hash (400 fixed rounds, O(n) for n characters)
+ * signIn - i-check yung e-mail (hash table lookup) at yung password hash.
+ * Active na accounts lang ang pwedeng mag-sign in.
+ * Time: O(1) average + isang password hash (400 fixed rounds, O(n) para sa n na characters)
  */
 function signIn(email, password) {
   const now = Date.now();
-  if (authState.pausedUntil > now) {                          // 1. paused after 5 wrong tries?
+  if (authState.pausedUntil > now) {                          // 1. naka-pause ba after 5 maling try?
     const seconds = Math.ceil((authState.pausedUntil - now) / 1000);
     return { ok: false, error: 'Too many attempts. Try again in ' + pluralize(seconds, 'second') + '.' };
   }
   const emailKey = toLowerText(trimText(email));
-  const member = findStaffByEmail(email);                     // 2. hash-table look-up by e-mail, O(1)
-  if (!member || !staffPasswordMatches(member, password)) {   // 3. compare the salted password hash
-    // Not a staff password — maybe a registration that is waiting or was not approved.
-    // It is only mentioned when the password the person chose for it matches, and it
-    // is checked whether or not a staff account exists, so the answer never reveals
-    // which e-mails belong to staff.
+  const member = findStaffByEmail(email);                     // 2. hanapin yung e-mail sa hash table, O(1)
+  if (!member || !staffPasswordMatches(member, password)) {   // 3. i-compare yung salted password hash
+    // Hindi staff password - baka registration na naghihintay pa o hindi na-approve.
+    // Binabanggit lang ito kapag tugma yung password na pinili nila para dito, at
+    // chine-check ito may staff account man o wala, para hindi malaman sa sagot
+    // kung aling e-mail ang sa staff.
     const request = registrationForSignIn(email, password);
     if (request) {
       return { ok: false, error: registrationStatusMessage(request), registration: request };
     }
-    const tries = (hashGet(authState.failedByEmail, emailKey) || 0) + 1;   // 4. count wrong tries for this e-mail
-    authState.failedInARow = authState.failedInARow + 1;                   //    … and in a row on any e-mail
-    if (tries >= SIGN_IN_MAX_ATTEMPTS || authState.failedInARow >= SIGN_IN_MAX_TOTAL_ATTEMPTS) {   // 5th for one e-mail / 10th overall pauses
+    const tries = (hashGet(authState.failedByEmail, emailKey) || 0) + 1;   // 4. bilangin yung maling tries ng e-mail na ito
+    authState.failedInARow = authState.failedInARow + 1;                   //    ... at yung sunod-sunod sa kahit anong e-mail
+    if (tries >= SIGN_IN_MAX_ATTEMPTS || authState.failedInARow >= SIGN_IN_MAX_TOTAL_ATTEMPTS) {   // pause pag pang-5 na sa isang e-mail / pang-10 overall
       hashPut(authState.failedByEmail, emailKey, 0);
       authState.failedInARow = 0;
       authState.pausedUntil = now + SIGN_IN_PAUSE_MS;
@@ -57,20 +58,20 @@ function signIn(email, password) {
     hashPut(authState.failedByEmail, emailKey, tries);
     return { ok: false, error: 'The e-mail or password is incorrect.' };
   }
-  if (member.status !== 'Active') {                           // 5. suspended or archived accounts can't sign in
+  if (member.status !== 'Active') {                           // 5. bawal mag-sign in yung Suspended o Archived na account
     return { ok: false, error: 'This account is ' + toLowerText(member.status) + '. Ask the owner to ' + (member.status === 'Archived' ? 'restore' : 'reactivate') + ' it.' };
   }
-  hashPut(authState.failedByEmail, emailKey, 0);              // 6. success: this e-mail's count starts again; remember who is signed in
+  hashPut(authState.failedByEmail, emailKey, 0);              // 6. success: balik sa zero yung count ng e-mail na ito; tandaan kung sino naka-sign in
   authState.staffId = member.id;
-  clearUndoHistory(); // Undo only ever reverses your own actions from this sign-in
-  endStepUp();        // a new sign-in must verify its own Google Authenticator code
-  clearPasswordReset(); // … and ends any "forgot password" in progress in this browser
+  clearUndoHistory(); // sariling actions mo lang sa sign-in na ito ang pwedeng i-undo
+  endStepUp();        // bawat bagong sign-in, kailangan ulit ng sariling Google Authenticator code
+  clearPasswordReset(); // ... at tapusin yung kahit anong "forgot password" na nagaganap sa browser na ito
   member.lastSignIn = nowISO();
   logActivity('auth', member.fullName + ' signed in', member.fullName);
   return { ok: true, staff: member };
 }
 
-/** signOut — end the session. O(1) */
+/** signOut - tapusin yung session. O(1) */
 function signOut() {
   const member = currentStaff();
   if (member) {
@@ -82,9 +83,9 @@ function signOut() {
 }
 
 /**
- * currentStaff — the signed-in staff member, or null. If the account was
- * suspended or archived in the meantime, the session ends immediately.
- * Time O(log n)
+ * currentStaff - yung staff na naka-sign in, o null. Kung na-suspend o na-archive
+ * yung account habang naka-sign in, tapos agad yung session.
+ * Time: O(log n)
  */
 function currentStaff() {
   if (!authState.staffId) {
@@ -98,7 +99,7 @@ function currentStaff() {
   return member;
 }
 
-/** isSignedIn — O(log n) */
+/** isSignedIn - true kung may naka-sign in. O(log n) */
 function isSignedIn() {
   return currentStaff() !== null;
 }

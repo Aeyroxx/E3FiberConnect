@@ -1,16 +1,17 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/public/apply.js
-   The public application: a five-step wizard (plan → about you → address →
-   valid ID → review). Each step is checked with the same validator the
-   backend uses, and the panels slide in from the direction you are moving.
-   Defense module: Application (and step 1, Plan Selection) — presented by Joshua Santos.
+   E3 Fiber Connect - views/public/apply.js
+   Yung public application: wizard na may limang step (plan -> about you ->
+   address -> valid ID -> review). Bawat step chine-check gamit yung parehong
+   validator na gamit ng backend, at yung mga panel nag-i-slide galing sa
+   direksyon kung saan ka papunta.
+   Module sa defense: Application (pati step 1, Plan Selection) - si Joshua Santos ang mag-eexplain.
    ========================================================================== */
 
 'use strict';
 
 const applyState = { step: 1, planId: 'power', photo: null };
 
-// Which form fields (and their input ids) belong to each step. Index = step number.
+// Kung anong form fields (at input id nila) yung kasama sa bawat step. Yung index = step number.
 const APPLY_STEP_FIELDS = [
   {},
   { planId: 'applyPlanChoices' },
@@ -20,7 +21,7 @@ const APPLY_STEP_FIELDS = [
   {},
 ];
 
-/** readApplyForm — the wizard's current values as one record. */
+/** readApplyForm - lahat ng current value ng wizard, pinagsama sa isang record. */
 function readApplyForm() {
   const photo = applyState.photo;
   return {
@@ -41,12 +42,12 @@ function readApplyForm() {
   };
 }
 
-/** applyFieldError — the current message for one field ("" when fine). */
+/** applyFieldError - yung current na message para sa isang field ("" pag okay naman). */
 function applyFieldError(key) {
   return validateApplication(readApplyForm(), 'online')[key] || '';
 }
 
-/** stepForField — which step owns a field (linear search over the steps). O(n²) */
+/** stepForField - kung saang step kasama yung field (linear search sa mga step). O(n²) */
 function stepForField(key) {
   for (let step = 1; step < APPLY_STEP_FIELDS.length; step++) {
     for (const field in APPLY_STEP_FIELDS[step]) {
@@ -58,7 +59,7 @@ function stepForField(key) {
   return 1;
 }
 
-/** validateApplyStep — show this step's errors; returns true when it is complete. */
+/** validateApplyStep - ipakita yung errors ng step na to; true pag kumpleto na siya. */
 function validateApplyStep(step) {
   const errors = validateApplication(readApplyForm(), 'online');
   const first = applyFieldErrors(APPLY_STEP_FIELDS[step], errors);
@@ -89,7 +90,7 @@ function updateCoverageHint(selectId, hintId) {
   hint.innerHTML = iconHTML(detail.tone === 'green' ? 'check-circle' : 'info') + '<span>' + escapeHTML(detail.tone === 'green' ? detail.text : 'Fiber isn’t here yet — you can still apply to join the waitlist.') + '</span>';
 }
 
-/** fillBarangaySelect — the 24 barangays, marking the ones not yet connected. O(n) */
+/** fillBarangaySelect - yung 24 na barangay, naka-mark yung mga wala pang connection. O(n) */
 function fillBarangaySelect(selectId) {
   let html = '<option value="">Choose a barangay</option>';
   for (let i = 0; i < BARANGAYS.length; i++) {
@@ -99,7 +100,7 @@ function fillBarangaySelect(selectId) {
   setHTML(selectId, html);
 }
 
-/** setUploadState — show the chosen file (or the empty prompt) in an upload box. */
+/** setUploadState - ipakita yung napiling file (o yung empty prompt) sa upload box. */
 function setUploadState(boxId, titleId, textId, photo, emptyTitle) {
   const box = byId(boxId);
   if (photo) {
@@ -134,7 +135,7 @@ function renderApplyReview() {
   setHTML('applyReview', html);
 }
 
-/** goToApplyStep — show one step; `direction` picks the slide-in animation. */
+/** goToApplyStep - ipakita yung isang step; yung `direction` ang pipili kung saang side mag-i-slide. */
 function goToApplyStep(step, direction) {
   applyState.step = step;
   const panels = qsa('[data-step-panel]', byId('applyForm'));
@@ -143,7 +144,7 @@ function goToApplyStep(step, direction) {
     panels[i].hidden = !isCurrent;
     panels[i].classList.remove('enter-forward', 'enter-back');
     if (isCurrent && direction) {
-      void panels[i].offsetWidth; // restart the slide-in animation
+      void panels[i].offsetWidth; // ulitin yung slide-in animation
       panels[i].classList.add(direction === 'back' ? 'enter-back' : 'enter-forward');
     }
   }

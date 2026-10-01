@@ -1,7 +1,7 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/public/submitted.js
-   "Application received" — shows the new reference number (found again with
-   binary search, since the application is already in the array).
+   E3 Fiber Connect - views/public/submitted.js
+   "Application received" - pinapakita yung bagong reference number (hinahanap
+   ulit gamit binary search, kasi nasa array na yung application).
    ========================================================================== */
 
 'use strict';

@@ -1,8 +1,8 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/new-application.js
-   Walk-in application typed by staff. Same validator as the public form, plus
-   a custom-price option and an "I checked the original ID" confirmation.
-   Defense module: Walk-in override (New Application) — presented by Justin Banaag.
+   E3 Fiber Connect - views/admin/new-application.js
+   Walk-in application na staff ang nagta-type. Parehong validator sa public
+   form, may dagdag lang na custom-price option at "I checked the original ID" na confirmation.
+   Module sa defense: Walk-in override (New Application) - si Justin Banaag ang mag-eexplain.
    ========================================================================== */
 
 'use strict';

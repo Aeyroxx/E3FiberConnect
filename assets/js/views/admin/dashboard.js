@@ -1,8 +1,8 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/dashboard.js
-   Overview: key numbers, the review QUEUE (peek at the front), the
-   installation schedule (sorted by date), the support QUEUE, this month's
-   billing and the latest activity with Undo.
+   E3 Fiber Connect - views/admin/dashboard.js
+   Overview: mga importanteng numbers, yung review QUEUE (silip sa harap),
+   installation schedule (sorted by date), support QUEUE, billing ngayong
+   buwan at yung latest activity na may Undo.
    ========================================================================== */
 
 'use strict';
@@ -26,8 +26,8 @@ function kpiHTML(href, label, value, note, iconName, tone) {
 }
 
 /**
- * queueStripHTML — draw a queue from front to rear as boxes, so the FIFO order
- * is visible. `labels` is an array of short strings (front first).
+ * queueStripHTML - dina-drawing yung queue mula front hanggang rear bilang mga
+ * box, para kita yung FIFO order. Yung `labels` ay array ng maiikling string (front muna).
  */
 function queueStripHTML(labels) {
   if (labels.length === 0) {

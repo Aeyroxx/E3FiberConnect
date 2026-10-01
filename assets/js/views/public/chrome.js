@@ -1,8 +1,9 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/public/chrome.js
-   The parts around every public page: the translucent navigation bar (with a
-   hairline that appears only once content scrolls under it), the full-screen
-   phone menu, the skip link, the footer year and the 404 page.
+   E3 Fiber Connect - views/public/chrome.js
+   Yung mga nakapaligid sa bawat public page: yung medyo see-through na navigation
+   bar (may manipis na linya sa baba na lalabas lang pag may content nang
+   naka-scroll sa ilalim niya), yung full-screen menu sa phone, yung skip link,
+   yung year sa footer at yung 404 page.
    ========================================================================== */
 
 'use strict';
@@ -42,14 +43,14 @@ function togglePublicMenu() {
   }
 }
 
-/** updateScrollEdges — show the bar's hairline only when content is underneath it. */
+/** updateScrollEdges - ipakita lang yung manipis na linya ng bar pag may content sa ilalim niya. */
 function updateScrollEdges() {
   const scrolled = window.scrollY > 4;
   byId('globalNav').classList.toggle('is-scrolled', scrolled);
   byId('adminToolbar').classList.toggle('is-scrolled', scrolled);
 }
 
-/** skipToContent — focus the main region of whichever shell is showing. */
+/** skipToContent - i-focus yung main region ng kung anong shell yung nakalabas. */
 function skipToContent(event) {
   event.preventDefault();
   let main = byId('publicMain');
@@ -63,7 +64,7 @@ function skipToContent(event) {
 }
 
 function renderNotFoundView() {
-  // Static page — nothing to fill in.
+  // Static page lang to, walang kailangang i-fill in.
 }
 
 function initPublicChrome() {

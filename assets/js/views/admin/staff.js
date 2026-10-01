@@ -1,9 +1,9 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/staff.js
-   Staff accounts: list, add (with a one-time temporary password), suspend,
-   reactivate, reset password, archive and restore. Owners and Admins only.
-   Accounts are never deleted — archiving keeps the record and can be undone.
-   Defense module: Admin/Staff Creation & Management — presented by Dela Cruz Riceerich.
+   E3 Fiber Connect - views/admin/staff.js
+   Staff accounts: list, add (may one-time na temporary password), suspend,
+   reactivate, reset password, archive at restore. Owners at Admins lang.
+   Hindi talaga nade-delete yung account - pag na-archive, nandun pa rin yung record at pwedeng i-undo.
+   Module sa defense: Admin/Staff Creation & Management - si Dela Cruz Riceerich ang mag-eexplain.
    ========================================================================== */
 
 'use strict';
@@ -207,7 +207,7 @@ function initStaffView() {
   byId('addStaffForm').addEventListener('submit', function (event) {
     event.preventDefault();
     const data = { fullName: fieldValue('addStaffName'), email: fieldValue('addStaffEmail'), role: fieldValue('addStaffRole'), startDate: fieldValue('addStaffStart') };
-    const errors = validateNewStaff(data, currentStaff());    // show field mistakes before asking for a code
+    const errors = validateNewStaff(data, currentStaff());    // ipakita muna yung mali sa fields bago humingi ng code
     if (hasAnyErrors(errors)) {
       focusInvalid(applyFieldErrors(ADD_STAFF_FIELDS, errors));
       return;
@@ -233,8 +233,8 @@ function initStaffView() {
       showToast(copied ? 'Sign-in details copied' : 'Couldn’t copy — please write them down', { tone: copied ? 'success' : 'error' });
     });
   });
-  // The temporary password is shown ONCE: forget it as soon as the sheet closes
-  // (also when the screen changes or someone signs out, which closes every sheet).
+  // ISANG beses lang pinapakita yung temporary password: kalimutan agad pagsara ng sheet
+  // (pati pag nagpalit ng screen o may nag-sign out, kasi nagsasara lahat ng sheet nun).
   byId('sheetCredential').addEventListener('sheetclose', function () {
     staffViewState.credential = '';
     setText('credentialPassword', '—');

@@ -1,11 +1,11 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/billing.js
-   Billing for one month at a time: totals, a note about payments waiting for
-   validation (their FIFO queue lives on the Payments page), old overdue bills,
-   and this month's bills grouped by how soon they're due.
-   One month's bills are found with binary search on the sorted bill ids.
-   Defense modules: Billing (client billing list) and Billing (bill generation)
-   — presented by Aaron Sebastian.
+   E3 Fiber Connect - views/admin/billing.js
+   Billing kada isang buwan: totals, note tungkol sa mga payment na naghihintay
+   ng validation (nasa Payments page yung FIFO queue nila), mga lumang overdue
+   na bill, at yung bills ngayong buwan na naka-group kung gaano kalapit yung due.
+   Yung bills ng isang buwan hinahanap gamit binary search sa sorted na bill ids.
+   Modules sa defense: Billing (client billing list) at Billing (bill generation)
+   - si Aaron Sebastian ang mag-eexplain.
    ========================================================================== */
 
 'use strict';
@@ -53,7 +53,7 @@ function billGroupHTML(title, list, today) {
     + '<tbody>' + rows + '</tbody></table></div></section>';
 }
 
-/** renderBillingPayments — how many reports wait in the validation queue, and who is next (queuePeek). */
+/** renderBillingPayments - ilang report yung naghihintay sa validation queue, at sino yung susunod (queuePeek). */
 function renderBillingPayments() {
   const queue = paymentsQueue();
   const front = queuePeek(queue);

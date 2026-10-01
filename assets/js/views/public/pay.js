@@ -1,9 +1,10 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/public/pay.js
-   Pay Bills: a subscriber proves who they are (account number + registered
-   mobile), sees the balance and bills, and reports a payment (method, amount,
-   reference number). Reports join the staff's payment-validation QUEUE.
-   Defense module: Payments (the customer's side) — presented by Aaron Sebastian.
+   E3 Fiber Connect - views/public/pay.js
+   Pay Bills: papatunayan muna ng subscriber kung sino siya (account number +
+   registered mobile), makikita niya yung balance at bills, tapos ire-report niya
+   yung bayad (method, amount, reference number). Yung mga report pumapasok sa
+   payment-validation QUEUE ng staff.
+   Module sa defense: Payments (side ng customer) - si Aaron Sebastian ang mag-eexplain.
    ========================================================================== */
 
 'use strict';
@@ -11,13 +12,13 @@
 const payState = { accountNo: '' };
 const PAY_REPORT_FIELDS = { billId: 'payBillChoices', method: 'payMethod', amount: 'payAmount', referenceCode: 'payReference' };
 
-/** syncPayAmount — fill "Amount paid" with the amount of the bill that is chosen. O(log n) */
+/** syncPayAmount - nilalagay sa "Amount paid" yung amount ng napiling bill. O(log n) */
 function syncPayAmount() {
   const bill = findBill(checkedValue('payBill', byId('payBillChoices')));
   setFieldValue('payAmount', bill ? bill.amount : '');
 }
 
-/** updateReferenceHint — show what a reference number looks like for the chosen method. O(n) */
+/** updateReferenceHint - pinapakita kung ano itsura ng reference number para sa napiling method. O(n) */
 function updateReferenceHint() {
   const rule = paymentReferenceRule(fieldValue('payMethod'));
   setText('payReference-hint', rule ? rule.method + ' reference numbers have ' + rule.shape + ', e.g. ' + rule.example + '.' : 'Printed on your receipt or payment confirmation.');

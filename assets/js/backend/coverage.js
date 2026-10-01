@@ -1,14 +1,14 @@
 /* ==========================================================================
-   E3 Fiber Connect · backend/coverage.js
-   "Is fiber available in my barangay?" — binary search on the sorted
-   BARANGAYS table for exact names, linear text search for suggestions.
+   E3 Fiber Connect - backend/coverage.js
+   "May fiber na ba sa barangay ko?" - binary search sa naka-sort na BARANGAYS
+   table para sa exact na pangalan, linear text search naman para sa suggestions.
    ========================================================================== */
 
 'use strict';
 
 /**
- * normalizeBarangayName — "  Brgy.  POBLACION " → "poblacion" (the table key).
- * Time O(n) · Space O(n)
+ * normalizeBarangayName - "  Brgy.  POBLACION " -> "poblacion" (yung key sa table).
+ * Time: O(n), Space: O(n)
  */
 function normalizeBarangayName(value) {
   let name = toLowerText(collapseSpaces(value));
@@ -23,9 +23,9 @@ function normalizeBarangayName(value) {
 }
 
 /**
- * findBarangay — the barangay record for a typed name, or null.
- * Binary search on the `key` field (BARANGAYS is sorted by it).
- * Time O(log n) · Space O(1)
+ * findBarangay - yung barangay record ng tinype na pangalan, o null kung wala.
+ * Binary search sa `key` field (naka-sort kasi by key yung BARANGAYS).
+ * Time: O(log n), Space: O(1)
  */
 function findBarangay(name) {
   const index = binarySearch(BARANGAYS, 'key', normalizeBarangayName(name));
@@ -33,9 +33,9 @@ function findBarangay(name) {
 }
 
 /**
- * suggestBarangays — up to `limit` barangays whose name contains the query
- * ("san" → San Gabriel, San Jose Patag, San Vicente …).
- * Linear search + naive string matching. Time O(n²) · Space O(n)
+ * suggestBarangays - hanggang `limit` na barangay na may laman ng query sa pangalan
+ * ("san" -> San Gabriel, San Jose Patag, San Vicente ...).
+ * Linear search + naive string matching. Time: O(n²), Space: O(n)
  */
 function suggestBarangays(query, limit) {
   const matches = textSearchRecords(BARANGAYS, ['name'], normalizeBarangayName(query));
@@ -43,8 +43,8 @@ function suggestBarangays(query, limit) {
 }
 
 /**
- * listBarangays — "all", "available" or "coming-soon".
- * Time O(n) · Space O(n)
+ * listBarangays - pwedeng "all", "available" o "coming-soon".
+ * Time: O(n), Space: O(n)
  */
 function listBarangays(filter) {
   if (filter === 'available' || filter === 'coming-soon') {
@@ -53,7 +53,7 @@ function listBarangays(filter) {
   return arrayCopy(BARANGAYS);
 }
 
-/** coverageSummary — counts for the coverage page. Time O(n) · Space O(1) */
+/** coverageSummary - mga bilang para sa coverage page. Time: O(n), Space: O(1) */
 function coverageSummary() {
   let available = 0;
   let accessPoints = 0;
@@ -66,16 +66,16 @@ function coverageSummary() {
   return { total: BARANGAYS.length, available: available, comingSoon: BARANGAYS.length - available, accessPoints: accessPoints };
 }
 
-/** isBarangayServiceable — true when fiber is already available there. O(log n) */
+/** isBarangayServiceable - true kung may fiber na talaga dun. O(log n) */
 function isBarangayServiceable(name) {
   const record = findBarangay(name);
   return record !== null && record.status === 'available';
 }
 
 /**
- * coverageDetail — the sentence staff see on an application:
- * "Available — 12 fiber access points in Brgy. Poblacion".
- * Time O(log n)
+ * coverageDetail - yung sentence na nakikita ng staff sa application, halimbawa:
+ * "Available - 12 fiber access points in Brgy. Poblacion".
+ * Time: O(log n)
  */
 function coverageDetail(name) {
   const record = findBarangay(name);

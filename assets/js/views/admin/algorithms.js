@@ -1,8 +1,8 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/algorithms.js
-   A window into the data structures: live sizes of every array, stack, queue
-   and the hash table; the log of recent searches and sorts; and a benchmark
-   that races the algorithms on the same random data.
+   E3 Fiber Connect - views/admin/algorithms.js
+   Silip sa loob ng mga data structure: live na size ng bawat array, stack,
+   queue at ng hash table; log ng mga recent na search at sort; at benchmark
+   na pinagkakarera yung mga algorithm sa parehong random data.
    ========================================================================== */
 
 'use strict';
@@ -91,7 +91,7 @@ function renderAlgorithmLog() {
   setHTML('algoLog', html || '<tr><td colspan="6" class="text-center caption-text py-4">Search or sort a list to see it here.</td></tr>');
 }
 
-/** makeBenchmarkData — n records with random values, identical for every algorithm. O(n) */
+/** makeBenchmarkData - n na record na may random values, pareho para sa bawat algorithm. O(n) */
 function makeBenchmarkData(n) {
   const records = [];
   for (let i = 0; i < n; i++) {
@@ -112,7 +112,7 @@ function runBenchmark() {
   const data = makeBenchmarkData(n);
   const sortedData = insertionSort(data, 'value', 'asc');
 
-  // Searching: 200 look-ups of values that exist, with each algorithm.
+  // Searching: 200 na lookup ng mga value na meron talaga, sa bawat algorithm.
   const lookups = 200;
   let linearTotal = 0;
   let binaryTotal = 0;
@@ -133,7 +133,7 @@ function runBenchmark() {
   logOperation('Linear search', 'Benchmark (avg of 200)', n, linearAvg, 0, linearMs / lookups);
   logOperation('Binary search', 'Benchmark (avg of 200)', n, binaryAvg, 0, binaryMs / lookups);
 
-  // Sorting: the same unsorted data for all three.
+  // Sorting: parehong unsorted data para sa tatlo.
   const results = [];
   for (let i = 0; i < SORT_ALGORITHMS.length; i++) {
     const info = SORT_ALGORITHMS[i];

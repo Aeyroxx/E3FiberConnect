@@ -1,7 +1,7 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/public/support.js
-   Support page: FAQ (Bootstrap accordion), "Send us a message" (creates a
-   ticket that joins the staff's FIFO support queue) and "Check a ticket".
+   E3 Fiber Connect - views/public/support.js
+   Support page: FAQ (Bootstrap accordion), "Send us a message" (gagawa ng
+   ticket na papasok sa FIFO support queue ng staff) at "Check a ticket".
    ========================================================================== */
 
 'use strict';

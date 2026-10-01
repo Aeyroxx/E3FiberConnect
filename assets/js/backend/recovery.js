@@ -1,21 +1,21 @@
 /* ==========================================================================
-   E3 Fiber Connect · backend/recovery.js
-   "Forgot password" for staff, in three steps:
+   E3 Fiber Connect - backend/recovery.js
+   "Forgot password" para sa staff, tatlong steps:
 
-     1. requestPasswordReset(email)  — a random 6-digit code for that account,
-                                       valid for 10 minutes;
-     2. verifyResetCode(code)        — at most 5 tries per code;
-     3. completePasswordReset(new…)  — only after step 2, sets the new password.
+     1. requestPasswordReset(email)  - random na 6-digit code para sa account na yun,
+                                       valid ng 10 minutes;
+     2. verifyResetCode(code)        - hanggang 5 tries lang kada code;
+     3. completePasswordReset(new...) - pagkatapos lang ng step 2, dito sine-set yung bagong password.
 
-   The code is delivered as a message to the staff member (on this site it
-   appears as a notification on the screen). The answer to step 1 is the same
-   whether or not the e-mail has an account, so the page never tells anyone
-   which e-mails belong to staff. Suspended and archived accounts get no code.
+   Pinapadala yung code as message sa staff member (dito sa site, lumalabas siya
+   as notification sa screen). Pareho lang yung sagot sa step 1 may account man o
+   wala yung e-mail, para hindi malaman ng kahit sino kung aling e-mail ang sa staff.
+   Walang code na binibigay sa Suspended at Archived na accounts.
 
-   Guessing is limited across resets too: one code every 30 seconds for any
-   e-mail, and every 5 wrong codes pause code entry — 30 s, then 1, 2, 4 …
-   minutes (at most 15). Those counters live in resetGuard, which starting
-   over does not clear.
+   Limitado din yung panghuhula kahit mag-reset ulit: isang code lang kada 30 seconds
+   para sa kahit anong e-mail, at kada 5 maling code naka-pause yung pag-enter ng code -
+   30 s, tapos 1, 2, 4 ... minutes (max 15). Nasa resetGuard yung mga counter na yun,
+   at hindi ito nare-reset kahit magsimula ulit.
    ========================================================================== */
 
 'use strict';
@@ -25,10 +25,10 @@ const RESET_MAX_TRIES = 5;
 const RESET_RESEND_SECONDS = 30;
 
 const passwordResetState = { email: '', staffId: null, code: '', expiresAt: 0, tries: 0, verified: false, sentAt: 0 };
-const resetGuard = { failures: 0, lockouts: 0, pausedUntil: 0 };   // not cleared by clearPasswordReset
-const RESET_ACTOR = 'Forgot-password page';                       // who did it: someone not signed in
+const resetGuard = { failures: 0, lockouts: 0, pausedUntil: 0 };   // hindi ito binubura ng clearPasswordReset
+const RESET_ACTOR = 'Forgot-password page';                       // sino gumawa: taong hindi naka-sign in
 
-/** clearPasswordReset — forget the reset in progress (done, cancelled or timed out). O(1) */
+/** clearPasswordReset - kalimutan yung reset na nagaganap (tapos na, kinansel, o nag-time out). O(1) */
 function clearPasswordReset() {
   passwordResetState.email = '';
   passwordResetState.staffId = null;
@@ -38,7 +38,7 @@ function clearPasswordReset() {
   passwordResetState.verified = false;
 }
 
-/** newResetCode — six random digits, e.g. "048213" (secure random source when available). O(1) */
+/** newResetCode - anim na random digits, halimbawa "048213" (secure random source kung meron). O(1) */
 function newResetCode() {
   const bytes = randomBytes(4);
   const number = ((bytes[0] * 16777216) + (bytes[1] * 65536) + (bytes[2] * 256) + bytes[3]) % 1000000;
@@ -46,11 +46,12 @@ function newResetCode() {
 }
 
 /**
- * requestPasswordReset — step 1. Checks the e-mail format and the 30-second
- * wait between codes, then creates a code when the e-mail belongs to an Active
- * staff account. Returns { ok, sentTo, message } where `message` is what the
- * staff member receives (null when there is no such account).
- * Time O(1) average (hash-table look-up by e-mail) · Space O(1)
+ * requestPasswordReset - step 1 ng forgot password. Chine-check muna yung format
+ * ng e-mail at yung 30 seconds na pagitan bago humingi ulit ng code. Kung Active na
+ * staff account yung e-mail, gagawa tayo ng bagong code.
+ * Binabalik: { ok, sentTo, message } - yung `message` ang matatanggap ng staff
+ * (null yung message pag walang ganung account).
+ * Time: O(1) average (hash table lookup ng e-mail), Space: O(1)
  */
 function requestPasswordReset(email) {
   if (!isValidEmail(email)) {
@@ -58,23 +59,23 @@ function requestPasswordReset(email) {
   }
   const now = Date.now();
   const key = toLowerText(trimText(email));
-  if (resetGuard.pausedUntil > now) {                                         // 1. paused after too many wrong codes
+  if (resetGuard.pausedUntil > now) {                                         // 1. naka-pause ba kasi sobrang daming maling code?
     return { ok: false, error: 'Too many wrong codes. Try again in ' + pauseLengthText(resetGuard.pausedUntil - now) + '.' };
   }
   const waited = Math.floor((now - passwordResetState.sentAt) / 1000);
-  if (waited < RESET_RESEND_SECONDS) {                                        //    and at most one code every 30 seconds, for any e-mail
+  if (waited < RESET_RESEND_SECONDS) {                                        //    tapos isang code lang kada 30 seconds, kahit anong e-mail
     return { ok: false, error: 'Please wait ' + pluralize(RESET_RESEND_SECONDS - waited, 'second') + ' before asking for another code.' };
   }
   clearPasswordReset();
   passwordResetState.email = key;
   passwordResetState.sentAt = now;
   const sentTo = maskEmail(key);
-  const member = findStaffByEmail(key);                                       // 2. hash-table look-up, O(1) average
+  const member = findStaffByEmail(key);                                       // 2. hanapin sa hash table, O(1) average
   if (!member || member.status !== 'Active') {
     logActivity('auth', 'Password reset asked for an e-mail with no active staff account', RESET_ACTOR);
-    return { ok: true, sentTo: sentTo, message: null };                       //    same answer: nothing is revealed
+    return { ok: true, sentTo: sentTo, message: null };                       //    parehong sagot lang, walang nalalaman yung nagtanong
   }
-  passwordResetState.staffId = member.id;                                     // 3. a fresh code, valid for 10 minutes
+  passwordResetState.staffId = member.id;                                     // 3. bagong code, valid ng 10 minutes
   passwordResetState.code = newResetCode();
   passwordResetState.expiresAt = now + RESET_CODE_MINUTES * 60 * 1000;
   logActivity('auth', 'Password reset code sent to ' + member.fullName, RESET_ACTOR);
@@ -86,9 +87,9 @@ function requestPasswordReset(email) {
 }
 
 /**
- * verifyResetCode — step 2. The code must be six digits, not expired, and
- * right within 5 tries (after that a new code is needed).
- * Time O(1)
+ * verifyResetCode - step 2. Dapat six digits yung code, hindi pa expired, at tama
+ * within 5 tries (pag lumampas, kailangan na ng bagong code).
+ * Time: O(1)
  */
 function verifyResetCode(code) {
   if (passwordResetState.email === '') {
@@ -111,7 +112,7 @@ function verifyResetCode(code) {
   if (passwordResetState.code === '' || code !== passwordResetState.code) {
     passwordResetState.tries = passwordResetState.tries + 1;
     resetGuard.failures = resetGuard.failures + 1;
-    if (resetGuard.failures >= RESET_MAX_TRIES) {                             // 5 wrong codes in a row, over any resets
+    if (resetGuard.failures >= RESET_MAX_TRIES) {                             // 5 maling code nang sunod-sunod, kahit ilang reset pa
       let pause = OTP_PAUSE_MS;
       for (let i = 0; i < resetGuard.lockouts && pause < OTP_PAUSE_MAX_MS; i++) {
         pause = pause * 2;
@@ -139,10 +140,10 @@ function verifyResetCode(code) {
 }
 
 /**
- * completePasswordReset — step 3. Only after a verified code (still within its
- * 10 minutes): checks the new password, saves its salted hash and clears the
- * reset. Returns field errors { newPassword, confirmPassword }.
- * Time O(n) for the password hash · Space O(1)
+ * completePasswordReset - step 3. Pwede lang pag verified na yung code (at pasok pa sa
+ * 10 minutes nito): chine-check yung bagong password, sine-save yung salted hash, tapos
+ * kini-clear yung reset. Binabalik yung field errors { newPassword, confirmPassword }.
+ * Time: O(n) para sa password hash, Space: O(1)
  */
 function completePasswordReset(newPassword, confirmPassword) {
   const member = passwordResetState.staffId ? findStaffById(passwordResetState.staffId) : null;
@@ -164,7 +165,7 @@ function completePasswordReset(newPassword, confirmPassword) {
   }
   setStaffPassword(member, newPassword);
   member.mustChangePassword = false;
-  hashPut(authState.failedByEmail, member.email, 0);        // earlier wrong sign-ins for this e-mail no longer count
+  hashPut(authState.failedByEmail, member.email, 0);        // hindi na bilang yung mga dating maling sign-in ng e-mail na ito
   logActivity('auth', member.fullName + ' reset their password with an e-mailed code', RESET_ACTOR);
   markDataChanged();
   const email = member.email;

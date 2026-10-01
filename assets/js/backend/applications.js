@@ -1,18 +1,20 @@
 /* ==========================================================================
-   E3 Fiber Connect · backend/applications.js
-   Applications: submit, validate, find, list, and move through the flow
+   E3 Fiber Connect - backend/applications.js
+   Dito yung applications: pag-submit, pag-validate, paghanap, listahan, at yung
+   paglipat ng status sa bawat step
 
-     Pending ──approve──▶ Approved ──schedule──▶ For Installation ──install──▶ Completed
-        └──reject──▶ Rejected                                  (creates a subscriber)
+     Pending --approve--> Approved --schedule--> For Installation --install--> Completed
+        +--reject--> Rejected                                  (dito na gagawa ng subscriber)
 
-   `applications` stays sorted by reference number (new numbers are always
-   larger, so appending keeps the order) → binary search finds any application.
+   Laging naka-sort yung `applications` by reference number (laging mas malaki
+   yung bagong number, kaya pag nag-append ayos pa rin yung order) -> kaya pwede
+   yung binary search para mahanap kahit anong application.
 
-   Defense modules:
-     Application, Application tracking          — Joshua Santos
+   Mga module sa defense:
+     Application, Application tracking           - si Joshua Santos
        (validateApplication, submitApplication, trackApplication, applicationProgress)
-     Application List, Walk-in (New Application) — Justin Banaag
-       (listApplications, buildReviewQueue, submitApplication with source "walk-in")
+     Application List, Walk-in (New Application) - si Justin Banaag
+       (listApplications, buildReviewQueue, submitApplication na may source "walk-in")
    ========================================================================== */
 
 'use strict';
@@ -25,8 +27,8 @@ const ID_PHOTO_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
 const MAX_ID_PHOTO_BYTES = 10 * 1024 * 1024;
 
 /**
- * findApplication — the application with this reference number, or null.
- * Binary search. Time O(log n) · Space O(1)
+ * findApplication - hanapin yung application gamit yung reference number, null kung wala.
+ * Binary search. Time: O(log n), Space: O(1)
  */
 function findApplication(referenceNo) {
   const index = binarySearch(applications, 'referenceNo', referenceNo);
@@ -34,17 +36,18 @@ function findApplication(referenceNo) {
 }
 
 /**
- * trackApplication — public tracker: tidy the typed reference, check its shape,
- * then binary search. Returns the application (or null) with the search cost.
- * Time O(log n)
+ * trackApplication - para sa public tracker: aayusin muna yung tinype na reference,
+ * chine-check yung format, tapos binary search. Binabalik yung application (o null)
+ * kasama kung ilang comparisons yung nagamit.
+ * Time: O(log n)
  */
 function trackApplication(input) {
-  const referenceNo = normalizeReference(input);            // 1. tidy it: capitals, no spaces
-  if (!isValidReference(referenceNo)) {                     // 2. it must look like E3-2026-004879
+  const referenceNo = normalizeReference(input);            // 1. ayusin muna: naka-capital, walang space
+  if (!isValidReference(referenceNo)) {                     // 2. dapat ganito itsura: E3-2026-004879
     return { ok: false, referenceNo: referenceNo, error: 'Use the format E3-2026-004879.' };
   }
-  const application = findApplication(referenceNo);         // 3. binary search on the sorted table
-  return {                                                  // 4. the result + how many comparisons it took
+  const application = findApplication(referenceNo);         // 3. binary search sa naka-sort na table
+  return {                                                  // 4. yung result + ilang comparisons yung nagamit
     ok: application !== null,
     referenceNo: referenceNo,
     application: application,
@@ -54,7 +57,7 @@ function trackApplication(input) {
   };
 }
 
-/** textEndsWithIgnoreCase — "ID.JPG" ends with ".jpg". O(n) */
+/** textEndsWithIgnoreCase - check kung dun nagtatapos, halimbawa "ID.JPG" nagtatapos sa ".jpg". O(n) */
 function textEndsWithIgnoreCase(value, ending) {
   const text = toLowerText(value);
   const tail = toLowerText(ending);
@@ -64,7 +67,7 @@ function textEndsWithIgnoreCase(value, ending) {
   return textSlice(text, text.length - tail.length) === tail;
 }
 
-/** isAllowedIdPhoto — JPG, PNG or PDF, judged by the file name and (if known) its type. O(n) */
+/** isAllowedIdPhoto - JPG, PNG o PDF lang, base sa file name at sa type nito (kung alam). O(n) */
 function isAllowedIdPhoto(fileName, fileType) {
   let extensionOk = false;
   for (let i = 0; i < ID_PHOTO_EXTENSIONS.length; i++) {
@@ -77,9 +80,9 @@ function isAllowedIdPhoto(fileName, fileType) {
 }
 
 /**
- * findOpenApplicationFor — an application still in progress with the same
- * e-mail or mobile number (stops duplicate applications). Linear search.
- * Time O(n) · Space O(1)
+ * findOpenApplicationFor - hanapin kung may application pa na in progress na pareho
+ * yung e-mail o mobile number (para walang duplicate na application). Linear search.
+ * Time: O(n), Space: O(1)
  */
 function findOpenApplicationFor(email, mobile) {
   const wantedEmail = toLowerText(trimText(email));
@@ -97,10 +100,10 @@ function findOpenApplicationFor(email, mobile) {
 }
 
 /**
- * validateApplication — field-by-field checks. Returns a record like
- * { email: 'Enter an e-mail…' } — empty when everything is fine.
- * source: "online" (public form) or "walk-in" (staff form).
- * Time O(n) for the barangay / ID look-ups · Space O(1)
+ * validateApplication - isa-isang check ng bawat field. Ang binabalik ay record na
+ * ganito { email: 'Enter an e-mail...' } - empty lang pag okay lahat.
+ * source: "online" (yung public form) o "walk-in" (yung form ng staff).
+ * Time: O(n) dahil sa barangay / ID lookup, Space: O(1)
  */
 function validateApplication(data, source) {
   const errors = {};
@@ -176,7 +179,7 @@ function validateApplication(data, source) {
     if (!data.idChecked) {
       errors.idChecked = 'Confirm that you checked the original ID.';
     }
-    if (!data.consent) {                  // Data Privacy Act: walk-in customers consent too
+    if (!data.consent) {                  // Data Privacy Act: kailangan din ng consent ng mga walk-in
       errors.consent = 'Confirm the customer agreed to the Privacy Notice.';
     }
   }
@@ -184,22 +187,22 @@ function validateApplication(data, source) {
 }
 
 /**
- * submitApplication — validate, then add a new application with the next
- * reference number. Online applications come from customers; walk-ins are
- * typed by staff (and can be undone).
- * Time O(n) (duplicate check) + O(1) append · Space O(1)
+ * submitApplication - i-validate muna, tapos mag-add ng bagong application gamit yung
+ * susunod na reference number. Yung online galing sa customer; yung walk-in naman
+ * tinatype ng staff (at pwedeng i-undo).
+ * Time: O(n) (duplicate check) + O(1) append, Space: O(1)
  */
 function submitApplication(data, source, actor) {
-  const errors = validateApplication(data, source);                        // 1. check every field
+  const errors = validateApplication(data, source);                        // 1. i-check lahat ng field
   if (hasAnyErrors(errors)) {
     return { ok: false, errors: errors };
   }
-  const duplicate = findOpenApplicationFor(data.email, data.contactNumber); // 2. one open application per person
+  const duplicate = findOpenApplicationFor(data.email, data.contactNumber); // 2. isang open application lang bawat tao
   if (duplicate) {
     return { ok: false, errors: { email: 'An application for this e-mail or mobile number is already in progress (' + duplicate.referenceNo + ').' } };
   }
 
-  counters.reference = counters.reference + 1;                             // 3. the next reference number
+  counters.reference = counters.reference + 1;                             // 3. kunin yung susunod na reference number
   const now = nowISO();
   const referenceNo = formatReferenceNo(readClock().year, counters.reference);
   const barangay = findBarangay(data.barangay);
@@ -221,7 +224,7 @@ function submitApplication(data, source, actor) {
     idPhotoName: textOf(data.idPhotoName),
     status: 'Pending',
     submittedAt: now,
-    consentAt: now,                       // proof of consent (Data Privacy Act, RA 10173)
+    consentAt: now,                       // proof na pumayag sila (Data Privacy Act, RA 10173)
     source: source,
     notes: '',
     installDate: null,
@@ -229,9 +232,9 @@ function submitApplication(data, source, actor) {
     rejectReason: '',
     history: [{ status: 'Pending', at: now, by: byName, note: source === 'online' ? 'Application received online' : 'Walk-in application at the office' }],
   };
-  arrayAppend(applications, application); // 4. the new number is the largest → the table stays sorted
+  arrayAppend(applications, application); // 4. pinakamalaki yung bagong number -> naka-sort pa rin yung table
 
-  if (source === 'online') {              // 5. log it (walk-ins typed by staff can also be undone)
+  if (source === 'online') {              // 5. i-log (yung walk-in na tinype ng staff, pwede ring i-undo)
     logActivity('application', 'New online application ' + referenceNo + ' from ' + application.fullName, 'Customer');
   } else {
     logActivity('application', 'Walk-in application ' + referenceNo + ' for ' + application.fullName, nameOfActor(actor));
@@ -241,7 +244,7 @@ function submitApplication(data, source, actor) {
   return { ok: true, application: application };
 }
 
-/** applicationRow — the fields a list needs, including the plan price for sorting. O(1) */
+/** applicationRow - yung mga field na kailangan ng list, kasama yung presyo ng plan para sa sorting. O(1) */
 function applicationRow(app) {
   return {
     referenceNo: app.referenceNo,
@@ -260,30 +263,30 @@ function applicationRow(app) {
 }
 
 /**
- * listApplications — filter by status (linear search), search the text
- * (naive string matching), then sort with the chosen algorithm.
+ * listApplications - i-filter by status (linear search), hanapin yung text
+ * (naive string matching), tapos i-sort gamit yung napiling algorithm.
  * options: { status, query, sortField, sortOrder, algorithm }
- * Time O(n²) search + O(n²) sort · Space O(n)
+ * Time: O(n²) search + O(n²) sort, Space: O(n)
  */
 function listApplications(options) {
   const status = options.status || 'all';
-  const base = status === 'all' ? applications : linearSearchAll(applications, 'status', status);  // 1. filter by status
-  const found = textSearchRecords(base, ['fullName', 'email', 'referenceNo', 'barangay', 'contactNumber'], options.query || ''); // 2. search box
+  const base = status === 'all' ? applications : linearSearchAll(applications, 'status', status);  // 1. i-filter by status
+  const found = textSearchRecords(base, ['fullName', 'email', 'referenceNo', 'barangay', 'contactNumber'], options.query || ''); // 2. galing sa search box
   const rows = [];
-  for (let i = 0; i < found.length; i++) {                  // 3. add the plan name and price to each row
+  for (let i = 0; i < found.length; i++) {                  // 3. lagyan ng plan name at presyo bawat row
     arrayAppend(rows, applicationRow(found[i]));
   }
   const started = stopwatchStart();
-  const sorted = sortRecords(rows, options.sortField || 'submittedAt', options.sortOrder || 'desc', options.algorithm || 'insertion'); // 4. sort
+  const sorted = sortRecords(rows, options.sortField || 'submittedAt', options.sortOrder || 'desc', options.algorithm || 'insertion'); // 4. i-sort
   const ms = stopwatchMs(started);
   const stats = { algorithm: dsaLastRun.algorithm, comparisons: dsaLastRun.comparisons, moves: dsaLastRun.moves, ms: ms, n: rows.length };
-  logOperation(stats.algorithm, 'Applications list', rows.length, stats.comparisons, stats.moves, ms); // 5. show the cost
+  logOperation(stats.algorithm, 'Applications list', rows.length, stats.comparisons, stats.moves, ms); // 5. ipakita yung cost
   return { rows: sorted, total: applications.length, stats: stats };
 }
 
 /**
- * countApplicationsByStatus — one pass over the table.
- * Time O(n) · Space O(1)
+ * countApplicationsByStatus - isang daan lang sa buong table.
+ * Time: O(n), Space: O(1)
  */
 function countApplicationsByStatus() {
   const counts = { all: applications.length, Pending: 0, Approved: 0, 'For Installation': 0, Completed: 0, Rejected: 0 };
@@ -294,9 +297,9 @@ function countApplicationsByStatus() {
 }
 
 /**
- * buildReviewQueue — a QUEUE of pending applications, oldest first.
- * The table is already in submission order, so one pass enqueues them FIFO.
- * Time O(n) · Space O(n) for the pending applications
+ * buildReviewQueue - QUEUE ng mga pending na application, yung pinakaluma una.
+ * Naka-order na by submission yung table, kaya isang loop lang tapos enqueue na (FIFO).
+ * Time: O(n), Space: O(n) para sa mga pending
  */
 function buildReviewQueue() {
   const queue = createQueue(8);
@@ -309,9 +312,9 @@ function buildReviewQueue() {
 }
 
 /**
- * buildInstallQueue — a QUEUE of scheduled installations, earliest date first
- * (insertion sort by installDate, then enqueue in that order).
- * Time O(n²) · Space O(n)
+ * buildInstallQueue - QUEUE ng mga naka-schedule na installation, pinakamaagang date una
+ * (insertion sort by installDate, tapos enqueue sa ganung order).
+ * Time: O(n²), Space: O(n)
  */
 function buildInstallQueue() {
   const scheduled = insertionSort(linearSearchAll(applications, 'status', 'For Installation'), 'installDate', 'asc');
@@ -322,12 +325,12 @@ function buildInstallQueue() {
   return queue;
 }
 
-/** addHistoryStep — append one step to an application's timeline. O(1) */
+/** addHistoryStep - mag-append ng isang step sa timeline ng application. O(1) */
 function addHistoryStep(app, status, actor, note) {
   arrayAppend(app.history, { status: status, at: nowISO(), by: nameOfActor(actor), note: note });
 }
 
-/** approveApplication — Pending → Approved. Time O(log n) */
+/** approveApplication - Pending -> Approved. Time: O(log n) */
 function approveApplication(referenceNo, actor) {
   const app = findApplication(referenceNo);
   if (!app) {
@@ -345,7 +348,7 @@ function approveApplication(referenceNo, actor) {
   return { ok: true, application: app };
 }
 
-/** rejectApplication — Pending → Rejected, with a reason. Time O(log n) */
+/** rejectApplication - Pending -> Rejected, may kasamang reason. Time: O(log n) */
 function rejectApplication(referenceNo, reason, note, actor) {
   const app = findApplication(referenceNo);
   if (!app) {
@@ -372,9 +375,9 @@ function rejectApplication(referenceNo, reason, note, actor) {
 }
 
 /**
- * scheduleInstallation — Approved → For Installation (or change the date of a
- * scheduled one). The date must be from today to 60 days ahead.
- * Time O(log n)
+ * scheduleInstallation - Approved -> For Installation (o kaya palitan yung date ng
+ * naka-schedule na). Dapat yung date ay mula ngayon hanggang 60 days.
+ * Time: O(log n)
  */
 function scheduleInstallation(referenceNo, dateISO, slot, actor) {
   const app = findApplication(referenceNo);
@@ -407,10 +410,10 @@ function scheduleInstallation(referenceNo, dateISO, slot, actor) {
 }
 
 /**
- * completeInstallation — For Installation → Completed, and open the customer's
- * subscriber account (account number = reference number). Undo removes both.
- * extras: { modemSerial } from the "Create account" form (optional).
- * Time O(n) (sorted insert of the subscriber)
+ * completeInstallation - For Installation -> Completed, tapos gagawa na ng subscriber
+ * account ng customer (account number = reference number). Pag in-undo, tanggal pareho.
+ * extras: { modemSerial } galing sa "Create account" form (optional).
+ * Time: O(n) (sorted insert ng subscriber)
  */
 function completeInstallation(referenceNo, actor, extras) {
   const app = findApplication(referenceNo);
@@ -440,7 +443,7 @@ function completeInstallation(referenceNo, actor, extras) {
   return { ok: true, application: app, subscriber: created.subscriber, position: created.position };
 }
 
-/** updateApplicationNotes — save staff notes (not part of Undo). Time O(log n) */
+/** updateApplicationNotes - i-save yung notes ng staff (hindi kasama sa Undo). Time: O(log n) */
 function updateApplicationNotes(referenceNo, notes, actor) {
   const app = findApplication(referenceNo);
   if (!app) {
@@ -456,7 +459,7 @@ function updateApplicationNotes(referenceNo, notes, actor) {
   return { ok: true, application: app };
 }
 
-/** historyStepFor — the latest timeline step with a given status, or null. O(n) */
+/** historyStepFor - yung pinakabagong step sa timeline na may ganitong status, o null. O(n) */
 function historyStepFor(app, status) {
   for (let i = app.history.length - 1; i >= 0; i--) {
     if (app.history[i].status === status) {
@@ -467,10 +470,10 @@ function historyStepFor(app, status) {
 }
 
 /**
- * applicationProgress — the steps shown on the tracker and the review page.
- * Steps up to the current status are "done", the next one is "current",
- * the rest "upcoming". A rejected application shows a short two-step path.
- * Time O(n) for n timeline entries · Space O(1)
+ * applicationProgress - yung mga step na lumalabas sa tracker at sa review page.
+ * Yung mga step hanggang current status ay "done", yung kasunod ay "current",
+ * tapos "upcoming" na yung iba. Pag rejected, maikling two-step path lang ang lalabas.
+ * Time: O(n) para sa n na timeline entries, Space: O(1)
  */
 function applicationProgress(app) {
   if (app.status === 'Rejected') {
@@ -508,7 +511,7 @@ function applicationProgress(app) {
   return steps;
 }
 
-/** waitingDays — whole days since the application was sent. O(1) */
+/** waitingDays - ilang buong araw na mula nung pinasa yung application. O(1) */
 function waitingDays(app) {
   return daysBetweenISO(datePart(app.submittedAt), todayISO());
 }

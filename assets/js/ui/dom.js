@@ -1,18 +1,18 @@
 /* ==========================================================================
-   E3 Fiber Connect · ui/dom.js
-   Small helpers for reading from and writing to the page.
-   The browser's DOM API is only used for input and output here — every
-   data operation lives in dsa/ and backend/.
+   E3 Fiber Connect - ui/dom.js
+   Maliliit na helper para magbasa at magsulat sa page.
+   Dito lang ginagamit yung DOM API ng browser, pang-input at output lang -
+   lahat ng data operation nasa dsa/ at backend/.
    ========================================================================== */
 
 'use strict';
 
-/** byId — the element with this id, or null. */
+/** byId - kinukuha yung element na may ganitong id, o null kung wala. */
 function byId(id) {
   return document.getElementById(id);
 }
 
-/** qs / qsa — the first / every element matching a CSS selector inside `root`. */
+/** qs / qsa - yung una / lahat ng element na tugma sa CSS selector sa loob ng `root`. */
 function qs(selector, root) {
   return (root || document).querySelector(selector);
 }
@@ -21,7 +21,7 @@ function qsa(selector, root) {
   return (root || document).querySelectorAll(selector);
 }
 
-/** setText — put plain text into an element (never interpreted as HTML). */
+/** setText - naglalagay ng plain text sa element (hindi ito babasahin as HTML). */
 function setText(id, value) {
   const element = byId(id);
   if (element) {
@@ -29,7 +29,7 @@ function setText(id, value) {
   }
 }
 
-/** setHTML — put markup into an element. Callers escape user text with escapeHTML first. */
+/** setHTML - naglalagay ng markup sa element. Dapat naka-escapeHTML na yung text ng user bago ipasa dito. */
 function setHTML(id, html) {
   const element = byId(id);
   if (element) {
@@ -37,7 +37,7 @@ function setHTML(id, html) {
   }
 }
 
-/** showElement / hideElement / toggleElement — use the `hidden` attribute. */
+/** showElement / hideElement / toggleElement - gamit lang yung `hidden` attribute. */
 function showElement(element) {
   if (element) {
     element.hidden = false;
@@ -57,9 +57,10 @@ function toggleElement(element, visible) {
 }
 
 /**
- * findAncestorWith — walk up from `node` to the first element that has the
- * attribute, stopping at `stopAt`. (A hand-written version of closest().)
- * Time O(n)
+ * findAncestorWith - aakyat mula sa `node` hanggang makita yung unang element na
+ * may ganung attribute, titigil pag umabot sa `stopAt`. (Sariling gawa naming
+ * version ng closest().)
+ * Time: O(n)
  */
 function findAncestorWith(node, attributeName, stopAt) {
   let current = node;
@@ -72,7 +73,7 @@ function findAncestorWith(node, attributeName, stopAt) {
   return null;
 }
 
-/** findAncestorWithClass — like findAncestorWith, for a class name. Time O(n) */
+/** findAncestorWithClass - parang findAncestorWith, pero class name yung hinahanap. Time: O(n) */
 function findAncestorWithClass(node, className, stopAt) {
   let current = node;
   while (current && current !== stopAt && current !== document) {
@@ -85,8 +86,8 @@ function findAncestorWithClass(node, className, stopAt) {
 }
 
 /**
- * onAction — one click listener on a container handles every [data-action]
- * button inside it, even ones rendered later (event delegation).
+ * onAction - isang click listener lang sa container para sa lahat ng [data-action]
+ * button sa loob, kahit yung mga na-render pa lang mamaya (event delegation tawag dito).
  * handler(actionName, element, event)
  */
 function onAction(container, handler) {
@@ -101,7 +102,7 @@ function onAction(container, handler) {
   });
 }
 
-/** onClick — shortcut for a click listener on an element id. */
+/** onClick - shortcut para maglagay ng click listener sa element gamit yung id. */
 function onClick(id, handler) {
   const element = byId(id);
   if (element) {
@@ -109,24 +110,24 @@ function onClick(id, handler) {
   }
 }
 
-/** prefersReducedMotion — the visitor asked the system for less motion. */
+/** prefersReducedMotion - true kung naka-set sa system ng user na bawasan yung animation. */
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-/** isSmallScreen — phone-sized window (sheets become bottom sheets). */
+/** isSmallScreen - pang-phone na laki ng window (dito nagiging bottom sheet yung mga sheet). */
 function isSmallScreen() {
   return window.matchMedia('(max-width: 575.98px)').matches;
 }
 
-/** iconHTML — an inline SVG icon from the sprite in index.html. */
+/** iconHTML - inline SVG icon galing sa sprite na nasa index.html. */
 function iconHTML(name, extraClass) {
   return '<svg class="icon' + (extraClass ? ' ' + extraClass : '') + '" aria-hidden="true" focusable="false"><use href="#i-' + name + '"></use></svg>';
 }
 
 /**
- * copyToClipboard — copy text, then call done(true/false).
- * Uses the Clipboard API, with a fallback for older browsers / file:// pages.
+ * copyToClipboard - kokopyahin yung text, tapos tatawagin yung done(true/false).
+ * Clipboard API yung gamit, pero may fallback para sa lumang browser o file:// na page.
  */
 function copyToClipboard(text, done) {
   function fallback() {
@@ -153,7 +154,7 @@ function copyToClipboard(text, done) {
   }
 }
 
-/** focusElement — move keyboard focus without scrolling the page. */
+/** focusElement - ilipat yung keyboard focus nang hindi gumagalaw yung scroll ng page. */
 function focusElement(element) {
   if (element && element.focus) {
     element.focus({ preventScroll: true });

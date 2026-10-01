@@ -1,16 +1,17 @@
 /* ==========================================================================
-   E3 Fiber Connect · backend/history.js
-   The activity log and the Undo stack.
+   E3 Fiber Connect - backend/history.js
+   Dito yung activity log at yung Undo stack.
 
-   Activity log — an append-only array (oldest → newest). Pages read it from
-   the end to show the newest first.
+   Activity log - array na append lang (oldest -> newest). Binabasa ng mga page
+   mula sa dulo para mauna yung pinakabago.
 
-   Undo — a STACK (dsa/stack.js). Every admin action pushes one entry that
-   remembers how to reverse it; "Undo" pops the newest entry and reverses it
-   (last in, first out). An entry holds a list of operations:
-     { op: 'update', table, key, before: { field: oldValue, … } }  → restore fields
-     { op: 'insert', table, key }                                  → remove the record
-   Only the latest UNDO_LIMIT actions are kept (the bottom is dropped).
+   Undo - isang STACK (dsa/stack.js). Bawat action ng admin, nagpu-push ng isang
+   entry na alam kung paano ibabalik yung ginawa. Pag pinindot yung "Undo", pino-pop
+   yung pinakabagong entry tapos ire-reverse (last in, first out). Bawat entry may
+   listahan ng operations:
+     { op: 'update', table, key, before: { field: oldValue, ... } }  -> ibalik yung fields
+     { op: 'insert', table, key }                                    -> tanggalin yung record
+   UNDO_LIMIT lang na pinakabagong actions yung tinatago (tinatapon yung nasa bottom).
    ========================================================================== */
 
 'use strict';
@@ -18,19 +19,20 @@
 const UNDO_LIMIT = 25;
 const undoStack = createStack();
 
-/** nameOfActor — the display name for whoever did something. O(1) */
+/** nameOfActor - yung pangalan na ipapakita para sa gumawa ng action. O(1) */
 function nameOfActor(actor) {
   return actor ? actor.fullName : 'System';
 }
 
-/** logActivity — add one line to the activity log. Time O(1) · Space O(1) */
+/** logActivity - magdagdag ng isang line sa activity log. Time: O(1), Space: O(1) */
 function logActivity(kind, message, actorName) {
   arrayAppend(activityLog, { at: nowISO(), kind: kind, message: message, actor: actorName || 'System' });
 }
 
 /**
- * recentActivity — the newest `limit` log lines, newest first (reads from the end).
- * Time O(n) · Space O(n)
+ * recentActivity - kunin yung `limit` na pinakabagong log lines, newest first
+ * (sa dulo nagsisimula magbasa).
+ * Time: O(n), Space: O(n)
  */
 function recentActivity(limit) {
   const list = [];
@@ -41,9 +43,9 @@ function recentActivity(limit) {
 }
 
 /**
- * snapshotFields — copy the listed fields of a record before changing them
- * (arrays are copied too, so later changes cannot alter the snapshot).
- * Time O(n) · Space the same
+ * snapshotFields - kopyahin muna yung mga nakalistang field ng record bago galawin
+ * (kinokopya rin yung arrays, para hindi maapektuhan yung snapshot ng mga susunod na pagbabago).
+ * Time: O(n), Space: ganun din
  */
 function snapshotFields(record, fieldNames) {
   const snapshot = {};
@@ -54,7 +56,7 @@ function snapshotFields(record, fieldNames) {
   return snapshot;
 }
 
-/** updateOperation / insertOperation — the two kinds of reversible change. O(1) */
+/** updateOperation / insertOperation - yung dalawang klase ng change na pwedeng i-undo. O(1) */
 function updateOperation(tableName, key, before) {
   return { op: 'update', table: tableName, key: key, before: before };
 }
@@ -64,9 +66,9 @@ function insertOperation(tableName, key) {
 }
 
 /**
- * pushUndo — remember an action so it can be reversed. When the stack already
- * holds UNDO_LIMIT entries, the oldest (bottom) one is dropped first.
- * Time O(1), O(n) only when the bottom is dropped · Space O(1)
+ * pushUndo - i-save yung action para ma-reverse later. Kung puno na yung stack
+ * (UNDO_LIMIT entries na), tatanggalin muna yung pinakaluma sa bottom.
+ * Time: O(1), O(n) lang pag may tinanggal sa bottom, Space: O(1)
  */
 function pushUndo(label, operations, actorName) {
   if (stackSize(undoStack) >= UNDO_LIMIT) {
@@ -75,30 +77,30 @@ function pushUndo(label, operations, actorName) {
   stackPush(undoStack, { label: label, operations: operations, at: nowISO(), actor: actorName || 'System' });
 }
 
-/** peekUndo — the action Undo would reverse next, without removing it. O(1) */
+/** peekUndo - silipin kung anong action yung susunod na ma-undo, hindi tinatanggal. O(1) */
 function peekUndo() {
   return stackPeek(undoStack);
 }
 
-/** undoCount — how many actions can be undone. O(1) */
+/** undoCount - ilan pa yung actions na pwedeng i-undo. O(1) */
 function undoCount() {
   return stackSize(undoStack);
 }
 
-/** undoEntries — the whole stack, newest first, for the Activity page. O(n) */
+/** undoEntries - buong stack, newest first, para sa Activity page. O(n) */
 function undoEntries() {
   return stackToArray(undoStack);
 }
 
-/** clearUndoHistory — forget every undo step (used when the data is re-seeded). O(1) */
+/** clearUndoHistory - burahin lahat ng undo steps (ginagamit pag nire-seed ulit yung data). O(1) */
 function clearUndoHistory() {
   stackClear(undoStack);
 }
 
 /**
- * revertOperation — reverse one stored operation. The record is found with
- * binary search, because every table is sorted by its key.
- * Time O(log n) for updates, O(n) for removing an inserted record
+ * revertOperation - i-reverse yung isang naka-save na operation. Binary search
+ * ang gamit para mahanap yung record, kasi naka-sort lahat ng table by key.
+ * Time: O(log n) sa updates, O(n) pag tatanggalin yung na-insert na record
  */
 function revertOperation(operation) {
   const table = findTable(operation.table);
@@ -124,11 +126,12 @@ function revertOperation(operation) {
 }
 
 /**
- * undoBlockedReason — why an entry can't be reversed safely, or ''. Customers'
- * own actions (payment reports, access requests) are not on the Undo stack, so
- * undoing an older staff action must not leave them without their bill, or
- * create a second waiting report / request for the same bill or e-mail.
- * Time O(n²) — O(n) per operation (removing a record shifts the rest) · Space O(1)
+ * undoBlockedReason - kung bakit hindi safe i-undo yung entry, or '' kung okay.
+ * Wala sa Undo stack yung mga ginawa mismo ng customer (payment reports, access
+ * requests), kaya pag nag-undo ng lumang staff action, hindi dapat mawalan sila
+ * ng bill, at hindi rin dapat magkaroon ng pangalawang naghihintay na report /
+ * request para sa parehong bill o e-mail.
+ * Time: O(n²) - O(n) bawat operation (pag nag-remove ng record, usog yung iba), Space: O(1)
  */
 function undoBlockedReason(entry) {
   for (let i = 0; i < entry.operations.length; i++) {
@@ -155,9 +158,9 @@ function undoBlockedReason(entry) {
 }
 
 /**
- * undoTouchesAccounts — would reversing this entry add, remove or change a
- * staff or subscriber account? Those need a Google Authenticator code, like
- * the change itself. Time O(n) for n operations
+ * undoTouchesAccounts - may madadagdag, matatanggal o mababago bang staff o
+ * subscriber account pag ni-reverse ito? Kung oo, kailangan ng Google Authenticator
+ * code, same lang nung ginawa yung change. Time: O(n) para sa n operations
  */
 function undoTouchesAccounts(entry) {
   for (let i = 0; i < entry.operations.length; i++) {
@@ -169,29 +172,29 @@ function undoTouchesAccounts(entry) {
 }
 
 /**
- * undoLastAction — pop the newest entry and reverse its operations, last one
- * first (an action that changed two tables is unwound in reverse order).
- * Returns the entry, null when there is nothing to undo, a step-up error when
- * it changes an account and no code was verified, or
- * { blocked: true, label, error } when it can't be undone (it stays on the stack).
- * Time O(n²) — O(n) per operation (removing a record shifts the rest) · Space O(1)
+ * undoLastAction - i-pop yung pinakabagong entry tapos i-reverse yung operations
+ * nito, simula sa huli (kung dalawang table yung nagalaw, pabaliktad yung pag-undo).
+ * Binabalik: yung entry; null kung wala nang ma-undo; step-up error kung account
+ * yung nabago at wala pang na-verify na code; o kaya
+ * { blocked: true, label, error } kung hindi pwedeng i-undo (maiiwan lang sa stack).
+ * Time: O(n²) - O(n) bawat operation (pag nag-remove ng record, usog yung iba), Space: O(1)
  */
 function undoLastAction(actorName) {
-  const top = stackPeek(undoStack);                   // 1. look at the newest entry first
+  const top = stackPeek(undoStack);                   // 1. silipin muna yung pinakabagong entry
   if (!top) {
     return null;
   }
-  const blocked = undoBlockedReason(top);             // 2. would reversing it break a customer's report or request?
+  const blocked = undoBlockedReason(top);             // 2. masisira ba yung report o request ng customer pag ni-reverse?
   if (blocked !== '') {
     return { blocked: true, label: top.label, error: 'Can’t undo “' + top.label + '”: ' + blocked };
   }
-  if (undoTouchesAccounts(top)) {                     // 3. account changes need a code, also when undone
+  if (undoTouchesAccounts(top)) {                     // 3. pag account yung nabago, kailangan ng code kahit undo lang
     const stepUp = stepUpRequired();
     if (stepUp) {
       return stepUp;
     }
   }
-  const entry = stackPop(undoStack);                  // 4. pop it and reverse its operations, newest first
+  const entry = stackPop(undoStack);                  // 4. i-pop na tapos i-reverse yung operations, newest first
   for (let i = entry.operations.length - 1; i >= 0; i--) {
     revertOperation(entry.operations[i]);
   }

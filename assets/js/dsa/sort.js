@@ -1,15 +1,15 @@
 /* ==========================================================================
-   E3 Fiber Connect · dsa/sort.js
-   Bubble sort, selection sort and insertion sort, written by hand.
+   E3 Fiber Connect - dsa/sort.js
+   Bubble sort, selection sort at insertion sort, mano-mano namin sinulat.
 
-   Project rule: no Array.prototype.sort / toSorted / reverse.
-   Every sort works on a COPY (arrayCopy), so the "database" tables keep the
-   order the searches depend on (e.g. applications stay sorted by reference
-   number for binary search). The copy costs O(n) space; the sorting itself
-   only needs O(1) extra space.
+   Rule ng project: bawal ang Array.prototype.sort / toSorted / reverse.
+   Bawat sort ay gumagana sa COPY (arrayCopy), para hindi magalaw yung order ng
+   "database" tables na kailangan ng mga search (e.g. yung applications naka-sort
+   by reference number para sa binary search). O(n) space yung copy; yung sorting
+   mismo O(1) extra space lang ang kailangan.
 
-   Each admin list lets the user pick the algorithm, and the page shows how
-   many comparisons and moves it needed (recordRun → dsaLastRun).
+   Sa bawat admin list pwedeng pumili yung user ng algorithm, tapos pinapakita ng
+   page kung ilang comparisons at moves yung kinailangan (recordRun -> dsaLastRun).
    ========================================================================== */
 
 'use strict';
@@ -21,8 +21,8 @@ const SORT_ALGORITHMS = [
 ];
 
 /**
- * sortAlgorithmInfo — the SORT_ALGORITHMS record for an id (linear search, 3 items).
- * Time O(1) here (fixed list of 3) · Space O(1)
+ * sortAlgorithmInfo - yung SORT_ALGORITHMS record ng isang id (linear search, 3 items lang).
+ * Time: O(1) dito (fixed list na 3 lang), Space: O(1)
  */
 function sortAlgorithmInfo(algorithmId) {
   for (let i = 0; i < SORT_ALGORITHMS.length; i++) {
@@ -33,16 +33,16 @@ function sortAlgorithmInfo(algorithmId) {
   return SORT_ALGORITHMS[0];
 }
 
-/** isEmptyValue — null, undefined and "" have no value to compare. O(1) */
+/** isEmptyValue - walang maikukumpara sa null, undefined at "". O(1) */
 function isEmptyValue(value) {
   return value === null || value === undefined || value === '';
 }
 
 /**
- * compareValues — negative when a comes first, positive when b comes first,
- * 0 when equal. Text is compared without regard to capital letters; numbers
- * and ISO dates ("2026-09-23") compare naturally.
- * Time O(n) for text of length n, O(1) for numbers · Space O(n)
+ * compareValues - negative kung mauuna si a, positive kung mauuna si b,
+ * 0 kung pareho. Yung text kinukumpara nang hindi pinapansin yung capital letters;
+ * yung numbers at ISO dates ("2026-09-23") normal lang yung pag-compare.
+ * Time: O(n) para sa text na n ang haba, O(1) para sa numbers, Space: O(n)
  */
 function compareValues(a, b) {
   let left = a;
@@ -61,8 +61,8 @@ function compareValues(a, b) {
 }
 
 /**
- * compareForOrder — compareValues in the chosen direction (1 = ascending,
- * -1 = descending). Empty values always go last.
+ * compareForOrder - compareValues pero sa napiling direction (1 = ascending,
+ * -1 = descending). Laging nasa huli yung mga empty value.
  */
 function compareForOrder(a, b, direction) {
   const aEmpty = isEmptyValue(a);
@@ -77,55 +77,55 @@ function compareForOrder(a, b, direction) {
 }
 
 /**
- * bubbleSort — repeatedly walks the list swapping neighbours that are out of
- * order; after each pass the largest remaining item has "bubbled" to the end.
- * Stops early when a pass makes no swap (the list is already sorted).
- * Time: best O(n) (already sorted), average and worst O(n²)
- * Space: O(1) extra (plus the O(n) copy) · Stable: yes
+ * bubbleSort - paulit-ulit na dinadaanan yung list at pinagpapalit yung magkatabing
+ * mali ang order; pagkatapos ng bawat pass, yung pinakamalaking natira ay "nag-bubble" na sa dulo.
+ * Titigil agad kapag walang swap sa isang pass (ibig sabihin sorted na).
+ * Time: best O(n) (sorted na), average at worst O(n²)
+ * Space: O(1) extra (plus yung O(n) na copy), Stable: oo
  */
 function bubbleSort(records, field, order) {
-  const list = arrayCopy(records);                  // sort a copy, so the table keeps its own order
-  const direction = order === 'desc' ? -1 : 1;      // 1 = A→Z / small→big, -1 = the reverse
+  const list = arrayCopy(records);                  // copy yung sinosort, para same order pa rin yung table
+  const direction = order === 'desc' ? -1 : 1;      // 1 = A->Z / maliit->malaki, -1 = baliktad
   let comparisons = 0;
   let swaps = 0;
-  for (let pass = 0; pass < list.length - 1; pass++) {      // 1. make up to n − 1 passes
+  for (let pass = 0; pass < list.length - 1; pass++) {      // 1. hanggang n - 1 na passes
     let swapped = false;
-    for (let i = 0; i < list.length - 1 - pass; i++) {      // 2. walk the part not sorted yet
+    for (let i = 0; i < list.length - 1 - pass; i++) {      // 2. daanan yung part na hindi pa sorted
       comparisons++;
-      if (compareForOrder(list[i][field], list[i + 1][field], direction) > 0) { // 3. neighbours in the wrong order?
-        arraySwap(list, i, i + 1);                           //    → swap them
+      if (compareForOrder(list[i][field], list[i + 1][field], direction) > 0) { // 3. mali ba yung order ng magkatabi?
+        arraySwap(list, i, i + 1);                           //    -> i-swap sila
         swaps++;
         swapped = true;
       }
     }
-    if (!swapped) {                                          // 4. a pass with no swap = already sorted → stop early
+    if (!swapped) {                                          // 4. walang swap sa pass = sorted na -> stop agad
       break;
     }
   }
-  recordRun('Bubble sort', comparisons, swaps);              // 5. remember the cost for the screen
+  recordRun('Bubble sort', comparisons, swaps);              // 5. itabi yung cost para sa screen
   return list;
 }
 
 /**
- * selectionSort — for each position, scans the unsorted part for the item
- * that belongs there (the smallest, or largest when descending) and swaps it in.
- * Always makes n(n−1)/2 comparisons but at most n−1 swaps.
- * Time: O(n²) in every case · Space: O(1) extra (plus the copy) · Stable: no
+ * selectionSort - sa bawat position, hahanapin sa unsorted part yung item na
+ * dapat nandun (pinakamaliit, o pinakamalaki kung descending) tapos i-swap papasok.
+ * Laging n(n-1)/2 comparisons pero hanggang n-1 swaps lang.
+ * Time: O(n²) kahit anong case, Space: O(1) extra (plus yung copy), Stable: hindi
  */
 function selectionSort(records, field, order) {
-  const list = arrayCopy(records);                  // sort a copy, so the table keeps its own order
+  const list = arrayCopy(records);                  // copy yung sinosort, para same order pa rin yung table
   const direction = order === 'desc' ? -1 : 1;
   let comparisons = 0;
   let swaps = 0;
-  for (let i = 0; i < list.length - 1; i++) {       // 1. fill position i (0, 1, 2 …) with the right item
+  for (let i = 0; i < list.length - 1; i++) {       // 1. punuin ng tamang item yung position i (0, 1, 2 ...)
     let best = i;
-    for (let j = i + 1; j < list.length; j++) {     // 2. scan everything after it
+    for (let j = i + 1; j < list.length; j++) {     // 2. i-scan lahat ng kasunod nito
       comparisons++;
       if (compareForOrder(list[j][field], list[best][field], direction) < 0) {
-        best = j;                                   //    remember the item that should come first
+        best = j;                                   //    tandaan yung item na dapat mauna
       }
     }
-    if (best !== i) {                               // 3. swap that item into position i
+    if (best !== i) {                               // 3. i-swap yung item na yun papunta sa position i
       arraySwap(list, i, best);
       swaps++;
     }
@@ -135,39 +135,39 @@ function selectionSort(records, field, order) {
 }
 
 /**
- * insertionSort — grows a sorted part at the front: each new item is taken out
- * and the larger items slide one place right until its spot is found.
- * Very fast on lists that are already almost sorted (our tables usually are).
- * Time: best O(n) (already sorted), average and worst O(n²)
- * Space: O(1) extra (plus the copy) · Stable: yes
+ * insertionSort - pinapalaki yung sorted part sa unahan: kinukuha bawat bagong item
+ * tapos yung mas malalaki uusog ng isang pwesto pakanan hanggang makita yung pwesto niya.
+ * Sobrang bilis sa mga list na halos sorted na (kadalasan ganun yung tables namin).
+ * Time: best O(n) (sorted na), average at worst O(n²)
+ * Space: O(1) extra (plus yung copy), Stable: oo
  */
 function insertionSort(records, field, order) {
-  const list = arrayCopy(records);                  // sort a copy, so the table keeps its own order
+  const list = arrayCopy(records);                  // copy yung sinosort, para same order pa rin yung table
   const direction = order === 'desc' ? -1 : 1;
   let comparisons = 0;
   let shifts = 0;
-  for (let i = 1; i < list.length; i++) {           // 1. items before i are already sorted
-    const current = list[i];                        // 2. take out the next item
+  for (let i = 1; i < list.length; i++) {           // 1. sorted na yung mga item bago ang i
+    const current = list[i];                        // 2. kunin yung susunod na item
     let j = i - 1;
     while (j >= 0) {
       comparisons++;
       if (compareForOrder(list[j][field], current[field], direction) > 0) {
-        list[j + 1] = list[j];                      // 3. a bigger item slides one place right
+        list[j + 1] = list[j];                      // 3. yung mas malaking item uusog ng isang pwesto pakanan
         shifts++;
         j--;
       } else {
-        break;                                      //    found the spot
+        break;                                      //    nahanap na yung pwesto
       }
     }
-    list[j + 1] = current;                          // 4. drop the item into the gap
+    list[j + 1] = current;                          // 4. ilagay yung item sa bakanteng pwesto
   }
   recordRun('Insertion sort', comparisons, shifts);
   return list;
 }
 
 /**
- * sortRecords — sort with the chosen algorithm id: "insertion", "selection" or "bubble".
- * order: "asc" or "desc". Returns a new, sorted array.
+ * sortRecords - mag-sort gamit yung napiling algorithm id: "insertion", "selection" o "bubble".
+ * order: "asc" o "desc". Bagong sorted array ang binabalik.
  */
 function sortRecords(records, field, order, algorithmId) {
   if (algorithmId === 'bubble') {

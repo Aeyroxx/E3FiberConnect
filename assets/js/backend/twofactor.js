@@ -1,37 +1,37 @@
 /* ==========================================================================
-   E3 Fiber Connect · backend/twofactor.js
-   Two-step verification with Google Authenticator (or any TOTP app).
+   E3 Fiber Connect - backend/twofactor.js
+   Two-step verification gamit Google Authenticator (o kahit anong TOTP app).
 
-   How Google Authenticator works (RFC 6238, "TOTP"):
-     1. We create a random 20-byte secret and show it as a QR code / setup key
-        (Base32 text). The app stores the same secret.
-     2. Every 30 seconds both sides compute
-          code = HMAC-SHA1(secret, number of 30-second steps since 1970)
-        and keep 6 digits of it (RFC 4226 "dynamic truncation").
-     3. If the code the person types matches ours, they hold the phone.
+   Paano gumagana yung Google Authenticator (RFC 6238, "TOTP"):
+     1. Gagawa tayo ng random na 20-byte secret tapos ipapakita as QR code / setup key
+        (Base32 text). Sine-save din ng app yung parehong secret.
+     2. Kada 30 seconds, pareho kaming nagko-compute (site at app) ng
+          code = HMAC-SHA1(secret, ilang 30-second steps na mula 1970)
+        tapos 6 digits lang yung kinukuha (RFC 4226 "dynamic truncation").
+     3. Kung tugma yung tinype na code sa code natin, ibig sabihin hawak nga nila yung phone.
 
-   Everything here is written by hand — SHA-1, HMAC, Base32 — with plain
-   arrays of numbers (bytes 0–255) and 32-bit bit operations. No crypto
-   library, no built-in helpers.
+   Lahat dito sinulat namin by hand - SHA-1, HMAC, Base32 - gamit lang plain na
+   arrays ng numbers (bytes 0-255) at 32-bit bit operations. Walang crypto
+   library, walang built-in helpers.
 
-   Account changes (passwords, adding / approving / suspending / archiving
-   staff, subscriber status or plan, and undoing any of these) need a
-   verified code. A correct code opens a 5-minute window ("step-up"), so
-   several changes in a row don't ask again. The window belongs to the person
-   signed in and ends at sign-in / sign-out. Setting the app up the first time
-   asks for the account password, so a session left signed in can't be used to
-   link someone else's phone.
+   Yung mga account change (password, pag-add / approve / suspend / archive ng
+   staff, status o plan ng subscriber, at pag-undo ng alinman dito) kailangan ng
+   verified na code. Pag tama yung code, may 5-minute window ("step-up") kaya hindi
+   na magtatanong ulit kung sunod-sunod yung changes. Para lang yung window sa taong
+   naka-sign in, at tapos na ito pag nag-sign-in / sign-out. Sa unang setup ng app,
+   hihingin yung password ng account, para hindi magamit ng iba yung session na
+   naiwang naka-sign in para i-link yung sarili nilang phone.
    ========================================================================== */
 
 'use strict';
 
 const TOTP_PERIOD_SECONDS = 30;
 const TOTP_DIGITS = 6;
-const TOTP_SECRET_BYTES = 20;          // 160 bits, what Google Authenticator expects for SHA-1
+const TOTP_SECRET_BYTES = 20;          // 160 bits, ito yung hinihingi ng Google Authenticator para sa SHA-1
 const STEP_UP_MINUTES = 5;
-const SETUP_MINUTES = 10;               // a started setup must be confirmed within 10 minutes
+const SETUP_MINUTES = 10;               // pag nagsimula ng setup, dapat ma-confirm within 10 minutes
 const OTP_MAX_ATTEMPTS = 5;
-const OTP_PAUSE_MS = 30 * 1000;            // the first pause; every further one doubles (RFC 4226 §7.3)
+const OTP_PAUSE_MS = 30 * 1000;            // unang pause; kada susunod, dinodoble (RFC 4226 §7.3)
 const OTP_PAUSE_MAX_MS = 15 * 60 * 1000;
 const TOTP_ISSUER = 'E3 Fiber Connect';
 const BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
@@ -39,19 +39,19 @@ const BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 const twoFactorState = { stepUpStaffId: null, stepUpUntil: 0, pendingSecret: '', pendingStaffId: null, pendingUntil: 0, failures: 0, pausedUntil: 0, lockouts: 0 };
 
 /* --------------------------------------------------------------------------
-   SHA-1 (FIPS 180-4) — 20-byte digest of a byte array
+   SHA-1 (FIPS 180-4) - 20-byte na digest ng isang byte array
    -------------------------------------------------------------------------- */
 
-/** rotateLeft — 32-bit rotation. O(1) */
+/** rotateLeft - 32-bit na rotation pa-kaliwa. O(1) */
 function rotateLeft(value, bits) {
   return ((value << bits) | (value >>> (32 - bits))) >>> 0;
 }
 
 /**
- * sha1Bytes — the SHA-1 digest of `bytes`.
- * 1. pad: add 0x80, zeros, then the length in bits (64-bit, big-endian) → a multiple of 64 bytes;
- * 2. for every 64-byte block: expand 16 words to 80, run 80 rounds, add into h0..h4.
- * Time O(n) for n bytes · Space O(n) for the padded copy
+ * sha1Bytes - yung SHA-1 digest ng `bytes`.
+ * 1. pad: lagyan ng 0x80, zeros, tapos yung length in bits (64-bit, big-endian) -> multiple ng 64 bytes;
+ * 2. kada 64-byte block: i-expand yung 16 words to 80, 80 rounds, tapos i-add sa h0..h4.
+ * Time: O(n) para sa n na bytes, Space: O(n) para sa padded na copy
  */
 function sha1Bytes(bytes) {
   const message = [];
@@ -59,7 +59,7 @@ function sha1Bytes(bytes) {
     arrayAppend(message, bytes[i]);
   }
   const bitLength = bytes.length * 8;
-  arrayAppend(message, 0x80);                                   // 1. padding
+  arrayAppend(message, 0x80);                                   // 1. padding muna
   while (message.length % 64 !== 56) {
     arrayAppend(message, 0);
   }
@@ -79,7 +79,7 @@ function sha1Bytes(bytes) {
   let h3 = 0x10325476;
   let h4 = 0xc3d2e1f0;
   const words = [];
-  for (let block = 0; block < message.length; block += 64) {    // 2. one 64-byte block at a time
+  for (let block = 0; block < message.length; block += 64) {    // 2. isang 64-byte block kada ikot
     for (let t = 0; t < 16; t++) {
       const i = block + t * 4;
       words[t] = ((message[i] << 24) | (message[i + 1] << 16) | (message[i + 2] << 8) | message[i + 3]) >>> 0;
@@ -133,18 +133,18 @@ function sha1Bytes(bytes) {
 }
 
 /**
- * hmacSha1 — HMAC(key, message) = SHA1((key ⊕ opad) + SHA1((key ⊕ ipad) + message)).
- * Time O(n) · Space O(n)
+ * hmacSha1 - HMAC(key, message) = SHA1((key XOR opad) + SHA1((key XOR ipad) + message)).
+ * Time: O(n), Space: O(n)
  */
 function hmacSha1(keyBytes, messageBytes) {
   let key = keyBytes;
   if (key.length > 64) {
-    key = sha1Bytes(key);                 // long keys are hashed first
+    key = sha1Bytes(key);                 // pag mahaba yung key, hina-hash muna
   }
   const inner = [];
   const outer = [];
   for (let i = 0; i < 64; i++) {
-    const byte = i < key.length ? key[i] : 0;   // shorter keys are padded with zeros
+    const byte = i < key.length ? key[i] : 0;   // pag maikli, dinadagdagan ng zeros
     arrayAppend(inner, byte ^ 0x36);
     arrayAppend(outer, byte ^ 0x5c);
   }
@@ -159,10 +159,10 @@ function hmacSha1(keyBytes, messageBytes) {
 }
 
 /* --------------------------------------------------------------------------
-   Base32 (RFC 4648) — how the secret is written in the QR code / setup key
+   Base32 (RFC 4648) - ganito sinusulat yung secret sa QR code / setup key
    -------------------------------------------------------------------------- */
 
-/** base32Encode — 5 bytes become 8 letters (A–Z, 2–7). Time O(n) */
+/** base32Encode - bawat 5 bytes nagiging 8 letters (A-Z, 2-7). Time: O(n) */
 function base32Encode(bytes) {
   let text = '';
   let buffer = 0;
@@ -181,7 +181,7 @@ function base32Encode(bytes) {
   return text;
 }
 
-/** base32Value — the 0–31 value of one Base32 letter, or -1 (linear search over 32 letters). O(1) */
+/** base32Value - yung 0-31 na value ng isang Base32 letter, o -1 (linear search sa 32 letters). O(1) */
 function base32Value(ch) {
   for (let i = 0; i < BASE32_ALPHABET.length; i++) {
     if (BASE32_ALPHABET[i] === ch) {
@@ -191,7 +191,7 @@ function base32Value(ch) {
   return -1;
 }
 
-/** base32Decode — letters back to bytes; spaces, dashes and "=" are ignored. Time O(n) */
+/** base32Decode - ibabalik yung letters sa bytes; hindi pinapansin yung spaces, dashes at "=". Time: O(n) */
 function base32Decode(text) {
   const upper = toUpperText(text);
   const bytes = [];
@@ -213,25 +213,25 @@ function base32Decode(text) {
 }
 
 /* --------------------------------------------------------------------------
-   TOTP (RFC 6238 on top of HOTP, RFC 4226)
+   TOTP (RFC 6238, nakapatong sa HOTP na RFC 4226)
    -------------------------------------------------------------------------- */
 
-/** totpStep — how many 30-second steps have passed since 1970 at time `ms`. O(1) */
+/** totpStep - ilang 30-second steps na ang lumipas mula 1970 sa oras na `ms`. O(1) */
 function totpStep(ms) {
   return Math.floor(ms / 1000 / TOTP_PERIOD_SECONDS);
 }
 
-/** totpSecondsLeft — seconds until the code shown in the app changes. O(1) */
+/** totpSecondsLeft - ilang seconds pa bago magpalit yung code sa app. O(1) */
 function totpSecondsLeft(ms) {
   return TOTP_PERIOD_SECONDS - (Math.floor(ms / 1000) % TOTP_PERIOD_SECONDS);
 }
 
 /**
- * hotpCode — the code for one counter value:
- * 1. the counter as 8 bytes (big-endian); 2. HMAC-SHA1 with the secret;
- * 3. dynamic truncation: the last 4 bits pick where 4 bytes are read;
- * 4. keep the last `digits` digits, padded with zeros.
- * Time O(1) (fixed-size SHA-1 work) · Space O(1)
+ * hotpCode - yung code para sa isang counter value:
+ * 1. gawing 8 bytes yung counter (big-endian); 2. HMAC-SHA1 gamit yung secret;
+ * 3. dynamic truncation: yung huling 4 bits ang magsasabi kung saan babasahin yung 4 bytes;
+ * 4. kunin yung huling `digits` na digits, lagyan ng zeros sa unahan kung kulang.
+ * Time: O(1) (fixed size lang yung SHA-1 work), Space: O(1)
  */
 function hotpCode(secretBytes, counter, digits) {
   const high = Math.floor(counter / 4294967296);
@@ -250,15 +250,15 @@ function hotpCode(secretBytes, counter, digits) {
   return padLeft(binary % modulo, digits, '0');
 }
 
-/** totpCode — the 6-digit code for a Base32 secret at a given 30-second step. O(1) */
+/** totpCode - yung 6-digit code ng isang Base32 secret sa isang 30-second step. O(1) */
 function totpCode(secretBase32, step) {
   return hotpCode(base32Decode(secretBase32), step, TOTP_DIGITS);
 }
 
 /**
- * matchTotp — which step (now, 30 s before or 30 s after — clocks drift) the
- * code belongs to, or -1. Steps not newer than `lastStep` are refused, so a
- * code can only be used once. Time O(1) (3 tries)
+ * matchTotp - kung saang step galing yung code (ngayon, 30 s bago, o 30 s after - kasi
+ * minsan hindi sabay yung orasan), o -1 kung wala. Hindi tinatanggap yung steps na hindi
+ * mas bago sa `lastStep`, kaya isang beses lang magagamit yung code. Time: O(1) (3 tries)
  */
 function matchTotp(secretBase32, code, ms, lastStep) {
   const secret = base32Decode(secretBase32);
@@ -273,10 +273,10 @@ function matchTotp(secretBase32, code, ms, lastStep) {
 }
 
 /* --------------------------------------------------------------------------
-   Setup: secret, setup key and the otpauth:// link for the QR code
+   Setup: secret, setup key at yung otpauth:// link para sa QR code
    -------------------------------------------------------------------------- */
 
-/** randomBytes — `count` random bytes from the browser's secure random source when it exists. O(n) */
+/** randomBytes - `count` na random bytes galing sa secure random source ng browser kung meron. O(n) */
 function randomBytes(count) {
   const bytes = [];
   const secure = typeof crypto !== 'undefined' && crypto && typeof crypto.getRandomValues === 'function';
@@ -294,7 +294,7 @@ function randomBytes(count) {
   return bytes;
 }
 
-/** formatSetupKey — "ABCD EFGH IJKL …" for typing into the app by hand. O(n) */
+/** formatSetupKey - "ABCD EFGH IJKL ..." para madaling i-type ng mano-mano sa app. O(n) */
 function formatSetupKey(secretBase32) {
   let text = '';
   for (let i = 0; i < secretBase32.length; i++) {
@@ -306,7 +306,7 @@ function formatSetupKey(secretBase32) {
   return text;
 }
 
-/** percentEncode — URL-encode text for the otpauth link (letters, digits and - . _ ~ stay). O(n) */
+/** percentEncode - URL-encode ng text para sa otpauth link (hindi ginagalaw yung letters, digits at - . _ ~). O(n) */
 function percentEncode(text) {
   const hex = '0123456789ABCDEF';
   let out = '';
@@ -319,7 +319,7 @@ function percentEncode(text) {
   return out;
 }
 
-/** otpauthUri — the link inside the QR code; Google Authenticator reads it when scanning. O(n) */
+/** otpauthUri - yung link sa loob ng QR code; ito binabasa ng Google Authenticator pag nag-scan. O(n) */
 function otpauthUri(email, secretBase32) {
   return 'otpauth://totp/' + percentEncode(TOTP_ISSUER) + ':' + percentEncode(email)
     + '?secret=' + secretBase32 + '&issuer=' + percentEncode(TOTP_ISSUER)
@@ -327,15 +327,15 @@ function otpauthUri(email, secretBase32) {
 }
 
 /**
- * startTotpSetup — a new secret for the signed-in member. It is only kept as
- * "pending" until they prove the app shows the right code (confirmTotpSetup).
- * Whoever is at the keyboard must prove it is the account's owner first:
- *   • always          → the account password (someone using a session left
- *                       signed in can't link their own phone);
- *   • new phone       → also a code from the current app in the last 5 minutes.
- * A wrong password counts toward the same 5-tries pause as a wrong code.
- * The new secret must be confirmed within SETUP_MINUTES.
- * Time O(n) for the password hash · Space O(1)
+ * startTotpSetup - bagong secret para sa naka-sign in na member. "Pending" lang muna ito
+ * hangga't hindi pa napapatunayan na tama yung code na pinapakita ng app (confirmTotpSetup).
+ * Kailangan munang patunayan ng nasa keyboard na siya talaga yung may-ari ng account:
+ *   - lagi            -> yung password ng account (para yung gumagamit ng session na
+ *                        naiwang naka-sign in ay hindi ma-link yung sarili nilang phone);
+ *   - bagong phone    -> kasama pa yung code galing sa current app sa huling 5 minutes.
+ * Yung maling password, bilang din sa parehong 5-tries na pause tulad ng maling code.
+ * Dapat ma-confirm yung bagong secret within SETUP_MINUTES.
+ * Time: O(n) para sa password hash, Space: O(1)
  */
 function startTotpSetup(member, password) {
   if (!member || member.id !== authState.staffId) {
@@ -362,7 +362,7 @@ function startTotpSetup(member, password) {
   return { ok: true, secret: secret, key: formatSetupKey(secret), uri: otpauthUri(member.email, secret) };
 }
 
-/** clearPendingSetup — forget a setup that was finished, cancelled or ran out of time. O(1) */
+/** clearPendingSetup - kalimutan yung setup na tapos na, kinansel, o naubusan ng oras. O(1) */
 function clearPendingSetup() {
   twoFactorState.pendingSecret = '';
   twoFactorState.pendingStaffId = null;
@@ -370,10 +370,10 @@ function clearPendingSetup() {
 }
 
 /* --------------------------------------------------------------------------
-   Checking a code, the 5-minute window, and turning 2FA on / off
+   Pag-check ng code, yung 5-minute window, at pag-on / off ng 2FA
    -------------------------------------------------------------------------- */
 
-/** isSixDigits — exactly 6 digits. O(1) */
+/** isSixDigits - dapat exactly 6 digits. O(1) */
 function isSixDigits(code) {
   if (code.length !== TOTP_DIGITS) {
     return false;
@@ -387,8 +387,8 @@ function isSixDigits(code) {
 }
 
 /**
- * checkOtpAttempt — shared checks before comparing a code: paused after 5
- * wrong codes? six digits? Returns an error text or ''. O(1)
+ * checkOtpAttempt - mga check bago i-compare yung code: naka-pause ba after 5 na
+ * maling code? six digits ba? Binabalik yung error text, o '' kung okay. O(1)
  */
 function checkOtpAttempt(code) {
   const now = Date.now();
@@ -401,16 +401,16 @@ function checkOtpAttempt(code) {
   return '';
 }
 
-/** pauseLengthText — "30 seconds", "2 minutes" (rounded up). O(1) */
+/** pauseLengthText - "30 seconds", "2 minutes" (pinapa-round up). O(1) */
 function pauseLengthText(ms) {
   const seconds = Math.ceil(ms / 1000);
   return seconds < 60 ? pluralize(seconds, 'second') : pluralize(Math.ceil(seconds / 60), 'minute');
 }
 
 /**
- * otpFailed — count a wrong code. The 5th in a row pauses code entry: 30 s the
- * first time, then 1, 2, 4, 8 … minutes (at most 15) until a code is right,
- * so guessing all 1,000,000 codes stays out of reach. O(1)
+ * otpFailed - bilangin yung maling code. Pag pang-5 na sunod-sunod, naka-pause yung
+ * pag-enter ng code: 30 s sa una, tapos 1, 2, 4, 8 ... minutes (max 15) hanggang may
+ * tamang code, kaya imposibleng mahulaan lahat ng 1,000,000 na codes. O(1)
  */
 function otpFailed(kind) {
   twoFactorState.failures = twoFactorState.failures + 1;
@@ -430,7 +430,7 @@ function otpFailed(kind) {
   return { ok: false, error: 'That code isn’t right. Check the app and try the current code.' };
 }
 
-/** grantStepUp — open the 5-minute window for the signed-in member. O(1) */
+/** grantStepUp - buksan yung 5-minute window para sa naka-sign in na member. O(1) */
 function grantStepUp(member) {
   twoFactorState.failures = 0;
   twoFactorState.lockouts = 0;
@@ -438,19 +438,19 @@ function grantStepUp(member) {
   twoFactorState.stepUpUntil = Date.now() + STEP_UP_MINUTES * 60 * 1000;
 }
 
-/** endStepUp — close the window (sign-in, sign-out). O(1) */
+/** endStepUp - isara yung window (pag sign-in, sign-out). O(1) */
 function endStepUp() {
   twoFactorState.stepUpStaffId = null;
   twoFactorState.stepUpUntil = 0;
   clearPendingSetup();
 }
 
-/** stepUpActive — has the person signed in verified a code in the last 5 minutes? O(1) */
+/** stepUpActive - naka-verify ba ng code yung naka-sign in sa huling 5 minutes? O(1) */
 function stepUpActive() {
   return authState.staffId !== null && twoFactorState.stepUpStaffId === authState.staffId && twoFactorState.stepUpUntil > Date.now();
 }
 
-/** stepUpRequired — the error every account change returns until a code is verified, or null. O(1) */
+/** stepUpRequired - yung error na binabalik ng bawat account change hangga't wala pang verified na code, o null. O(1) */
 function stepUpRequired() {
   if (stepUpActive()) {
     return null;
@@ -459,12 +459,12 @@ function stepUpRequired() {
 }
 
 /**
- * confirmTotpSetup — the first code from the app proves it has the secret:
- * 1. checks (pause, six digits, a setup in progress for this member; replacing
- *    a working authenticator also needs the 5-minute window);
- * 2. compare with the pending secret (now ± 30 s);
- * 3. save the secret on the staff record, turn 2FA on, open the 5-minute window.
- * Time O(1)
+ * confirmTotpSetup - yung unang code galing sa app ang patunay na nasa kanya yung secret:
+ * 1. checks (pause, six digits, may setup na nagaganap para sa member na ito; kung
+ *    papalitan yung gumaganang authenticator, kailangan din ng 5-minute window);
+ * 2. i-compare sa pending secret (ngayon ± 30 s);
+ * 3. i-save yung secret sa staff record, i-on yung 2FA, tapos buksan yung 5-minute window.
+ * Time: O(1)
  */
 function confirmTotpSetup(member, code) {
   if (member.totpEnabled) {
@@ -497,9 +497,9 @@ function confirmTotpSetup(member, code) {
 }
 
 /**
- * verifyStepUp — check a code from the app and open the 5-minute window.
- * A code that was already used is refused (it must be newer than totpLastStep).
- * Time O(1)
+ * verifyStepUp - i-check yung code galing sa app tapos buksan yung 5-minute window.
+ * Hindi tinatanggap yung code na nagamit na (dapat mas bago siya sa totpLastStep).
+ * Time: O(1)
  */
 function verifyStepUp(member, code) {
   if (!member.totpEnabled) {
@@ -521,7 +521,7 @@ function verifyStepUp(member, code) {
   return { ok: true };
 }
 
-/** stepUpMinutesLeft — whole minutes left in the window (for the Account page). O(1) */
+/** stepUpMinutesLeft - ilang buong minuto pa natitira sa window (para sa Account page). O(1) */
 function stepUpMinutesLeft() {
   return stepUpActive() ? Math.ceil((twoFactorState.stepUpUntil - Date.now()) / 60000) : 0;
 }

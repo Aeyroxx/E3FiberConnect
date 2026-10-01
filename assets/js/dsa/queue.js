@@ -1,54 +1,54 @@
 /* ==========================================================================
-   E3 Fiber Connect · dsa/queue.js
-   Queue (FIFO — first in, first out) as a circular buffer, written procedurally.
+   E3 Fiber Connect - dsa/queue.js
+   Queue (FIFO - first in, first out) na circular buffer, procedural yung pagkakasulat.
 
-   A queue is a plain record { items, front, count, capacity }:
-     front  index of the oldest item (the next one to be served)
-     count  how many items are waiting
-   The rear is (front + count) % capacity, so both ends wrap around the array
-   instead of shifting it. That makes enqueue and dequeue O(1) — unlike
-   arrayRemoveFirst (shift), which moves every item.
+   Yung queue ay simpleng record { items, front, count, capacity }:
+     front  index ng pinakalumang item (siya yung susunod na ise-serve)
+     count  ilan yung items na naghihintay
+   Yung rear ay (front + count) % capacity, kaya umiikot lang yung dalawang dulo
+   sa array imbes na iusog lahat. Dahil dun, O(1) yung enqueue at dequeue - hindi
+   tulad ng arrayRemoveFirst (shift) na ginagalaw lahat ng item.
 
-   Used for:
-     • the application review queue (oldest pending application first)
-     • the support-ticket queue ("Serve next")
-     • payments waiting to be verified
-     • settling a subscriber's oldest unpaid bill first
-     • toast notifications (shown one at a time, in order)
-     • the recent-operations log on the Algorithms page (a ring buffer)
+   Saan ginamit:
+     - application review queue (pinakalumang pending application muna)
+     - support-ticket queue ("Serve next")
+     - mga payment na naghihintay ma-verify
+     - pagbayad muna sa pinakalumang unpaid bill ng subscriber
+     - toast notifications (isa-isa lumalabas, in order)
+     - recent-operations log sa Algorithms page (ring buffer)
    ========================================================================== */
 
 'use strict';
 
 /**
- * createQueue — a new, empty queue with room for `capacity` items
- * (it grows automatically when full).
- * Time O(n) · Space O(n)
+ * createQueue - bagong empty na queue na may space para sa `capacity` na items
+ * (kusa siyang lalaki pag puno na).
+ * Time: O(n), Space: O(n)
  */
 function createQueue(capacity) {
   const size = capacity > 0 ? capacity : 8;
   return { items: arrayFilled(size, undefined), front: 0, count: 0, capacity: size };
 }
 
-/** queueSize — how many items are waiting. Time O(1) */
+/** queueSize - ilan yung items na naghihintay. Time: O(1) */
 function queueSize(queue) {
   return queue.count;
 }
 
-/** queueIsEmpty — true when nothing is waiting. Time O(1) */
+/** queueIsEmpty - true kung walang naghihintay. Time: O(1) */
 function queueIsEmpty(queue) {
   return queue.count === 0;
 }
 
-/** queueIsFull — true when every slot is used. Time O(1) */
+/** queueIsFull - true kung gamit na lahat ng slot. Time: O(1) */
 function queueIsFull(queue) {
   return queue.count === queue.capacity;
 }
 
 /**
- * queueGrow — double the capacity, copying the items in queue order to the
- * start of the new array. Only happens when the queue is full.
- * Time O(n) · Space O(n)
+ * queueGrow - doblehin yung capacity, tapos kopyahin yung items (in queue order)
+ * sa simula ng bagong array. Nangyayari lang ito pag puno na yung queue.
+ * Time: O(n), Space: O(n)
  */
 function queueGrow(queue) {
   const bigger = arrayFilled(queue.capacity * 2, undefined);
@@ -61,38 +61,38 @@ function queueGrow(queue) {
 }
 
 /**
- * enqueue — add an item at the rear.
- * Time O(1) amortised (O(n) only on the rare grow) · Space O(1)
+ * enqueue - idagdag yung item sa rear.
+ * Time: O(1) amortised (O(n) lang sa bihirang pag-grow), Space: O(1)
  */
 function enqueue(queue, item) {
-  if (queueIsFull(queue)) {                                   // 1. no free slot → double the array
+  if (queueIsFull(queue)) {                                   // 1. wala nang bakanteng slot -> doblehin yung array
     queueGrow(queue);
   }
-  const rear = (queue.front + queue.count) % queue.capacity;  // 2. the slot after the last item (wraps to 0)
-  queue.items[rear] = item;                                   // 3. put the item at the rear
+  const rear = (queue.front + queue.count) % queue.capacity;  // 2. yung slot pagkatapos ng huling item (babalik sa 0)
+  queue.items[rear] = item;                                   // 3. ilagay yung item sa rear
   queue.count = queue.count + 1;
   return queue.count;
 }
 
 /**
- * dequeue — remove the front (oldest) item and return it, or null when empty.
- * Only the `front` index moves; no item is shifted.
- * Time O(1) · Space O(1)
+ * dequeue - tanggalin yung item sa front (pinakaluma) tapos i-return, o null kung empty.
+ * Yung `front` index lang ang gumagalaw; walang item na inuusog.
+ * Time: O(1), Space: O(1)
  */
 function dequeue(queue) {
-  if (queue.count === 0) {                             // empty queue → nothing to serve
+  if (queue.count === 0) {                             // empty yung queue -> walang ise-serve
     return null;
   }
-  const item = queue.items[queue.front];               // 1. the oldest item is at the front
-  queue.items[queue.front] = undefined;                // 2. clear its slot
-  queue.front = (queue.front + 1) % queue.capacity;    // 3. the next item becomes the front (wraps to 0)
+  const item = queue.items[queue.front];               // 1. nasa front yung pinakalumang item
+  queue.items[queue.front] = undefined;                // 2. linisin yung slot niya
+  queue.front = (queue.front + 1) % queue.capacity;    // 3. yung kasunod na ang magiging front (babalik sa 0)
   queue.count = queue.count - 1;
   return item;
 }
 
 /**
- * queuePeek — read the front item without removing it, or null when empty.
- * Time O(1) · Space O(1)
+ * queuePeek - silipin yung item sa front nang hindi tinatanggal, o null kung empty.
+ * Time: O(1), Space: O(1)
  */
 function queuePeek(queue) {
   if (queue.count === 0) {
@@ -102,10 +102,10 @@ function queuePeek(queue) {
 }
 
 /**
- * enqueueBounded — add an item; when the queue is already full, first drop the
- * oldest one. This turns the queue into a fixed-size ring buffer (a log that
- * keeps only the latest entries).
- * Time O(1) · Space O(1)
+ * enqueueBounded - mag-add ng item; pero kung puno na yung queue, tanggalin muna
+ * yung pinakaluma. Dahil dito nagiging fixed-size ring buffer yung queue (log na
+ * yung pinakabagong entries lang ang tinatago).
+ * Time: O(1), Space: O(1)
  */
 function enqueueBounded(queue, item) {
   if (queueIsFull(queue)) {
@@ -118,8 +118,8 @@ function enqueueBounded(queue, item) {
 }
 
 /**
- * queueToArray — the waiting items from front (next) to rear (last), for display.
- * Time O(n) · Space O(n)
+ * queueToArray - yung mga naghihintay na items mula front (susunod) hanggang rear (huli), pang-display.
+ * Time: O(n), Space: O(n)
  */
 function queueToArray(queue) {
   const list = [];
@@ -129,7 +129,7 @@ function queueToArray(queue) {
   return list;
 }
 
-/** queueClear — remove everything. Time O(n) */
+/** queueClear - tanggalin lahat. Time: O(n) */
 function queueClear(queue) {
   queue.items = arrayFilled(queue.capacity, undefined);
   queue.front = 0;

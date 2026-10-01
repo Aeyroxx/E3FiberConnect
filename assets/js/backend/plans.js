@@ -1,12 +1,12 @@
 /* ==========================================================================
-   E3 Fiber Connect · backend/plans.js
-   Plan look-ups, labels and the "which plan is right for me?" recommender.
-   Defense module: Plan Selection — presented by Joshua Santos.
+   E3 Fiber Connect - backend/plans.js
+   Dito yung plan lookups, labels, at yung "which plan is right for me?" na recommender.
+   Module sa defense: Plan Selection (si Joshua Santos ang mag-eexplain)
    ========================================================================== */
 
 'use strict';
 
-// How much speed each device needs for the main activity at home.
+// Gaano kabilis yung kailangan ng bawat device para sa main na gamit sa bahay.
 const PLAN_ACTIVITIES = [
   { id: 'browsing', label: 'Browsing & social', mbpsPerDevice: 4 },
   { id: 'streaming', label: 'Streaming', mbpsPerDevice: 8 },
@@ -22,15 +22,15 @@ const DEVICE_RANGES = [
 ];
 
 /**
- * findPlan — the plan record for an id ("power"), or null.
- * Linear search — PLANS has only 5 items. Time O(n) · Space O(1)
+ * findPlan - yung plan record ng id ("power"), o null.
+ * Linear search lang - 5 items lang naman yung PLANS. Time: O(n), Space: O(1)
  */
 function findPlan(planId) {
   const index = linearSearch(PLANS, 'id', planId);
   return index === -1 ? null : PLANS[index];
 }
 
-/** planPrice — monthly price in pesos; "custom" plans use the price typed by staff. O(n) */
+/** planPrice - monthly na presyo in pesos; pag "custom" plan, yung presyong tinype ng staff. O(n) */
 function planPrice(planId, customPrice) {
   if (planId === 'custom') {
     return Number(customPrice) || 0;
@@ -39,7 +39,7 @@ function planPrice(planId, customPrice) {
   return plan ? plan.price : 0;
 }
 
-/** planName — "Power" (or "Custom"). O(n) */
+/** planName - "Power" (o "Custom"). O(n) */
 function planName(planId) {
   if (planId === 'custom') {
     return 'Custom';
@@ -48,13 +48,13 @@ function planName(planId) {
   return plan ? plan.name : 'Unknown';
 }
 
-/** planSpeedText — "100 Mbps" (or "Custom speed"). O(n) */
+/** planSpeedText - "100 Mbps" (o "Custom speed"). O(n) */
 function planSpeedText(planId) {
   const plan = findPlan(planId);
   return plan ? plan.speed + ' Mbps' : 'Custom speed';
 }
 
-/** planLabel — "Power · 100 Mbps · ₱1,200/mo" or "Custom · ₱1,800/mo". O(n) */
+/** planLabel - "Power · 100 Mbps · ₱1,200/mo" o "Custom · ₱1,800/mo". O(n) */
 function planLabel(planId, customPrice) {
   if (planId === 'custom') {
     return 'Custom · ' + formatPeso(customPrice) + '/mo';
@@ -66,12 +66,12 @@ function planLabel(planId, customPrice) {
   return plan.name + ' · ' + plan.speed + ' Mbps · ' + formatPeso(plan.price) + '/mo';
 }
 
-/** sortedPlans — the plans ordered by a field with the chosen sorting algorithm. O(n²) */
+/** sortedPlans - yung plans naka-order by field gamit yung napiling sorting algorithm. O(n²) */
 function sortedPlans(field, order, algorithmId) {
   return sortRecords(PLANS, field, order, algorithmId);
 }
 
-/** findActivity / findDeviceRange — look-ups for the recommender (linear search). O(n) */
+/** findActivity / findDeviceRange - mga lookup para sa recommender (linear search). O(n) */
 function findActivity(activityId) {
   const index = linearSearch(PLAN_ACTIVITIES, 'id', activityId);
   return index === -1 ? PLAN_ACTIVITIES[0] : PLAN_ACTIVITIES[index];
@@ -83,24 +83,24 @@ function findDeviceRange(rangeId) {
 }
 
 /**
- * recommendPlan — the slowest (cheapest) plan that is still fast enough.
- * needed speed = devices × Mbps per device for the main activity; then a
- * linear search over the plans in speed order stops at the first plan whose
- * speed is at least that much (or returns the fastest plan).
- * Time O(n) (plans are already in speed order, so insertion sort is O(n)) · Space O(n)
+ * recommendPlan - yung pinakamabagal (pinakamura) na plan na sapat pa rin ang bilis.
+ * Kailangang speed = devices × Mbps per device para sa main activity; tapos linear
+ * search sa plans na naka-order by speed, titigil sa unang plan na ang speed ay
+ * at least ganun (kung wala, yung pinakamabilis na plan ang ibabalik).
+ * Time: O(n) (naka-order na by speed yung plans, kaya O(n) lang yung insertion sort), Space: O(n)
  */
 function recommendPlan(rangeId, activityId) {
-  const range = findDeviceRange(rangeId);                  // 1. the answers: how many devices …
-  const activity = findActivity(activityId);               //    … and what they are mostly used for
-  const needed = range.devices * activity.mbpsPerDevice;   // 2. speed needed = devices × Mbps per device
-  const bySpeed = insertionSort(PLANS, 'speed', 'asc');    // 3. plans from slowest (cheapest) to fastest
+  const range = findDeviceRange(rangeId);                  // 1. yung mga sagot: ilang devices...
+  const activity = findActivity(activityId);               //    ...at saan madalas ginagamit
+  const needed = range.devices * activity.mbpsPerDevice;   // 2. kailangang speed = devices × Mbps per device
+  const bySpeed = insertionSort(PLANS, 'speed', 'asc');    // 3. plans mula pinakamabagal (pinakamura) hanggang pinakamabilis
   let checked = 0;
-  for (let i = 0; i < bySpeed.length; i++) {               // 4. linear search: the first plan fast enough
+  for (let i = 0; i < bySpeed.length; i++) {               // 4. linear search: unang plan na sapat ang bilis
     checked++;
     if (bySpeed[i].speed >= needed) {
       return { plan: bySpeed[i], neededMbps: needed, checked: checked, range: range, activity: activity };
     }
   }
-  // 5. no plan is fast enough → recommend the fastest one
+  // 5. walang plan na sapat ang bilis -> yung pinakamabilis na lang i-recommend
   return { plan: bySpeed[bySpeed.length - 1], neededMbps: needed, checked: checked, range: range, activity: activity };
 }

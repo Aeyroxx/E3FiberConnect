@@ -1,38 +1,38 @@
 /* ==========================================================================
-   E3 Fiber Connect · dsa/search.js
-   Searching, written by hand.
+   E3 Fiber Connect - dsa/search.js
+   Mga searching algorithm, mano-mano namin sinulat.
 
-   Project rule: no indexOf, lastIndexOf, includes, find, findIndex, filter,
-   some or every. Every function below walks the array itself and reports
-   how many comparisons it made (recordRun → dsaLastRun), so the admin pages
-   can show the real cost of each search.
+   Rule ng project: bawal ang indexOf, lastIndexOf, includes, find, findIndex,
+   filter, some at every. Bawat function dito ay sariling loop sa array tapos
+   nirereport kung ilang comparisons yung ginawa (recordRun -> dsaLastRun), para
+   makita sa admin pages yung totoong cost ng bawat search.
 
-   Linear search  → works on any array, checks items one by one      O(n)
-   Binary search  → needs an array sorted by the key; halves it each step O(log n)
+   Linear search  -> pwede sa kahit anong array, isa-isang chine-check yung items   O(n)
+   Binary search  -> kailangan naka-sort by key yung array; hinahati sa dalawa bawat step O(log n)
    ========================================================================== */
 
 'use strict';
 
 /**
- * linearSearch — index of the first record whose `field` equals `value`, or -1.
- * Time: best O(1) (first record), average and worst O(n) · Space O(1)
+ * linearSearch - index ng unang record na yung `field` ay equal sa `value`, o -1.
+ * Time: best O(1) (unang record pa lang), average at worst O(n), Space: O(1)
  */
 function linearSearch(records, field, value) {
   let comparisons = 0;
-  for (let i = 0; i < records.length; i++) {        // 1. look at the records one by one
+  for (let i = 0; i < records.length; i++) {        // 1. tingnan isa-isa yung mga record
     comparisons++;
-    if (records[i][field] === value) {              // 2. stop at the first match
+    if (records[i][field] === value) {              // 2. tumigil sa unang match
       recordRun('Linear search', comparisons, 0);
       return i;
     }
   }
-  recordRun('Linear search', comparisons, 0);       // 3. checked all n records, nothing matched
+  recordRun('Linear search', comparisons, 0);       // 3. na-check na lahat ng n records, walang tumugma
   return -1;
 }
 
 /**
- * linearSearchValue — index of `value` in an array of plain values, or -1.
- * Time O(n) · Space O(1)
+ * linearSearchValue - index ng `value` sa array ng plain values, o -1.
+ * Time: O(n), Space: O(1)
  */
 function linearSearchValue(values, value) {
   for (let i = 0; i < values.length; i++) {
@@ -44,9 +44,9 @@ function linearSearchValue(values, value) {
 }
 
 /**
- * linearSearchAll — every record whose `field` equals `value`, in their
- * original order (replaces filter). Always visits all n records.
- * Time O(n) · Space O(n) for the matches
+ * linearSearchAll - lahat ng record na yung `field` ay equal sa `value`, same
+ * order pa rin gaya ng original (kapalit ng filter). Lagi niyang dinadaanan lahat ng n records.
+ * Time: O(n), Space: O(n) para sa matches
  */
 function linearSearchAll(records, field, value) {
   const matches = [];
@@ -60,8 +60,8 @@ function linearSearchAll(records, field, value) {
 }
 
 /**
- * countMatches — how many records have `field` equal to `value`.
- * Time O(n) · Space O(1)
+ * countMatches - ilang records yung may `field` na equal sa `value`.
+ * Time: O(n), Space: O(1)
  */
 function countMatches(records, field, value) {
   let count = 0;
@@ -74,27 +74,27 @@ function countMatches(records, field, value) {
 }
 
 /**
- * binarySearch — index of the record whose `field` equals `value`, or -1.
- * The records MUST be sorted by `field` in ascending order. Each step looks at
- * the middle record and discards the half that cannot contain the value.
- * Time O(log n) — about 17 steps for 100,000 records · Space O(1)
+ * binarySearch - index ng record na yung `field` ay equal sa `value`, o -1.
+ * DAPAT naka-sort ascending by `field` yung records. Bawat step titingnan yung
+ * nasa gitna tapos itatapon yung kalahati na imposibleng nandun yung value.
+ * Time: O(log n) - mga 17 steps lang para sa 100,000 records, Space: O(1)
  */
 function binarySearch(sortedRecords, field, value) {
-  let low = 0;                                      // 1. start with the whole table as the range
+  let low = 0;                                      // 1. buong table muna yung range
   let high = sortedRecords.length - 1;
   let comparisons = 0;
-  while (low <= high) {                             // 2. repeat while the range still has records
-    const middle = Math.floor((low + high) / 2);    // 3. look at the middle record
+  while (low <= high) {                             // 2. ulitin habang may laman pa yung range
+    const middle = Math.floor((low + high) / 2);    // 3. tingnan yung record sa gitna
     const middleValue = sortedRecords[middle][field];
     comparisons++;
-    if (middleValue === value) {                    // 4. found it
+    if (middleValue === value) {                    // 4. nahanap na
       recordRun('Binary search', comparisons, 0);
       return middle;
     }
     if (middleValue < value) {
-      low = middle + 1;   // the value can only be in the right half
+      low = middle + 1;   // sa right half lang pwedeng nandun yung value
     } else {
-      high = middle - 1;  // the value can only be in the left half
+      high = middle - 1;  // sa left half lang pwedeng nandun yung value
     }
   }
   recordRun('Binary search', comparisons, 0);
@@ -102,8 +102,8 @@ function binarySearch(sortedRecords, field, value) {
 }
 
 /**
- * binarySearchValue — binary search in a sorted array of plain values.
- * Time O(log n) · Space O(1)
+ * binarySearchValue - binary search sa sorted array ng plain values.
+ * Time: O(log n), Space: O(1)
  */
 function binarySearchValue(sortedValues, value) {
   let low = 0;
@@ -127,43 +127,43 @@ function binarySearchValue(sortedValues, value) {
 }
 
 /**
- * lowerBound — the first position whose `field` is >= `value` in a sorted array
- * (records.length when every key is smaller). This is where `value` belongs.
- * Time O(log n) · Space O(1)
+ * lowerBound - yung unang position na yung `field` ay >= `value` sa sorted array
+ * (records.length kung mas maliit lahat ng key). Dito dapat mapunta yung `value`.
+ * Time: O(log n), Space: O(1)
  */
 function lowerBound(sortedRecords, field, value) {
-  let low = 0;                                      // 1. the answer is somewhere in 0 … n
+  let low = 0;                                      // 1. nasa 0 ... n lang yung sagot
   let high = sortedRecords.length;
   let comparisons = 0;
-  while (low < high) {                              // 2. halve the range until one position is left
+  while (low < high) {                              // 2. hatiin yung range hanggang isang position na lang
     const middle = Math.floor((low + high) / 2);
     comparisons++;
     if (sortedRecords[middle][field] < value) {
-      low = middle + 1;                             //    middle is smaller → the spot is to the right
+      low = middle + 1;                             //    mas maliit yung middle -> nasa kanan yung pwesto
     } else {
-      high = middle;                                //    middle is bigger or equal → the spot is here or left
+      high = middle;                                //    mas malaki o equal yung middle -> dito o sa kaliwa yung pwesto
     }
   }
   recordRun('Binary search (position)', comparisons, 0);
-  return low;                                       // 3. the first position whose key is ≥ value
+  return low;                                       // 3. unang position na yung key ay ≥ value
 }
 
 /**
- * sortedInsert — "put" a record into an array kept sorted by `field`:
- * binary search finds the position, then the later records shift right.
- * Returns the position used.
- * Time O(log n) to find + O(n) to shift = O(n) · Space O(1)
+ * sortedInsert - "ilagay" yung record sa array na naka-sort by `field`:
+ * binary search muna para mahanap yung position, tapos uusog pakanan yung mga kasunod.
+ * Binabalik yung position na ginamit.
+ * Time: O(log n) para mahanap + O(n) para mag-usog = O(n), Space: O(1)
  */
 function sortedInsert(sortedRecords, field, record) {
-  const position = lowerBound(sortedRecords, field, record[field]);   // 1. binary search for the right spot
-  arrayInsertAt(sortedRecords, position, record);                      // 2. shift the later records right, write it
+  const position = lowerBound(sortedRecords, field, record[field]);   // 1. binary search para sa tamang pwesto
+  arrayInsertAt(sortedRecords, position, record);                      // 2. iusog pakanan yung kasunod, tapos isulat
   return position;
 }
 
 /**
- * sortedRemove — remove the record with key `value` from a sorted array.
- * Returns the removed record, or null.
- * Time O(log n) + O(n) shift · Space O(1)
+ * sortedRemove - tanggalin yung record na may key na `value` sa sorted array.
+ * Binabalik yung natanggal na record, o null.
+ * Time: O(log n) + O(n) na pag-usog, Space: O(1)
  */
 function sortedRemove(sortedRecords, field, value) {
   const position = binarySearch(sortedRecords, field, value);
@@ -174,34 +174,34 @@ function sortedRemove(sortedRecords, field, value) {
 }
 
 /**
- * rangeWithPrefix — every record whose `field` starts with `prefix`, from an
- * array sorted by `field`. Binary search jumps to the first candidate, then a
- * short scan collects the neighbours. (Bill ids start with "BILL-YYYYMM-",
- * so this finds one month's bills without reading the whole table.)
- * Time O(log n) to find the first + O(n) to collect the matches · Space O(n)
+ * rangeWithPrefix - lahat ng record na yung `field` ay nagsisimula sa `prefix`, galing
+ * sa array na naka-sort by `field`. Tatalon muna yung binary search sa unang candidate,
+ * tapos maikling scan lang para kunin yung mga katabi. (Yung bill ids nagsisimula sa
+ * "BILL-YYYYMM-", kaya nakukuha nito yung bills ng isang buwan nang hindi binabasa yung buong table.)
+ * Time: O(log n) para sa una + O(n) para kunin yung matches, Space: O(n)
  */
 function rangeWithPrefix(sortedRecords, field, prefix) {
   const matches = [];
   let position = lowerBound(sortedRecords, field, prefix);
-  let comparisons = dsaLastRun.comparisons;          // 1. the binary-search steps
+  let comparisons = dsaLastRun.comparisons;          // 1. yung steps ng binary search
   while (position < sortedRecords.length && textStartsWith(sortedRecords[position][field], prefix)) {
-    arrayAppend(matches, sortedRecords[position]);   // 2. collect while the prefix matches
+    arrayAppend(matches, sortedRecords[position]);   // 2. kunin habang tugma pa yung prefix
     position++;
     comparisons++;
   }
   if (position < sortedRecords.length) {
-    comparisons++;                                   // 3. the check that ended the scan (none at the array's end)
+    comparisons++;                                   // 3. yung check na nagpatigil sa scan (wala nito pag dulo na ng array)
   }
   recordRun('Binary search + scan', comparisons, 0);
   return matches;
 }
 
 /**
- * textSearchRecords — records where any of `fields` contains `query`,
- * ignoring capital letters ("jua" finds "Juan Dela Cruz"). An empty query
- * returns every record. Linear search + naive string matching per field.
- * Time O(n²): the query is tried at every position of every field of every record
- * Space O(n) for the matches
+ * textSearchRecords - mga record na kahit isa sa `fields` ay may `query`,
+ * hindi pinapansin yung capital letters ("jua" -> makikita si "Juan Dela Cruz"). Pag empty
+ * yung query, lahat ng record ang balik. Linear search + naive string matching per field.
+ * Time: O(n²) - sinusubukan yung query sa bawat position ng bawat field ng bawat record
+ * Space: O(n) para sa matches
  */
 function textSearchRecords(records, fields, query) {
   const needle = toLowerText(trimText(query));
@@ -212,11 +212,11 @@ function textSearchRecords(records, fields, query) {
     }
     return matches;
   }
-  for (let i = 0; i < records.length; i++) {        // 1. every record (linear search)
-    for (let f = 0; f < fields.length; f++) {       // 2. every searchable field of it
-      if (textContains(toLowerText(records[i][fields[f]]), needle)) {  // 3. naive string match, ignoring capitals
+  for (let i = 0; i < records.length; i++) {        // 1. bawat record (linear search)
+    for (let f = 0; f < fields.length; f++) {       // 2. bawat field nito na pwedeng i-search
+      if (textContains(toLowerText(records[i][fields[f]]), needle)) {  // 3. naive string match, walang pakialam sa capitals
         arrayAppend(matches, records[i]);
-        break; // one matching field is enough
+        break; // sapat na yung isang field na tumugma
       }
     }
   }

@@ -1,13 +1,14 @@
 /* ==========================================================================
-   E3 Fiber Connect · ui/components.js
-   Small pieces of markup shared by many screens: status badges, avatars,
-   empty states, label/value rows, plan choice cards and the "algorithm used"
-   caption under every list. Every piece of user text goes through escapeHTML.
+   E3 Fiber Connect - ui/components.js
+   Maliliit na piraso ng markup na share ng maraming screen: status badges,
+   avatars, empty states, label/value rows, plan choice cards, at yung caption
+   na "algorithm used" sa ilalim ng bawat list. Lahat ng text galing sa user
+   dumadaan muna sa escapeHTML.
    ========================================================================== */
 
 'use strict';
 
-// status → colour tone and the words shown (linear search; ~20 entries)
+// status -> anong kulay at anong salita yung lalabas (linear search lang, mga 20 entries)
 const STATUS_STYLES = [
   { status: 'Pending', tone: 'orange', label: 'Pending' },
   { status: 'Approved', tone: 'blue', label: 'Approved' },
@@ -31,21 +32,21 @@ const STATUS_STYLES = [
   { status: 'coming-soon', tone: 'orange', label: 'Coming soon' },
 ];
 
-/** statusStyle — tone + label for a status (linear search). O(n) */
+/** statusStyle - kunin yung tone at label ng status (linear search). O(n) */
 function statusStyle(status) {
   const index = linearSearch(STATUS_STYLES, 'status', status);
   return index === -1 ? { tone: 'gray', label: textOf(status) } : STATUS_STYLES[index];
 }
 
-/** statusBadge — a coloured pill with a dot: ● Pending. size "lg" makes it larger. */
+/** statusBadge - pill na may kulay at dot, parang "● Pending". Pag size "lg", mas malaki. */
 function statusBadge(status, size) {
   const style = statusStyle(status);
   return '<span class="status status-' + style.tone + (size === 'lg' ? ' status-lg' : '') + '"><span class="status-dot" aria-hidden="true"></span>' + escapeHTML(style.label) + '</span>';
 }
 
 /**
- * onSegmentChange — handle clicks on a segmented control's buttons
- * ([data-value]); the pressed state moves to the clicked button.
+ * onSegmentChange - para sa clicks sa mga button ng segmented control
+ * ([data-value]); lilipat yung pressed state sa button na kinlick.
  */
 function onSegmentChange(container, handler) {
   if (!container) {
@@ -61,31 +62,31 @@ function onSegmentChange(container, handler) {
   });
 }
 
-/** avatar — initials in a circle; the colour comes from a hash of the name. */
+/** avatar - initials sa loob ng bilog; yung kulay galing sa hash ng pangalan. */
 function avatar(name, size) {
   const tone = hashText(name, 6);
   return '<span class="avatar avatar-' + (size || 'md') + ' avatar-tone-' + tone + '" aria-hidden="true">' + escapeHTML(initialsOf(name)) + '</span>';
 }
 
-/** emptyState — shown when a list has nothing to display. */
+/** emptyState - lumalabas pag walang laman yung list. */
 function emptyState(iconName, title, text) {
   return '<div class="empty-state">' + iconHTML(iconName, 'empty-state-icon')
     + '<p class="empty-state-title">' + escapeHTML(title) + '</p>'
     + (text ? '<p class="empty-state-text">' + escapeHTML(text) + '</p>' : '') + '</div>';
 }
 
-/** kvRow — one label / value line in a detail panel (value is already-safe HTML). */
+/** kvRow - isang linya ng label / value sa detail panel (safe na HTML na yung value). */
 function kvRow(label, valueHTML) {
   return '<div class="kv-row"><dt>' + escapeHTML(label) + '</dt><dd>' + valueHTML + '</dd></div>';
 }
 
-/** splitSortValue — a sort menu value "price-desc" → { field: "price", order: "desc" }. O(n) */
+/** splitSortValue - hatiin yung value ng sort menu, "price-desc" -> { field: "price", order: "desc" }. O(n) */
 function splitSortValue(value) {
   const parts = splitText(value, '-');
   return { field: parts[0], order: parts.length > 1 ? parts[1] : 'asc' };
 }
 
-/** formatMs — 0.0421 → "0.04 ms". */
+/** formatMs - gawing text yung ms, 0.0421 -> "0.04 ms". */
 function formatMs(ms) {
   if (ms < 0.01) {
     return '< 0.01 ms';
@@ -94,8 +95,8 @@ function formatMs(ms) {
 }
 
 /**
- * algorithmCaption — the line under each list, e.g.
- * "Showing 4 of 16 · Insertion sort · 9 comparisons · 3 moves · O(n²)"
+ * algorithmCaption - yung linya sa ilalim ng bawat list, halimbawa
+ * "Showing 4 of 16 - Insertion sort - 9 comparisons - 3 moves - O(n²)"
  */
 function algorithmCaption(shown, total, noun, stats, algorithmId) {
   const info = sortAlgorithmInfo(algorithmId);
@@ -109,8 +110,8 @@ function algorithmCaption(shown, total, noun, stats, algorithmId) {
 }
 
 /**
- * planChoiceCard — a radio card for choosing a plan (apply form, walk-in form,
- * change-plan sheet). The <input> stays a real radio for keyboard users.
+ * planChoiceCard - radio card para pumili ng plan (apply form, walk-in form,
+ * change-plan sheet). Totoong radio pa rin yung <input> para gumana sa keyboard.
  */
 function planChoiceCard(plan, groupName, idPrefix, checked) {
   const id = idPrefix + '-' + plan.id;
@@ -125,7 +126,7 @@ function planChoiceCard(plan, groupName, idPrefix, checked) {
     + '</label></div>';
 }
 
-/** customPlanChoiceCard — the "Custom price" option next to the plan cards (staff forms). */
+/** customPlanChoiceCard - yung option na "Custom price" katabi ng plan cards (sa staff forms lang). */
 function customPlanChoiceCard(groupName, idPrefix, checked) {
   const id = idPrefix + '-custom';
   return '<div class="choice">'
@@ -139,8 +140,8 @@ function customPlanChoiceCard(groupName, idPrefix, checked) {
 }
 
 /**
- * compactChoice — a one-line radio card (reasons, time slots, subscribers).
- * `disabled` greys it out (e.g. "Already billed").
+ * compactChoice - radio card na isang linya lang (reasons, time slots, subscribers).
+ * Pag `disabled`, naka-gray siya (halimbawa "Already billed").
  */
 function compactChoice(groupName, id, value, title, text, checked, disabled) {
   return '<div class="choice">'
@@ -152,17 +153,17 @@ function compactChoice(groupName, id, value, title, text, checked, disabled) {
     + '</label></div>';
 }
 
-/** tonePill — a small coloured pill for free text (e.g. "3 days overdue"). */
+/** tonePill - maliit na pill na may kulay para sa kahit anong text (halimbawa "3 days overdue"). */
 function tonePill(text, tone) {
   return '<span class="pill pill-' + tone + '">' + escapeHTML(text) + '</span>';
 }
 
-/** countBadge — the little number next to a sidebar item or segment. */
+/** countBadge - yung maliit na number sa tabi ng sidebar item o segment. */
 function countBadge(count) {
   return count > 0 ? '<span class="count-badge">' + formatNumber(count) + '</span>' : '';
 }
 
-/** renderSegmentCounts — write "(n)" counts into segmented buttons [data-count-for]. */
+/** renderSegmentCounts - ilagay yung "(n)" na bilang sa mga segmented button [data-count-for]. */
 function renderSegmentCounts(container, counts) {
   if (!container) {
     return;
@@ -174,7 +175,7 @@ function renderSegmentCounts(container, counts) {
   }
 }
 
-/** markSegment — press one segment of a segmented control, release the rest. O(n) */
+/** markSegment - i-press yung isang segment ng segmented control, i-release yung iba. O(n) */
 function markSegment(container, value) {
   if (!container) {
     return;
@@ -186,8 +187,8 @@ function markSegment(container, value) {
 }
 
 /**
- * checkListHTML — a ✓ / ✗ list of checks, used for payment validation and for
- * reviewing staff requests. checks: [{ label, ok, text }]
+ * checkListHTML - list ng mga check na may ✓ / ✗, ginagamit sa payment validation
+ * at sa pag-review ng staff requests. checks: [{ label, ok, text }]
  */
 function checkListHTML(checks) {
   let html = '<ol class="check-list">';
@@ -201,7 +202,7 @@ function checkListHTML(checks) {
   return html + '</ol>';
 }
 
-/** timelineHTML — a vertical list of steps with done / current / upcoming / failed dots. */
+/** timelineHTML - patayong list ng steps, may dot para sa done / current / upcoming / failed. */
 function timelineHTML(steps) {
   let html = '<ol class="timeline">';
   for (let i = 0; i < steps.length; i++) {

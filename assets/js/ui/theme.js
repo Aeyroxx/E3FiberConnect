@@ -1,9 +1,9 @@
 /* ==========================================================================
-   E3 Fiber Connect · ui/theme.js
-   Light / dark appearance. The site always opens in LIGHT mode; every button
-   marked data-theme-toggle (site nav, staff toolbar, sign-in page) switches
-   between light and dark. The choice lives in memory like the rest of the
-   data (no localStorage / cookies), so it lasts until the page is reloaded.
+   E3 Fiber Connect - ui/theme.js
+   Light / dark mode. Laging LIGHT mode pag binuksan yung site; lahat ng button
+   na may data-theme-toggle (site nav, staff toolbar, sign-in page) ay nagpapalit
+   between light at dark. Nasa memory lang yung napili, katulad ng ibang data
+   (walang localStorage / cookies), kaya hanggang ma-reload lang yung page.
    ========================================================================== */
 
 'use strict';
@@ -13,8 +13,8 @@ const THEME_BAR_COLORS = { light: '#fbfbfd', dark: '#161617' };
 const THEME_FADE_MS = 300;
 
 /**
- * applyTheme — set <html data-theme>, the browser bar colour and every toggle
- * button (pressed = dark, icon = what a press switches to). O(n) for n buttons
+ * applyTheme - sine-set yung <html data-theme>, kulay ng browser bar at bawat toggle
+ * button (pressed = dark, yung icon = kung saan lilipat pag pinindot). O(n) para sa n buttons
  */
 function applyTheme(mode) {
   themeState.mode = mode === 'dark' ? 'dark' : 'light';
@@ -31,7 +31,7 @@ function applyTheme(mode) {
   }
 }
 
-/** toggleTheme — switch light ↔ dark with a short cross-fade (none if reduced motion). O(n) */
+/** toggleTheme - palit light <-> dark na may maikling cross-fade (wala pag naka-reduced motion). O(n) */
 function toggleTheme() {
   const root = document.documentElement;
   if (!prefersReducedMotion()) {
@@ -43,7 +43,7 @@ function toggleTheme() {
   applyTheme(themeState.mode === 'dark' ? 'light' : 'dark');
 }
 
-/** initTheme — start in light mode and wire every toggle button. O(n) */
+/** initTheme - mag-start sa light mode tapos i-wire lahat ng toggle button. O(n) */
 function initTheme() {
   const buttons = document.querySelectorAll('[data-theme-toggle]');
   for (let i = 0; i < buttons.length; i++) {

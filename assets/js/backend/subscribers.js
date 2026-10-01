@@ -1,18 +1,18 @@
 /* ==========================================================================
-   E3 Fiber Connect · backend/subscribers.js
-   Subscriber accounts. A subscriber is created when an installation is marked
-   complete; the account number is the application's reference number.
+   E3 Fiber Connect - backend/subscribers.js
+   Dito yung mga subscriber account. Nagkakaroon ng subscriber pag na-mark nang
+   complete yung installation; yung account number ay yung reference number ng application.
 
-     Active ◀──suspend / reactivate──▶ Suspended        Active or Suspended ──▶ Terminated
+     Active <--suspend / reactivate--> Suspended        Active o Suspended --> Terminated
 
-   `subscribers` is kept sorted by account number with sortedInsert
-   (installations finish in any order), so look-ups are binary searches.
+   Naka-sort yung `subscribers` by account number gamit sortedInsert (kasi
+   kahit anong order natatapos yung installations), kaya binary search lang pag maghahanap.
 
-   Defense modules:
-     Create Account           — Justin Banaag
+   Modules sa defense:
+     Create Account           - si Justin Banaag
        (previewSubscriberAccount, validateAccountDetails, createSubscriberAccount,
         createSubscriberFromApplication)
-     Accounts management      — Dela Cruz Riceerich
+     Accounts management      - si Dela Cruz Riceerich
        (findSubscriber, listSubscribers, setSubscriberStatus, changeSubscriberPlan)
    ========================================================================== */
 
@@ -21,8 +21,8 @@
 const SUBSCRIBER_STATUSES = ['Active', 'Suspended', 'Terminated'];
 
 /**
- * findSubscriber — the subscriber with this account number, or null.
- * Binary search. Time O(log n) · Space O(1)
+ * findSubscriber - hanapin yung subscriber na may ganitong account number, null kung wala.
+ * Binary search. Time: O(log n), Space: O(1)
  */
 function findSubscriber(accountNo) {
   const index = binarySearch(subscribers, 'accountNo', accountNo);
@@ -30,9 +30,9 @@ function findSubscriber(accountNo) {
 }
 
 /**
- * createSubscriberFromApplication — open an account for a completed
- * application ("put" with sortedInsert). Returns { subscriber, position }.
- * Time O(log n) search + O(n) shift · Space O(1)
+ * createSubscriberFromApplication - gagawan ng account yung completed na
+ * application ("put" gamit sortedInsert). Binabalik: { subscriber, position }.
+ * Time: O(log n) search + O(n) shift, Space: O(1)
  */
 function createSubscriberFromApplication(app, sinceISO, extras) {
   const subscriber = {
@@ -56,10 +56,10 @@ function createSubscriberFromApplication(app, sinceISO, extras) {
 }
 
 /**
- * previewSubscriberAccount — what "Create account" will do, before it happens:
- * the account number, the billing day and first bill, and WHERE the record will
- * go in the sorted subscribers array (lowerBound = binary search for the spot).
- * Time O(log n) · Space O(1)
+ * previewSubscriberAccount - pinapakita muna kung ano yung gagawin ng "Create account"
+ * bago pa mangyari: yung account number, billing day at first bill, tsaka KUNG SAAN
+ * mapupunta yung record sa sorted na subscribers array (lowerBound = binary search ng pwesto).
+ * Time: O(log n), Space: O(1)
  */
 function previewSubscriberAccount(referenceNo) {
   const app = findApplication(referenceNo);
@@ -91,7 +91,7 @@ function previewSubscriberAccount(referenceNo) {
   };
 }
 
-/** isSerialText — letters, digits and dashes only (modem serial numbers). O(n) */
+/** isSerialText - letters, digits at dash lang dapat (para sa serial number ng modem). O(n) */
 function isSerialText(text) {
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
@@ -103,9 +103,9 @@ function isSerialText(text) {
 }
 
 /**
- * validateAccountDetails — the "Create account" form: the installer must
- * confirm the connection was tested; the modem serial number is optional
- * (6–24 letters, digits or dashes). Time O(n) · Space O(1)
+ * validateAccountDetails - check ng "Create account" form: dapat i-confirm ng
+ * installer na na-test na yung connection; optional lang yung serial number ng
+ * modem (6-24 na letters, digits o dash). Time: O(n), Space: O(1)
  */
 function validateAccountDetails(details) {
   const errors = {};
@@ -120,10 +120,10 @@ function validateAccountDetails(details) {
 }
 
 /**
- * createSubscriberAccount — the "Create account" step after an installation:
- * validate the form, then complete the installation, which opens the account
- * with a sorted insert. Returns { ok, subscriber, position } or errors.
- * Time O(n) (later records shift one place) · Space O(1)
+ * createSubscriberAccount - yung "Create account" step pagkatapos ng installation:
+ * i-validate muna yung form, tapos i-complete yung installation, na siya namang
+ * gagawa ng account gamit sorted insert. Binabalik: { ok, subscriber, position } o errors.
+ * Time: O(n) (umuusog ng isa yung mga record sa likod), Space: O(1)
  */
 function createSubscriberAccount(referenceNo, details, actor) {
   const errors = validateAccountDetails(details);
@@ -134,15 +134,15 @@ function createSubscriberAccount(referenceNo, details, actor) {
 }
 
 /**
- * subscriberBills — every bill of one account, oldest month first
- * (bills are sorted by id "BILL-YYYYMM-…", so a linear scan keeps month order).
- * Time O(n) for n bills in the table · Space O(n)
+ * subscriberBills - lahat ng bill ng isang account, oldest month first
+ * (naka-sort yung bills by id "BILL-YYYYMM-...", kaya sunod-sunod pa rin yung buwan sa linear scan).
+ * Time: O(n) para sa n bills sa table, Space: O(n)
  */
 function subscriberBills(accountNo) {
   return linearSearchAll(bills, 'accountNo', accountNo);
 }
 
-/** subscriberBalance — the total of the account's unpaid bills. Time O(n) */
+/** subscriberBalance - total ng lahat ng unpaid na bill ng account. Time: O(n) */
 function subscriberBalance(accountNo) {
   let total = 0;
   for (let i = 0; i < bills.length; i++) {
@@ -153,7 +153,7 @@ function subscriberBalance(accountNo) {
   return total;
 }
 
-/** subscriberPaidTotal — the total the account has paid so far. Time O(n) */
+/** subscriberPaidTotal - magkano na lahat yung nabayaran ng account so far. Time: O(n) */
 function subscriberPaidTotal(accountNo) {
   let total = 0;
   for (let i = 0; i < bills.length; i++) {
@@ -164,7 +164,7 @@ function subscriberPaidTotal(accountNo) {
   return total;
 }
 
-/** subscriberRow — list fields, including computed balance and price for sorting. O(n) */
+/** subscriberRow - mga field para sa list, kasama na yung computed na balance at price para ma-sort. O(n) */
 function subscriberRow(subscriber) {
   return {
     accountNo: subscriber.accountNo,
@@ -182,16 +182,16 @@ function subscriberRow(subscriber) {
 }
 
 /**
- * listSubscribers — filter by status, search the text, sort with the chosen
- * algorithm. options: { status, query, sortField, sortOrder, algorithm }
- * Time O(n²) for balances + O(n²) sort · Space O(n)
+ * listSubscribers - i-filter by status, hanapin yung text, tapos i-sort gamit yung
+ * napiling algorithm. options: { status, query, sortField, sortOrder, algorithm }
+ * Time: O(n²) sa balances + O(n²) sort, Space: O(n)
  */
 function listSubscribers(options) {
   const status = options.status || 'all';
-  const base = status === 'all' ? subscribers : linearSearchAll(subscribers, 'status', status);   // 1. filter by status
+  const base = status === 'all' ? subscribers : linearSearchAll(subscribers, 'status', status);   // 1. filter muna by status
   const found = textSearchRecords(base, ['fullName', 'email', 'accountNo', 'barangay', 'contactNumber'], options.query || ''); // 2. search
   const rows = [];
-  for (let i = 0; i < found.length; i++) {                  // 3. each row gets its plan, price and balance
+  for (let i = 0; i < found.length; i++) {                  // 3. bawat row, lagyan ng plan, price at balance
     arrayAppend(rows, subscriberRow(found[i]));
   }
   const started = stopwatchStart();
@@ -202,7 +202,7 @@ function listSubscribers(options) {
   return { rows: sorted, total: subscribers.length, stats: stats };
 }
 
-/** countSubscribersByStatus — one pass. Time O(n) · Space O(1) */
+/** countSubscribersByStatus - bilangin per status, isang ikot lang. Time: O(n), Space: O(1) */
 function countSubscribersByStatus() {
   const counts = { all: subscribers.length, Active: 0, Suspended: 0, Terminated: 0 };
   for (let i = 0; i < subscribers.length; i++) {
@@ -212,16 +212,16 @@ function countSubscribersByStatus() {
 }
 
 /**
- * setSubscriberStatus — suspend, reactivate or terminate an account.
- * Allowed: Active → Suspended, Suspended → Active, Active/Suspended → Terminated.
- * Time O(log n)
+ * setSubscriberStatus - i-suspend, i-reactivate o i-terminate yung account.
+ * Pwede lang: Active -> Suspended, Suspended -> Active, Active/Suspended -> Terminated.
+ * Time: O(log n)
  */
 function setSubscriberStatus(accountNo, status, actor) {
-  const stepUp = stepUpRequired();            // 0. two-step verification: a Google Authenticator code in the last 5 minutes
+  const stepUp = stepUpRequired();            // 0. two-step verification: dapat may Google Authenticator code sa huling 5 minutes
   if (stepUp) {
     return stepUp;
   }
-  const subscriber = findSubscriber(accountNo);                 // 1. binary search by account number
+  const subscriber = findSubscriber(accountNo);                 // 1. binary search gamit account number
   if (!subscriber) {
     return { ok: false, error: 'Subscriber not found.' };
   }
@@ -230,14 +230,14 @@ function setSubscriberStatus(accountNo, status, actor) {
   }
   const allowed = (subscriber.status === 'Active' && (status === 'Suspended' || status === 'Terminated'))
     || (subscriber.status === 'Suspended' && (status === 'Active' || status === 'Terminated'));
-  if (!allowed) {                                               // 2. only the allowed moves
+  if (!allowed) {                                               // 2. yung mga allowed na lipat lang
     return { ok: false, error: 'That change is not allowed.' };
   }
   const verbs = { Active: 'Reactivate', Suspended: 'Suspend', Terminated: 'Terminate' };
-  const before = snapshotFields(subscriber, ['status', 'statusChangedAt']);   // 3. remember the old values
-  subscriber.status = status;                                   // 4. change the status
+  const before = snapshotFields(subscriber, ['status', 'statusChangedAt']);   // 3. i-save muna yung dating values
+  subscriber.status = status;                                   // 4. palitan na yung status
   subscriber.statusChangedAt = nowISO();
-  // 5. one undo step (stack push)
+  // 5. isang undo step (push sa stack)
   pushUndo(verbs[status] + ' ' + subscriber.fullName, [updateOperation('subscribers', accountNo, before)], nameOfActor(actor));
   logActivity('subscriber', verbs[status] + 'd ' + subscriber.fullName + ' (' + accountNo + ')', nameOfActor(actor));
   markDataChanged();
@@ -245,12 +245,13 @@ function setSubscriberStatus(accountNo, status, actor) {
 }
 
 /**
- * changeSubscriberPlan — move an account to another plan (or a custom price).
- * Bills already issued keep their amount; the next bill uses the new price.
- * Time O(log n)
+ * changeSubscriberPlan - ilipat yung account sa ibang plan (o custom price).
+ * Yung mga bill na na-issue na, same pa rin yung amount; sa susunod na bill na
+ * gagamitin yung bagong price.
+ * Time: O(log n)
  */
 function changeSubscriberPlan(accountNo, planId, customPrice, actor) {
-  const stepUp = stepUpRequired();            // 0. two-step verification: a Google Authenticator code in the last 5 minutes
+  const stepUp = stepUpRequired();            // 0. two-step verification: dapat may Google Authenticator code sa huling 5 minutes
   if (stepUp) {
     return stepUp;
   }
@@ -284,10 +285,10 @@ function changeSubscriberPlan(accountNo, planId, customPrice, actor) {
 }
 
 /**
- * verifySubscriberAccess — public "Pay bills" sign-in: the account number AND
- * the registered mobile number must both match. The error never says which
- * part was wrong, so account numbers can't be guessed one piece at a time.
- * Time O(log n)
+ * verifySubscriberAccess - sign-in para sa public na "Pay bills": dapat parehong
+ * tama yung account number AT yung registered na mobile number. Hindi sinasabi
+ * ng error kung alin yung mali, para hindi mahulaan yung account number paisa-isa.
+ * Time: O(log n)
  */
 function verifySubscriberAccess(accountInput, mobileInput) {
   const accountNo = normalizeReference(accountInput);
@@ -303,9 +304,9 @@ function verifySubscriberAccess(accountInput, mobileInput) {
 }
 
 /**
- * nextBillInfo — the next date a subscriber should pay: the due date of the
- * oldest unpaid bill, or the start of the next billing period.
- * Time O(n)
+ * nextBillInfo - kailan dapat magbayad ulit yung subscriber: yung due date ng
+ * pinakalumang unpaid na bill, o kaya yung simula ng susunod na billing period.
+ * Time: O(n)
  */
 function nextBillInfo(subscriber) {
   const unpaid = unpaidBillsQueue(subscriber.accountNo);

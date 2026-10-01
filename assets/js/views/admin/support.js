@@ -1,7 +1,8 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/support.js
-   Support tickets. Open tickets wait in a FIFO QUEUE; "Serve next" dequeues
-   the oldest one and assigns it to you. Tickets open in a sheet.
+   E3 Fiber Connect - views/admin/support.js
+   Support tickets. Yung mga open na ticket naghihintay sa FIFO QUEUE; pag
+   pinindot yung "Serve next", ide-dequeue yung pinakaluma at ia-assign sa'yo.
+   Sa sheet nagbubukas yung mga ticket.
    ========================================================================== */
 
 'use strict';

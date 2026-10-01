@@ -1,8 +1,8 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/public/plans.js
-   Plans page: the recommender (linear search for the first plan that is
-   fast enough), plan cards sorted with SELECTION SORT, and a comparison table.
-   Defense module: Plan Selection — presented by Joshua Santos.
+   E3 Fiber Connect - views/public/plans.js
+   Plans page: yung recommender (linear search para sa unang plan na sapat na
+   yung bilis), plan cards na naka-sort gamit SELECTION SORT, at comparison table.
+   Module sa defense: Plan Selection - si Joshua Santos ang mag-eexplain.
    ========================================================================== */
 
 'use strict';
@@ -50,7 +50,7 @@ const COMPARE_ROWS = [
   { key: 'lockIn', label: 'Lock-in period' },
 ];
 
-/** compareCellHTML — the text for one cell of the comparison table. O(1) */
+/** compareCellHTML - yung text ng isang cell sa comparison table. O(1) */
 function compareCellHTML(plan, key) {
   if (key === 'speed') {
     return '<strong>' + plan.speed + ' Mbps</strong>';
@@ -67,7 +67,7 @@ function compareCellHTML(plan, key) {
   if (key === 'installation') {
     return 'Free or low-cost';
   }
-  return 'None'; // data cap and lock-in period
+  return 'None'; // data cap at lock-in period
 }
 
 function renderCompareTable() {

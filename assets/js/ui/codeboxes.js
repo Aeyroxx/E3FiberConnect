@@ -1,24 +1,25 @@
 /* ==========================================================================
-   E3 Fiber Connect · ui/codeboxes.js
-   The six one-digit boxes for a verification code — used by the Google
-   Authenticator sheet and by "Forgot password". A group is any element that
-   holds six <input class="otp-digit" data-index="0…5">.
+   E3 Fiber Connect - ui/codeboxes.js
+   Yung anim na box (tig-isang digit) para sa verification code - gamit ito ng
+   Google Authenticator sheet at ng "Forgot password". Ang group ay kahit anong
+   element na may anim na <input class="otp-digit" data-index="0...5">.
 
-   Apple-style behaviour: every key press moves on to the next box, Backspace
-   goes back, the arrows move, and a pasted or auto-filled code fills all six
-   at once. The sixth digit submits by itself.
+   Parang sa Apple yung behavior: bawat pindot lilipat sa susunod na box, pag
+   Backspace babalik, gumagana yung arrows, at pag nag-paste o nag-auto-fill ng
+   code, sabay-sabay na mapupuno yung anim. Pag na-type na yung pang-anim na
+   digit, kusa na siyang mag-susubmit.
    ========================================================================== */
 
 'use strict';
 
 const CODE_LENGTH = 6;
 
-/** codeBoxes — the six boxes of a group. O(1) */
+/** codeBoxes - yung anim na box ng isang group. O(1) */
 function codeBoxes(group) {
   return group.querySelectorAll('.otp-digit');
 }
 
-/** codeBoxesValue — the digits typed so far. O(n) */
+/** codeBoxesValue - yung mga digit na na-type na so far. O(n) */
 function codeBoxesValue(group) {
   const boxes = codeBoxes(group);
   let code = '';
@@ -28,7 +29,7 @@ function codeBoxesValue(group) {
   return code;
 }
 
-/** clearCodeBoxes — empty every box. O(n) */
+/** clearCodeBoxes - burahin yung laman ng bawat box. O(n) */
 function clearCodeBoxes(group) {
   const boxes = codeBoxes(group);
   for (let i = 0; i < boxes.length; i++) {
@@ -37,7 +38,7 @@ function clearCodeBoxes(group) {
   }
 }
 
-/** fillCodeBoxes — put the digits of `text` into the boxes from `index` on; returns the next empty box. O(n) */
+/** fillCodeBoxes - ilagay yung mga digit ng `text` sa boxes simula sa `index`; binabalik yung susunod na bakanteng box. O(n) */
 function fillCodeBoxes(group, index, text) {
   const boxes = codeBoxes(group);
   let at = index;
@@ -51,7 +52,7 @@ function fillCodeBoxes(group, index, text) {
   return at;
 }
 
-/** focusCodeBox — focus (and select) one box; past the end means the last one. O(1) */
+/** focusCodeBox - i-focus (at i-select) yung isang box; pag lumampas, yung huling box na lang. O(1) */
 function focusCodeBox(group, index) {
   const boxes = codeBoxes(group);
   const box = boxes[index < boxes.length ? index : boxes.length - 1];
@@ -59,12 +60,12 @@ function focusCodeBox(group, index) {
   box.select();
 }
 
-/** setCodeBoxesState — '' | 'error' (a short damped shake) | 'success' (green). O(1) */
+/** setCodeBoxesState - '' | 'error' (maikling yanig na humihina agad) | 'success' (green). O(1) */
 function setCodeBoxesState(group, state) {
   group.classList.remove('is-error');
   group.classList.remove('is-success');
   if (state === 'error') {
-    void group.offsetWidth;                 // restart the shake if it is already running
+    void group.offsetWidth;                 // ulitin yung shake kung tumatakbo pa
     group.classList.add('is-error');
   } else if (state === 'success') {
     group.classList.add('is-success');
@@ -72,9 +73,9 @@ function setCodeBoxesState(group, state) {
 }
 
 /**
- * wireCodeBoxes — keyboard, paste and auto-fill for a group.
- * onComplete() runs when all six digits are in; onEdit() runs when a digit is
- * typed while the boxes show an error (to clear the message).
+ * wireCodeBoxes - keyboard, paste at auto-fill para sa isang group.
+ * Tatakbo yung onComplete() pag kumpleto na yung anim na digit; yung onEdit() naman
+ * pag may na-type habang naka-error yung boxes (para mawala na yung message).
  */
 function wireCodeBoxes(group, onComplete, onEdit) {
   group.addEventListener('input', function (event) {
@@ -86,7 +87,7 @@ function wireCodeBoxes(group, onComplete, onEdit) {
     if (group.classList.contains('is-error') && onEdit) {
       onEdit();
     }
-    const next = fillCodeBoxes(group, index, typed);     // one digit, or a whole code from auto-fill
+    const next = fillCodeBoxes(group, index, typed);     // isang digit, o buong code galing sa auto-fill
     if (codeBoxesValue(group).length === CODE_LENGTH) {
       onComplete();
     } else if (next > index) {

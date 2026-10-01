@@ -1,9 +1,9 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/subscriber-detail.js
-   One subscriber: account, billing history, balance (settles the OLDEST
-   unpaid bill first — a queue), plan changes, suspend / reactivate /
-   terminate, payment reports and support tickets.
-   Defense module: Accounts management (Subscribers) — presented by Dela Cruz Riceerich.
+   E3 Fiber Connect - views/admin/subscriber-detail.js
+   Isang subscriber: account, billing history, balance (inuuna bayaran yung
+   PINAKALUMANG unpaid na bill - parang queue), plan changes, suspend / reactivate /
+   terminate, payment reports at support tickets.
+   Module sa defense: Accounts management (Subscribers) - si Dela Cruz Riceerich ang mag-eexplain.
    ========================================================================== */
 
 'use strict';

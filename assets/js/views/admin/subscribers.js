@@ -1,6 +1,6 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/subscribers.js
-   Subscriber list: status filter, text search and a user-chosen sort.
+   E3 Fiber Connect - views/admin/subscribers.js
+   List ng subscribers: may status filter, text search at sort na ikaw ang pipili.
    ========================================================================== */
 
 'use strict';

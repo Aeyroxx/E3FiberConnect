@@ -1,16 +1,16 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/registrations.js
-   Approval of staff registrations: the approval QUEUE (the request at the
-   front is shown with its checks), Approve / Reject, and the list of every
-   request. Owners and Admins decide; Support can only look.
-   Defense module: Approval of registration admins — presented by Dela Cruz Riceerich.
+   E3 Fiber Connect - views/admin/registrations.js
+   Approval ng staff registrations: yung approval QUEUE (pinapakita yung
+   request sa harap kasama mga check nito), Approve / Reject, at list ng lahat
+   ng request. Owners at Admins ang nagde-decide; tingin lang pwede sa Support.
+   Module sa defense: Approval of registration admins - si Dela Cruz Riceerich ang mag-eexplain.
    ========================================================================== */
 
 'use strict';
 
 const registrationsViewState = { status: 'all', query: '', sort: 'submittedAt-desc', registrationId: '' };
 
-/** registrationActionButtons — Reject and Approve (Approve only when every check passed). */
+/** registrationActionButtons - Reject at Approve (Approve lang pag pasado lahat ng check). */
 function registrationActionButtons(request, review, compact) {
   const id = escapeHTML(request.registrationId);
   const name = escapeHTML(request.fullName);
@@ -20,7 +20,7 @@ function registrationActionButtons(request, review, compact) {
     + (review.passed ? '' : ' disabled title="' + escapeHTML(review.firstFailure.text) + '"') + '>' + (compact ? '' : iconHTML('check')) + 'Approve</button>';
 }
 
-/** registrationCardHTML — the request at the front of the queue, with the reviewer's checks. */
+/** registrationCardHTML - yung request sa harap ng queue, kasama mga check ng reviewer. */
 function registrationCardHTML(request, review, canReview) {
   return '<div class="validate-card">'
     + '<div class="validate-head">' + avatar(request.fullName, 'md')
@@ -117,7 +117,7 @@ function openRejectRegistrationSheet(registrationId) {
 
 function runRegistrationAction(action, element, event) {
   if (event && event.detail > 1) {
-    return; // the 2nd click of a double-click would land on the NEXT request's button after the redraw
+    return; // yung 2nd click ng double-click, sa button ng KASUNOD na request tatama pagka-redraw
   }
   const registrationId = element.getAttribute('data-registration');
   if (action === 'approve-registration') {

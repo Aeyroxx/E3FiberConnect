@@ -1,15 +1,16 @@
 /* ==========================================================================
-   E3 Fiber Connect · app.js
-   Start-up: fill the arrays with sample data, list every screen in the route
-   table, wire up each screen once, then draw the screen in the address bar.
+   E3 Fiber Connect - app.js
+   Dito nagsisimula lahat: lagyan ng sample data yung mga array, ilista lahat ng
+   screen sa route table, i-wire up isa-isa yung bawat screen (isang beses lang),
+   tapos i-draw yung screen na nasa address bar.
    ========================================================================== */
 
 'use strict';
 
 /**
- * registerAllRoutes — the route table (an array, searched in order).
- * "/admin/applications/new" must come before "/admin/applications/:ref",
- * because the first matching route wins.
+ * registerAllRoutes - yung route table (array siya, hinahanap in order).
+ * Dapat mauna yung "/admin/applications/new" bago yung "/admin/applications/:ref",
+ * kasi yung unang route na tumugma yung masusunod.
  */
 function registerAllRoutes() {
   registerRoute('/', 'home', 'public', renderHomeView, { title: 'E3 Fiber Connect', nav: 'home' });
@@ -44,7 +45,7 @@ function registerAllRoutes() {
   registerNotFound('not-found', renderNotFoundView);
 }
 
-/** initAllScreens — attach every screen's event listeners exactly once. */
+/** initAllScreens - ikabit yung event listeners ng bawat screen, isang beses lang talaga. */
 function initAllScreens() {
   initTheme();
   initPublicChrome();
@@ -80,8 +81,8 @@ function initAllScreens() {
 }
 
 /**
- * warnBeforeLeaving — the data lives only in memory, so a reload would erase
- * any changes. After something changed, ask the browser to confirm first.
+ * warnBeforeLeaving - nasa memory lang yung data, kaya pag nag-reload mabubura
+ * lahat ng binago. Kapag may nagbago na, papa-confirm muna natin sa browser.
  */
 function warnBeforeLeaving(event) {
   if (databaseState.changed) {
@@ -96,7 +97,7 @@ function startApp() {
   initAllScreens();
   window.addEventListener('beforeunload', warnBeforeLeaving);
   if (currentHashPath() === null) {
-    window.history.replaceState(null, '', '#/'); // e.g. opened as index.html#main
+    window.history.replaceState(null, '', '#/'); // halimbawa, kung binuksan as index.html#main
   }
   startRouter();
 }

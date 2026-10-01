@@ -1,12 +1,13 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/forgot.js
-   "Forgot password" — e-mail → 6-digit code → new password → done.
+   E3 Fiber Connect - views/admin/forgot.js
+   "Forgot password" - e-mail -> 6-digit code -> bagong password -> tapos.
 
-   The code arrives like a message on a phone: a banner slides down from the
-   top of the screen a moment after "Send code". Tapping it fills the six boxes
-   (like the one-time-code suggestion on iPhone); dragging it up dismisses it.
-   The six boxes are the same as in the Google Authenticator sheet
-   (ui/codeboxes.js); the checks live in backend/recovery.js.
+   Dumarating yung code na parang message sa phone: may banner na bumababa
+   galing sa taas ng screen ilang saglit pagkatapos pindutin yung "Send code".
+   Pag tinap, mapupuno yung anim na box (parang one-time-code suggestion sa
+   iPhone); pag hinila pataas, mawawala siya. Pareho lang yung anim na box sa
+   Google Authenticator sheet (ui/codeboxes.js); yung mga check nasa
+   backend/recovery.js.
    ========================================================================== */
 
 'use strict';
@@ -15,12 +16,12 @@ const forgotView = { step: 'email', email: '', code: '', bannerTimer: 0, resendT
 const FORGOT_PASSWORD_FIELDS = { newPassword: 'forgotNewPassword', confirmPassword: 'forgotConfirmPassword' };
 const NOTIFY_SHOW_MS = 12000;
 
-/** forgotPageOpen — the reset page is on screen at the code step (the banner may only appear then). O(1) */
+/** forgotPageOpen - nasa screen yung reset page at nasa code step (doon lang pwede lumabas yung banner). O(1) */
 function forgotPageOpen() {
   return !qs('[data-view="admin-forgot"]').hidden && forgotView.step === 'code';
 }
 
-/** showForgotStep — one of 'email' | 'code' | 'password' | 'done', with focus on its first control. */
+/** showForgotStep - isa sa 'email' | 'code' | 'password' | 'done', naka-focus sa unang control nito. */
 function showForgotStep(step) {
   forgotView.step = step;
   toggleElement(byId('forgotStepEmail'), step === 'email');
@@ -42,14 +43,14 @@ function showForgotStep(step) {
   }, 60);
 }
 
-/* ------------------------------------------------ the message banner */
+/* ------------------------------------------------ yung message banner */
 
-/** groupedCode — "048213" → "048 213", easier to read at a glance. O(1) */
+/** groupedCode - "048213" -> "048 213", para mas madaling basahin. O(1) */
 function groupedCode(code) {
   return textSlice(code, 0, 3) + ' ' + textSlice(code, 3, 6);
 }
 
-/** showCodeNotification — the code "arrives": the banner slides down from the top. */
+/** showCodeNotification - "dumating" na yung code: bababa yung banner galing sa taas. */
 function showCodeNotification(message) {
   const banner = byId('notifyBanner');
   forgotView.code = message.code;
@@ -57,7 +58,7 @@ function showCodeNotification(message) {
   setText('notifyMessage', groupedCode(message.code) + ' is your code to reset your E3 Fiber Connect password. It expires in ' + message.minutes + ' minutes. Don’t share it with anyone.');
   banner.hidden = false;
   banner.style.transform = '';
-  void banner.offsetWidth;                  // start the slide from above the screen
+  void banner.offsetWidth;                  // simulan yung slide mula sa itaas ng screen
   banner.classList.add('is-open');
   if (navigator.vibrate && !prefersReducedMotion()) {
     navigator.vibrate(12);
@@ -66,7 +67,7 @@ function showCodeNotification(message) {
   forgotView.bannerTimer = setTimeout(hideCodeNotification, NOTIFY_SHOW_MS);
 }
 
-/** hideCodeNotification — slide the banner back up the way it came. */
+/** hideCodeNotification - ibalik pataas yung banner kung saan siya galing. */
 function hideCodeNotification() {
   const banner = byId('notifyBanner');
   clearTimeout(forgotView.bannerTimer);
@@ -78,12 +79,12 @@ function hideCodeNotification() {
   setTimeout(function () {
     if (!banner.classList.contains('is-open')) {
       banner.hidden = true;
-      setText('notifyMessage', '');           // the code does not stay in the page
+      setText('notifyMessage', '');           // hindi dapat maiwan yung code sa page
     }
   }, prefersReducedMotion() ? 0 : 420);
 }
 
-/** fillFromNotification — tapping the banner puts the code in the boxes and checks it. */
+/** fillFromNotification - pag tinap yung banner, ilalagay yung code sa mga box tapos i-check. */
 function fillFromNotification() {
   const code = forgotView.code;
   hideCodeNotification();
@@ -96,7 +97,7 @@ function fillFromNotification() {
   submitForgotCode();
 }
 
-/** wireNotificationDrag — drag the banner up to dismiss it; a small drag down stretches and springs back. */
+/** wireNotificationDrag - hilahin pataas yung banner para mawala; pag konting hila pababa, uunat lang tapos babalik. */
 function wireNotificationDrag() {
   const banner = byId('notifyBanner');
   const drag = { active: false, startY: 0, dy: 0 };
@@ -113,9 +114,9 @@ function wireNotificationDrag() {
     }
     drag.dy = event.clientY - drag.startY;
     if (Math.abs(drag.dy) > 6 && !banner.hasPointerCapture(event.pointerId)) {
-      banner.setPointerCapture(event.pointerId);        // keep following the finger outside the banner
+      banner.setPointerCapture(event.pointerId);        // sundan pa rin yung daliri kahit lumabas na sa banner
     }
-    const y = drag.dy < 0 ? drag.dy : drag.dy * 0.25;    // resist downward: there is nowhere to go
+    const y = drag.dy < 0 ? drag.dy : drag.dy * 0.25;    // pigilan pababa, wala naman siyang mapupuntahan
     banner.style.transform = 'translateY(' + y + 'px)';
   });
   function endDrag() {
@@ -134,15 +135,15 @@ function wireNotificationDrag() {
   banner.addEventListener('pointerup', endDrag);
   banner.addEventListener('pointercancel', endDrag);
   onClick('notifyCard', function () {
-    if (Math.abs(drag.dy) <= 6) {                        // a tap, not the end of a drag
+    if (Math.abs(drag.dy) <= 6) {                        // tap ito, hindi dulo ng drag
       fillFromNotification();
     }
   });
 }
 
-/* ------------------------------------------------ resend countdown */
+/* ------------------------------------------------ countdown ng resend */
 
-/** tickResend — "Resend code in 12 s", then the button comes back. One call per second. */
+/** tickResend - "Resend code in 12 s", tapos babalik yung button. Isang tawag kada segundo. */
 function tickResend() {
   const button = byId('forgotResend');
   if (forgotView.resendLeft <= 0 || byId('forgotStepCode').hidden) {
@@ -162,9 +163,9 @@ function startResendCountdown() {
   tickResend();
 }
 
-/* ------------------------------------------------ the steps */
+/* ------------------------------------------------ yung mga step */
 
-/** sendResetCode — ask the backend for a code; the message arrives a moment later. */
+/** sendResetCode - humingi ng code sa backend; ilang saglit pa bago dumating yung message. */
 function sendResetCode(email) {
   const result = requestPasswordReset(email);
   if (!result.ok) {
@@ -176,7 +177,7 @@ function sendResetCode(email) {
   if (result.message) {
     const message = result.message;
     setTimeout(function () {
-      if (forgotPageOpen()) {                  // left the page or signed in meanwhile: the message is not shown
+      if (forgotPageOpen()) {                  // umalis na sa page o naka-sign in na habang naghihintay: hindi na ipapakita yung message
         showCodeNotification(message);
       }
     }, prefersReducedMotion() ? 300 : 1100);
@@ -184,7 +185,7 @@ function sendResetCode(email) {
   return result;
 }
 
-/** submitForgotCode — check the six digits; a right code moves on to the new password. */
+/** submitForgotCode - i-check yung anim na digit; pag tama, tuloy na sa bagong password. */
 function submitForgotCode() {
   const group = byId('forgotCode');
   const result = verifyResetCode(codeBoxesValue(group));
@@ -229,7 +230,7 @@ function renderForgotView() {
   setFormAlert('forgotAlert', '');
   setFormAlert('forgotPasswordAlert', '');
   setFieldError('forgotEmail', '');
-  setFieldValue('forgotEmail', fieldValue('loginEmail'));    // carry over what was typed on the sign-in page
+  setFieldValue('forgotEmail', fieldValue('loginEmail'));    // dalhin yung na-type na sa sign-in page
   setFieldValue('forgotNewPassword', '');
   setFieldValue('forgotConfirmPassword', '');
   clearFieldErrors(FORGOT_PASSWORD_FIELDS);
@@ -299,7 +300,7 @@ function initForgotView() {
     }
     setFieldValue('forgotNewPassword', '');
     setFieldValue('forgotConfirmPassword', '');
-    setFieldValue('loginEmail', result.email);                 // ready on the sign-in page
+    setFieldValue('loginEmail', result.email);                 // ready na sa sign-in page
     showForgotStep('done');
   });
 

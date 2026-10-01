@@ -1,17 +1,17 @@
 /* ==========================================================================
-   E3 Fiber Connect · backend/billing.js
-   Monthly bills.
+   E3 Fiber Connect - backend/billing.js
+   Dito yung monthly bills.
 
-   Billing rule (anniversary billing): a subscriber's period starts on the same
-   day of the month they were connected, ends the day before that date next
-   month, and is due 15 days after it starts.
+   Rule sa billing (anniversary billing): nagsisimula yung period ng subscriber sa
+   parehong araw ng buwan kung kailan sila na-connect, natatapos sa araw bago nun
+   sa susunod na buwan, at due 15 days mula nung nagsimula.
 
-   Bill ids look like "BILL-202609-004872" (year, month, last 6 digits of the
-   account) and `bills` is kept sorted by id, so:
-     • one bill            → binary search                      O(log n)
-     • one month's bills   → binary search to the first + scan  O(log n) + O(n)
+   Ganito itsura ng bill id: "BILL-202609-004872" (year, month, huling 6 digits ng
+   account) at naka-sort by id yung `bills`, kaya:
+     - isang bill             -> binary search                 O(log n)
+     - bills ng isang buwan   -> binary search sa una + scan   O(log n) + O(n)
 
-   Defense modules — presented by Aaron Sebastian:
+   Mga module sa defense (si Aaron Sebastian ang mag-eexplain):
      Billing: client billing list  (billsForMonth, groupBills, summarizeBills, filterBillRows)
      Billing: bill generation      (billingPeriod, createBill, generateMonthlyBills)
    ========================================================================== */
@@ -21,48 +21,48 @@
 const BILL_DUE_AFTER_DAYS = 15;
 
 /**
- * billingPeriod — start, end and due date of a subscriber's bill for a month.
- * Joined on the 31st? Short months use their last day instead.
- * Time O(1) · Space O(1)
+ * billingPeriod - start, end at due date ng bill ng subscriber para sa isang buwan.
+ * Na-connect ng 31st? Pag maikli yung buwan, yung huling araw na lang gagamitin.
+ * Time: O(1), Space: O(1)
  */
 function billingPeriod(subscriber, year, month) {
-  const anchorDay = parseISODate(subscriber.since).day;               // 1. the day of the month they were connected
-  const startDay = anchorDay <= daysInMonth(year, month) ? anchorDay : daysInMonth(year, month);   // 2. short month? use its last day
+  const anchorDay = parseISODate(subscriber.since).day;               // 1. yung araw ng buwan nung na-connect sila
+  const startDay = anchorDay <= daysInMonth(year, month) ? anchorDay : daysInMonth(year, month);   // 2. maikling buwan? gamitin yung huling araw nito
   const next = addMonths(year, month, 1);
   const nextDay = anchorDay <= daysInMonth(next.year, next.month) ? anchorDay : daysInMonth(next.year, next.month);
   const periodStart = isoDate(year, month, startDay);
-  const nextStart = isoDate(next.year, next.month, nextDay);          // 3. the next period's start …
-  return {                                                            // 4. … minus one day ends this one; due 15 days after the start
+  const nextStart = isoDate(next.year, next.month, nextDay);          // 3. yung start ng susunod na period...
+  return {                                                            // 4. ...bawas isang araw = end nitong period; due 15 days mula sa start
     periodStart: periodStart,
     periodEnd: addDaysISO(nextStart, -1),
     dueDate: addDaysISO(periodStart, BILL_DUE_AFTER_DAYS),
   };
 }
 
-/** findBill — the bill with this id, or null. Binary search. Time O(log n) */
+/** findBill - yung bill na may ganitong id, o null. Binary search. Time: O(log n) */
 function findBill(billId) {
   const index = binarySearch(bills, 'billId', billId);
   return index === -1 ? null : bills[index];
 }
 
-/** hasBill — does this account already have a bill for the month? O(log n) */
+/** hasBill - may bill na ba itong account para sa buwan na to? O(log n) */
 function hasBill(accountNo, year, month) {
   return findBill(makeBillId(year, month, accountNo)) !== null;
 }
 
 /**
- * createBill — issue one month's bill for an ACTIVE subscriber.
- * The new bill is "put" in id order with sortedInsert.
- * options.quiet → no own undo/log entry (used by generateMonthlyBills).
- * Time O(log n) checks + O(n) insert · Space O(1)
+ * createBill - gumawa ng bill ng isang buwan para sa ACTIVE na subscriber.
+ * Yung bagong bill ay "nilalagay" sa tamang order ng id gamit sortedInsert.
+ * options.quiet -> walang sariling undo/log entry (ginagamit ng generateMonthlyBills).
+ * Time: O(log n) checks + O(n) insert, Space: O(1)
  */
 function createBill(accountNo, year, month, actor, options) {
   const quiet = options && options.quiet;
-  const subscriber = findSubscriber(accountNo);                   // 1. binary search for the account
+  const subscriber = findSubscriber(accountNo);                   // 1. binary search para hanapin yung account
   if (!subscriber) {
     return { ok: false, error: 'Subscriber not found.' };
   }
-  if (subscriber.status !== 'Active') {                           // 2. only active accounts are billed
+  if (subscriber.status !== 'Active') {                           // 2. active accounts lang ang bini-bill
     return { ok: false, error: subscriber.fullName + ' is ' + toLowerText(subscriber.status) + ' — only active accounts are billed.' };
   }
   if (!(month >= 1 && month <= 12) || !(year >= 2000 && year <= 2100)) {
@@ -76,11 +76,11 @@ function createBill(accountNo, year, month, actor, options) {
   if (year * 12 + month > clock.year * 12 + clock.month + 1) {
     return { ok: false, error: 'Bills can be created up to one month ahead.' };
   }
-  const billId = makeBillId(year, month, accountNo);              // 3. e.g. BILL-202609-004872
-  if (findBill(billId)) {                                         // 4. binary search: already billed this month?
+  const billId = makeBillId(year, month, accountNo);              // 3. halimbawa BILL-202609-004872
+  if (findBill(billId)) {                                         // 4. binary search: may bill na ba ngayong buwan?
     return { ok: false, error: subscriber.fullName + ' already has a bill for ' + formatMonthYear(year, month) + '.' };
   }
-  const period = billingPeriod(subscriber, year, month);          // 5. period and due date (anniversary billing)
+  const period = billingPeriod(subscriber, year, month);          // 5. period at due date (anniversary billing)
   const bill = {
     billId: billId,
     accountNo: accountNo,
@@ -95,7 +95,7 @@ function createBill(accountNo, year, month, actor, options) {
     paymentRef: '',
     createdAt: nowISO(),
   };
-  sortedInsert(bills, 'billId', bill);                            // 6. "put" it in id order (binary search + shift)
+  sortedInsert(bills, 'billId', bill);                            // 6. "ilagay" sa id order (binary search + shift)
   if (!quiet) {
     pushUndo('Create ' + formatMonthYear(year, month) + ' bill for ' + subscriber.fullName, [insertOperation('bills', billId)], nameOfActor(actor));
     logActivity('billing', 'Created ' + formatMonthYear(year, month) + ' bill for ' + subscriber.fullName + ' (' + formatPeso(bill.amount) + ')', nameOfActor(actor));
@@ -104,16 +104,16 @@ function createBill(accountNo, year, month, actor, options) {
   return { ok: true, bill: bill };
 }
 
-/** isBillableIn — Active, and already connected by that month (no bills before the connection). O(1) */
+/** isBillableIn - Active, at connected na sa buwan na yun (walang bill bago ma-connect). O(1) */
 function isBillableIn(subscriber, year, month) {
   const since = parseISODate(subscriber.since);
   return subscriber.status === 'Active' && year * 12 + month >= since.year * 12 + since.month;
 }
 
 /**
- * generateMonthlyBills — bill every active subscriber who has no bill for the
- * month yet. All the new bills form ONE undo step.
- * Time O(n²) — an O(n) sorted insert for each subscriber · Space O(n)
+ * generateMonthlyBills - gawan ng bill lahat ng active na subscriber na wala pang bill
+ * sa buwan na yun. Lahat ng bagong bill ay ISANG undo step lang.
+ * Time: O(n²) - O(n) na sorted insert bawat subscriber, Space: O(n)
  */
 function generateMonthlyBills(year, month, actor) {
   const operations = [];
@@ -121,18 +121,18 @@ function generateMonthlyBills(year, month, actor) {
   let total = 0;
   let firstError = '';
   let billable = 0;
-  for (let i = 0; i < subscribers.length; i++) {                  // 1. visit every subscriber
-    if (!isBillableIn(subscribers[i], year, month)) {             // 2. skip inactive accounts and months before they were connected
+  for (let i = 0; i < subscribers.length; i++) {                  // 1. puntahan isa-isa lahat ng subscriber
+    if (!isBillableIn(subscribers[i], year, month)) {             // 2. skip yung inactive at yung mga buwan bago sila na-connect
       continue;
     }
     billable++;
-    const result = createBill(subscribers[i].accountNo, year, month, actor, { quiet: true }); // 3. refuses if already billed
+    const result = createBill(subscribers[i].accountNo, year, month, actor, { quiet: true }); // 3. hindi tutuloy kung may bill na
     if (result.ok) {
       created++;
       total += result.bill.amount;
-      arrayAppend(operations, insertOperation('bills', result.bill.billId));   // 4. remember it for one Undo
+      arrayAppend(operations, insertOperation('bills', result.bill.billId));   // 4. tandaan para sa iisang Undo
     } else if (firstError === '' && !hasBill(subscribers[i].accountNo, year, month)) {
-      firstError = result.error;                                  //    a real problem (e.g. too far ahead), not "already billed"
+      firstError = result.error;                                  //    totoong problema (halimbawa sobrang advance), hindi yung "already billed"
     }
   }
   if (created === 0) {
@@ -150,23 +150,23 @@ function generateMonthlyBills(year, month, actor) {
 }
 
 /**
- * billsForMonth — one month's bills. Bill ids start with "BILL-YYYYMM-", so a
- * binary search jumps to the first one and a short scan collects the rest.
- * Time O(log n) + O(n) · Space O(n)
+ * billsForMonth - mga bill ng isang buwan. Nagsisimula sa "BILL-YYYYMM-" yung bill ids,
+ * kaya tatalon muna yung binary search sa una, tapos maikling scan para sa iba.
+ * Time: O(log n) + O(n), Space: O(n)
  */
 function billsForMonth(year, month) {
   return rangeWithPrefix(bills, 'billId', 'BILL-' + year + pad2(month) + '-');
 }
 
-/** billsForAccount — one account's bills, newest period first (insertion sort). O(n²) */
+/** billsForAccount - mga bill ng isang account, pinakabagong period una (insertion sort). O(n²) */
 function billsForAccount(accountNo) {
   return insertionSort(linearSearchAll(bills, 'accountNo', accountNo), 'periodStart', 'desc');
 }
 
 /**
- * unpaidBillsQueue — the account's unpaid bills as a QUEUE, oldest due date
- * first, so payments always settle the oldest debt first (FIFO).
- * Time O(n²) · Space O(n)
+ * unpaidBillsQueue - mga unpaid bill ng account bilang QUEUE, pinakalumang due date
+ * una, para laging yung pinakalumang utang yung unang nababayaran (FIFO).
+ * Time: O(n²), Space: O(n)
  */
 function unpaidBillsQueue(accountNo) {
   const unpaid = [];
@@ -184,8 +184,8 @@ function unpaidBillsQueue(accountNo) {
 }
 
 /**
- * settleBill — mark a bill paid today. options.quiet → no own undo/log entry.
- * Time O(log n) · Space O(1)
+ * settleBill - i-mark na paid ngayong araw yung bill. options.quiet -> walang sariling undo/log entry.
+ * Time: O(log n), Space: O(1)
  */
 function settleBill(billId, actor, paymentRef, options) {
   const quiet = options && options.quiet;
@@ -211,8 +211,8 @@ function settleBill(billId, actor, paymentRef, options) {
 }
 
 /**
- * settleOldestBill — take the front of the unpaid-bills queue (dequeue) and pay it.
- * Time O(n²) · Space O(n)
+ * settleOldestBill - kunin yung nasa unahan ng unpaid-bills queue (dequeue) tapos bayaran.
+ * Time: O(n²), Space: O(n)
  */
 function settleOldestBill(accountNo, actor) {
   const oldest = dequeue(unpaidBillsQueue(accountNo));
@@ -222,27 +222,27 @@ function settleOldestBill(accountNo, actor) {
   return settleBill(oldest.billId, actor, 'Office payment');
 }
 
-/** isBillOverdue — unpaid and past its due date. O(1) */
+/** isBillOverdue - unpaid at lampas na sa due date. O(1) */
 function isBillOverdue(bill, today) {
   return bill.status === 'Unpaid' && bill.dueDate < today;
 }
 
 /**
- * groupBills — bucket bills into four arrays by comparing the due date with
- * today; each bucket is then sorted by due date (insertion sort).
- * Time O(n²) · Space O(n)
+ * groupBills - hatiin yung bills sa apat na array, base sa due date kumpara sa araw
+ * ngayon; tapos bawat bucket ay sine-sort by due date (insertion sort).
+ * Time: O(n²), Space: O(n)
  */
 function groupBills(list, today) {
   const overdue = [];
   const dueSoon = [];
   const upcoming = [];
   const paid = [];
-  for (let i = 0; i < list.length; i++) {                         // 1. one pass over the month's bills
+  for (let i = 0; i < list.length; i++) {                         // 1. isang loop lang sa bills ng buwan
     const bill = list[i];
     if (bill.status === 'Paid') {
       arrayAppend(paid, bill);
     } else {
-      const daysLeft = daysBetweenISO(today, bill.dueDate);       // 2. days until (or since) the due date
+      const daysLeft = daysBetweenISO(today, bill.dueDate);       // 2. ilang araw pa bago (o lampas na sa) due date
       if (daysLeft < 0) {
         arrayAppend(overdue, bill);
       } else if (daysLeft <= 7) {
@@ -252,7 +252,7 @@ function groupBills(list, today) {
       }
     }
   }
-  return {                                                        // 3. sort each group by date (insertion sort)
+  return {                                                        // 3. i-sort bawat group by date (insertion sort)
     overdue: insertionSort(overdue, 'dueDate', 'asc'),
     dueSoon: insertionSort(dueSoon, 'dueDate', 'asc'),
     upcoming: insertionSort(upcoming, 'dueDate', 'asc'),
@@ -260,7 +260,7 @@ function groupBills(list, today) {
   };
 }
 
-/** summarizeBills — expected / collected / outstanding totals in one pass. O(n) */
+/** summarizeBills - total ng expected / collected / outstanding sa isang loop lang. O(n) */
 function summarizeBills(list) {
   const totals = { expected: 0, collected: 0, outstanding: 0, count: list.length, paidCount: 0, unpaidCount: 0 };
   for (let i = 0; i < list.length; i++) {
@@ -277,9 +277,9 @@ function summarizeBills(list) {
 }
 
 /**
- * earlierOverdueBills — unpaid, past-due bills from months BEFORE the one on
- * screen, so old debts never disappear from view.
- * Time O(n²) · Space O(n)
+ * earlierOverdueBills - mga unpaid at lampas due na bill galing sa mga buwan BAGO yung
+ * nasa screen, para hindi mawala sa view yung mga lumang utang.
+ * Time: O(n²), Space: O(n)
  */
 function earlierOverdueBills(year, month, today) {
   const viewKey = year * 12 + month;
@@ -293,7 +293,7 @@ function earlierOverdueBills(year, month, today) {
   return insertionSort(list, 'dueDate', 'asc');
 }
 
-/** billDueText — the coloured status words shown on a bill row. O(1) */
+/** billDueText - yung may kulay na status text sa bawat bill row. O(1) */
 function billDueText(bill, today) {
   if (bill.status === 'Paid') {
     return { text: 'Paid ' + formatShortDate(bill.paidOn), tone: 'green' };
@@ -311,7 +311,7 @@ function billDueText(bill, today) {
   return { text: 'Due ' + formatShortDate(bill.dueDate), tone: 'gray' };
 }
 
-/** billRow — a bill plus the subscriber's name and plan, for lists and search. O(log n) */
+/** billRow - yung bill plus pangalan at plan ng subscriber, para sa list at search. O(log n) */
 function billRow(bill) {
   const subscriber = findSubscriber(bill.accountNo);
   return {
@@ -327,9 +327,9 @@ function billRow(bill) {
 }
 
 /**
- * filterBillRows — status filter ("all", "unpaid", "paid") + text search on
- * the subscriber name, account number and bill id.
- * Time O(n²) · Space O(n)
+ * filterBillRows - status filter ("all", "unpaid", "paid") + text search sa pangalan
+ * ng subscriber, account number at bill id.
+ * Time: O(n²), Space: O(n)
  */
 function filterBillRows(list, statusFilter, query) {
   const rows = [];
@@ -346,7 +346,7 @@ function filterBillRows(list, statusFilter, query) {
   return textSearchRecords(rows, ['fullName', 'accountNo', 'billId'], query);
 }
 
-/** receivablesSummary — overdue bills across every month (dashboard, sidebar). O(n) */
+/** receivablesSummary - mga overdue na bill sa lahat ng buwan (para sa dashboard, sidebar). O(n) */
 function receivablesSummary(today) {
   let overdueCount = 0;
   let overdueAmount = 0;
@@ -364,9 +364,9 @@ function receivablesSummary(today) {
 }
 
 /**
- * billableSubscribers — every active subscriber already connected by that month,
- * with whether they already have a bill for it (for the "New bill" sheet).
- * Time O(n²) at most — one O(log n) binary search per subscriber · Space O(n)
+ * billableSubscribers - lahat ng active na subscriber na connected na sa buwan na yun,
+ * kasama kung may bill na sila dun (para sa "New bill" sheet).
+ * Time: O(n²) at most - isang O(log n) binary search bawat subscriber, Space: O(n)
  */
 function billableSubscribers(year, month) {
   const list = [];

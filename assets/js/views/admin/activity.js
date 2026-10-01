@@ -1,7 +1,7 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/activity.js
-   The activity log (read from the end of the array, newest first) and a
-   picture of the undo STACK, top first.
+   E3 Fiber Connect - views/admin/activity.js
+   Yung activity log (binabasa mula sa dulo ng array, kaya pinakabago yung
+   una) at drawing ng undo STACK, yung nasa taas ang una.
    ========================================================================== */
 
 'use strict';

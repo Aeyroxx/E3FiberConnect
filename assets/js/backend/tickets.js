@@ -1,25 +1,25 @@
 /* ==========================================================================
-   E3 Fiber Connect · backend/tickets.js
-   Support tickets from the public Support page.
+   E3 Fiber Connect - backend/tickets.js
+   Dito yung support tickets galing sa public na Support page.
 
-     Open ──serve / start──▶ In progress ──resolve──▶ Resolved ──reopen──▶ Open
+     Open --serve / start--> In progress --resolve--> Resolved --reopen--> Open
 
-   Open tickets are served first come, first served — a QUEUE (FIFO).
+   First come, first served yung mga Open ticket - kaya QUEUE (FIFO).
    ========================================================================== */
 
 'use strict';
 
 const TICKET_STATUSES = ['Open', 'In progress', 'Resolved'];
 
-/** findTicket — binary search on ticketNo (issued in increasing order). O(log n) */
+/** findTicket - binary search sa ticketNo (paakyat kasi yung pagbigay ng number). O(log n) */
 function findTicket(ticketNo) {
   const index = binarySearch(tickets, 'ticketNo', ticketNo);
   return index === -1 ? null : tickets[index];
 }
 
 /**
- * validateTicket — field-by-field checks for the public ticket form.
- * Time O(log n) for the optional account check · Space O(1)
+ * validateTicket - isa-isang check ng field sa public ticket form.
+ * Time: O(log n) para sa optional na account check, Space: O(1)
  */
 function validateTicket(data) {
   const errors = {};
@@ -51,7 +51,7 @@ function validateTicket(data) {
 }
 
 /**
- * createTicket — add a ticket with the next number. Time O(1) append · Space O(1)
+ * createTicket - mag-add ng ticket gamit yung susunod na number. Time: O(1) append, Space: O(1)
  */
 function createTicket(data) {
   const errors = validateTicket(data);
@@ -81,8 +81,8 @@ function createTicket(data) {
 }
 
 /**
- * lookupTicket — public status check: the ticket number AND the mobile
- * number used on it must match. Time O(log n)
+ * lookupTicket - public na status check: dapat match pareho yung ticket number AT yung
+ * mobile number na ginamit dito. Time: O(log n)
  */
 function lookupTicket(ticketInput, mobileInput) {
   const ticketNo = normalizeReference(ticketInput);
@@ -97,7 +97,7 @@ function lookupTicket(ticketInput, mobileInput) {
   return { ok: true, ticket: ticket };
 }
 
-/** ticketRow — list fields. O(1) */
+/** ticketRow - mga field para sa list. O(1) */
 function ticketRow(ticket) {
   return {
     ticketNo: ticket.ticketNo,
@@ -113,8 +113,8 @@ function ticketRow(ticket) {
 }
 
 /**
- * listTickets — filter by status, search, sort (newest first by default).
- * Time O(n²) + O(n²) · Space O(n)
+ * listTickets - filter by status, search, tapos sort (pinakabago una by default).
+ * Time: O(n²) + O(n²), Space: O(n)
  */
 function listTickets(options) {
   const status = options.status || 'all';
@@ -132,7 +132,7 @@ function listTickets(options) {
   return { rows: sorted, total: tickets.length, stats: stats };
 }
 
-/** countTicketsByStatus — one pass. O(n) */
+/** countTicketsByStatus - isang loop lang. O(n) */
 function countTicketsByStatus() {
   const counts = { all: tickets.length, Open: 0, 'In progress': 0, Resolved: 0 };
   for (let i = 0; i < tickets.length; i++) {
@@ -142,8 +142,8 @@ function countTicketsByStatus() {
 }
 
 /**
- * buildSupportQueue — open tickets as a QUEUE, oldest first (the table is in
- * creation order, so one pass keeps FIFO order). Time O(n) · Space O(n)
+ * buildSupportQueue - mga open ticket bilang QUEUE, pinakaluma una (naka-order na by
+ * creation yung table, kaya isang loop lang FIFO na agad). Time: O(n), Space: O(n)
  */
 function buildSupportQueue() {
   const queue = createQueue(8);
@@ -155,7 +155,7 @@ function buildSupportQueue() {
   return queue;
 }
 
-/** startTicket — Open → In progress, assigned to the staff member. O(log n) */
+/** startTicket - Open -> In progress, naka-assign sa staff na kumuha. O(log n) */
 function startTicket(ticketNo, actor) {
   const ticket = findTicket(ticketNo);
   if (!ticket) {
@@ -175,8 +175,8 @@ function startTicket(ticketNo, actor) {
 }
 
 /**
- * serveNextTicket — dequeue the oldest open ticket and start it.
- * Time O(n) to build the queue + O(1) dequeue
+ * serveNextTicket - i-dequeue yung pinakalumang open ticket tapos i-start na.
+ * Time: O(n) para buuin yung queue + O(1) dequeue
  */
 function serveNextTicket(actor) {
   const next = dequeue(buildSupportQueue());
@@ -186,7 +186,7 @@ function serveNextTicket(actor) {
   return startTicket(next.ticketNo, actor);
 }
 
-/** resolveTicket — Open / In progress → Resolved with a short resolution note. O(log n) */
+/** resolveTicket - Open / In progress -> Resolved, may maikling resolution note. O(log n) */
 function resolveTicket(ticketNo, resolution, actor) {
   const ticket = findTicket(ticketNo);
   if (!ticket) {
@@ -213,7 +213,7 @@ function resolveTicket(ticketNo, resolution, actor) {
   return { ok: true, ticket: ticket };
 }
 
-/** reopenTicket — Resolved → Open (back of the queue by its original time). O(log n) */
+/** reopenTicket - Resolved -> Open (pila ulit base sa original na oras nito). O(log n) */
 function reopenTicket(ticketNo, actor) {
   const ticket = findTicket(ticketNo);
   if (!ticket) {
@@ -231,7 +231,7 @@ function reopenTicket(ticketNo, actor) {
   return { ok: true, ticket: ticket };
 }
 
-/** ticketsForAccount — a subscriber's tickets, newest first. O(n) */
+/** ticketsForAccount - mga ticket ng isang subscriber, pinakabago una. O(n) */
 function ticketsForAccount(accountNo) {
   const list = [];
   for (let i = tickets.length - 1; i >= 0; i--) {
@@ -242,7 +242,7 @@ function ticketsForAccount(accountNo) {
   return list;
 }
 
-/** ticketsInProgressFor — tickets a staff member is working on. O(n) */
+/** ticketsInProgressFor - mga ticket na hawak ngayon ng isang staff. O(n) */
 function ticketsInProgressFor(staffName) {
   const list = [];
   for (let i = 0; i < tickets.length; i++) {

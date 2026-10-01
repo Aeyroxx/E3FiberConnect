@@ -1,19 +1,19 @@
 /* ==========================================================================
-   E3 Fiber Connect · dsa/strings.js
-   Hand-written text helpers.
+   E3 Fiber Connect - dsa/strings.js
+   Mga helper para sa text, gawa namin lahat.
 
-   Project rule: no toLowerCase, toUpperCase, trim, includes, indexOf, search,
-   startsWith, split, replace, padStart, slice, substring or regular
-   expressions. A string is read one character at a time; the only built-in
-   string features used are text[i], text.length, text.charCodeAt(i) and
+   Rule ng project: bawal ang toLowerCase, toUpperCase, trim, includes, indexOf,
+   search, startsWith, split, replace, padStart, slice, substring at regular
+   expressions. Binabasa namin yung string isa-isang character; ang ginamit lang
+   na built-in string features ay text[i], text.length, text.charCodeAt(i) at
    String.fromCharCode(code).
    ========================================================================== */
 
 'use strict';
 
 /**
- * textOf — any value as text; null and undefined become "".
- * Time O(1) for strings · Space O(1)
+ * textOf - gawing text kahit anong value; pag null o undefined, "" ang balik.
+ * Time: O(1) para sa strings, Space: O(1)
  */
 function textOf(value) {
   if (value === null || value === undefined) {
@@ -22,27 +22,27 @@ function textOf(value) {
   return String(value);
 }
 
-/** isSpaceChar — true for a space, tab, line break or non-breaking space. O(1) */
+/** isSpaceChar - true kung space, tab, line break o non-breaking space. O(1) */
 function isSpaceChar(ch) {
   return ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r' || ch === ' ';
 }
 
-/** isDigitChar — true for "0" to "9". O(1) */
+/** isDigitChar - true kung "0" hanggang "9". O(1) */
 function isDigitChar(ch) {
   return ch >= '0' && ch <= '9';
 }
 
-/** isLetterChar — true for A–Z, a–z and accented letters such as ñ or é. O(1) */
+/** isLetterChar - true sa A-Z, a-z at mga letrang may accent tulad ng ñ o é. O(1) */
 function isLetterChar(ch) {
   const code = ch.charCodeAt(0);
   return (code >= 65 && code <= 90) || (code >= 97 && code <= 122) || (code >= 192 && code !== 215 && code !== 247);
 }
 
 /**
- * toLowerText — "Juan DELA Cruz" → "juan dela cruz".
- * In the character table, capital A–Z are codes 65–90 and each small letter
- * sits 32 places later; accented capitals (À–Þ, e.g. Ñ) follow the same rule.
- * Time O(n) · Space O(n)
+ * toLowerText - "Juan DELA Cruz" -> "juan dela cruz".
+ * Sa character table, yung capital A-Z ay codes 65-90 at yung small letter nila
+ * ay 32 places later. Ganun din yung mga capital na may accent (À-Þ, e.g. Ñ).
+ * Time: O(n), Space: O(n)
  */
 function toLowerText(value) {
   const text = textOf(value);
@@ -56,8 +56,8 @@ function toLowerText(value) {
 }
 
 /**
- * toUpperText — "e3-2026-004879" → "E3-2026-004879".
- * Time O(n) · Space O(n)
+ * toUpperText - "e3-2026-004879" -> "E3-2026-004879".
+ * Time: O(n), Space: O(n)
  */
 function toUpperText(value) {
   const text = textOf(value);
@@ -71,9 +71,9 @@ function toUpperText(value) {
 }
 
 /**
- * textSlice — the characters from `start` up to (not including) `end`
- * (replaces slice / substring).
- * Time O(n) · Space O(n)
+ * textSlice - yung mga character mula `start` hanggang bago mag-`end`
+ * (kapalit ng slice / substring).
+ * Time: O(n), Space: O(n)
  */
 function textSlice(value, start, end) {
   const text = textOf(value);
@@ -87,9 +87,9 @@ function textSlice(value, start, end) {
 }
 
 /**
- * trimText — remove spaces at both ends: "  Juan  " → "Juan".
- * Walks inward from the left and from the right until a non-space is found.
- * Time O(n) · Space O(n)
+ * trimText - tanggalin yung spaces sa magkabilang dulo: "  Juan  " -> "Juan".
+ * Lalakad papasok galing kaliwa at galing kanan hanggang may makitang hindi space.
+ * Time: O(n), Space: O(n)
  */
 function trimText(value) {
   const text = textOf(value);
@@ -105,9 +105,9 @@ function trimText(value) {
 }
 
 /**
- * collapseSpaces — trim, then turn every run of spaces inside into one space:
- * "  Juan   Dela  Cruz " → "Juan Dela Cruz".
- * Time O(n) · Space O(n)
+ * collapseSpaces - i-trim muna, tapos gawing isang space lang yung sunod-sunod na spaces sa loob:
+ * "  Juan   Dela  Cruz " -> "Juan Dela Cruz".
+ * Time: O(n), Space: O(n)
  */
 function collapseSpaces(value) {
   const text = trimText(value);
@@ -128,10 +128,10 @@ function collapseSpaces(value) {
 }
 
 /**
- * textFind — position of the first `query` inside `text`, or -1 (replaces indexOf / search).
- * Naive (brute-force) string matching: try every starting position and compare
- * the characters one by one until one differs.
- * Time O(n²) worst: every start position in the text × every query character · Space O(1)
+ * textFind - position ng unang `query` sa loob ng `text`, o -1 (kapalit ng indexOf / search).
+ * Naive (brute-force) string matching: susubukan bawat starting position tapos
+ * ikukumpara isa-isa yung characters hanggang may hindi magtugma.
+ * Time: O(n²) worst - bawat start position sa text × bawat character ng query, Space: O(1)
  */
 function textFind(value, query) {
   const text = textOf(value);
@@ -141,29 +141,29 @@ function textFind(value, query) {
   if (m === 0) {
     return 0;
   }
-  for (let start = 0; start <= n - m; start++) {       // 1. try every starting position in the text
+  for (let start = 0; start <= n - m; start++) {       // 1. subukan lahat ng starting position sa text
     let matched = 0;
     while (matched < m && text[start + matched] === pattern[matched]) {
-      matched++;                                         // 2. compare character by character
+      matched++;                                         // 2. ikumpara per character
     }
-    if (matched === m) {                                 // 3. every character matched → found
+    if (matched === m) {                                 // 3. tugma lahat ng character -> found
       return start;
     }
   }
-  return -1;                                             // 4. no position matched
+  return -1;                                             // 4. walang tumugmang position
 }
 
 /**
- * textContains — true when `query` appears somewhere in `text` (replaces includes).
- * Time O(n²) · Space O(1)
+ * textContains - true kung meron `query` kahit saan sa `text` (kapalit ng includes).
+ * Time: O(n²), Space: O(1)
  */
 function textContains(value, query) {
   return textFind(value, query) !== -1;
 }
 
 /**
- * textStartsWith — true when `text` begins with `prefix` (replaces startsWith).
- * Time O(n) · Space O(1)
+ * textStartsWith - true kung nagsisimula yung `text` sa `prefix` (kapalit ng startsWith).
+ * Time: O(n), Space: O(1)
  */
 function textStartsWith(value, prefix) {
   const text = textOf(value);
@@ -180,16 +180,16 @@ function textStartsWith(value, prefix) {
 }
 
 /**
- * textEqualsIgnoreCase — "ADMIN@x.ph" and "admin@X.ph" are the same address.
- * Time O(n) · Space O(n)
+ * textEqualsIgnoreCase - para pareho lang ang "ADMIN@x.ph" at "admin@X.ph".
+ * Time: O(n), Space: O(n)
  */
 function textEqualsIgnoreCase(a, b) {
   return toLowerText(a) === toLowerText(b);
 }
 
 /**
- * padLeft — "7" → "007" (replaces padStart).
- * Time O(n) · Space O(n)
+ * padLeft - "7" -> "007" (kapalit ng padStart).
+ * Time: O(n), Space: O(n)
  */
 function padLeft(value, width, padChar) {
   let text = textOf(value);
@@ -201,8 +201,8 @@ function padLeft(value, width, padChar) {
 }
 
 /**
- * digitsOnly — keep only 0–9: "0917 555-0199" → "09175550199".
- * Time O(n) · Space O(n)
+ * digitsOnly - 0-9 lang ang itinitira: "0917 555-0199" -> "09175550199".
+ * Time: O(n), Space: O(n)
  */
 function digitsOnly(value) {
   const text = textOf(value);
@@ -216,10 +216,10 @@ function digitsOnly(value) {
 }
 
 /**
- * parseDigits — the whole number written in `text` from `start` to `end`:
- * parseDigits("2026-09-23", 5, 7) → 9. Returns NaN if a character is not a digit.
- * Each digit shifts the running total one place left (× 10) and adds itself.
- * Time O(n) · Space O(1)
+ * parseDigits - yung buong number na nakasulat sa `text` mula `start` hanggang `end`:
+ * parseDigits("2026-09-23", 5, 7) -> 9. NaN ang balik kapag may character na hindi digit.
+ * Bawat digit, iuusog yung total ng isang place pakaliwa (× 10) tapos idadagdag yung digit.
+ * Time: O(n), Space: O(1)
  */
 function parseDigits(value, start, end) {
   const text = textOf(value);
@@ -237,9 +237,9 @@ function parseDigits(value, start, end) {
 }
 
 /**
- * splitText — cut text at every `separator` character (replaces split).
- * "admin/applications" with "/" → ["admin", "applications"].
- * Time O(n) · Space O(n)
+ * splitText - hatiin yung text sa bawat `separator` na character (kapalit ng split).
+ * "admin/applications" gamit "/" -> ["admin", "applications"].
+ * Time: O(n), Space: O(n)
  */
 function splitText(value, separator) {
   const text = textOf(value);
@@ -258,8 +258,8 @@ function splitText(value, separator) {
 }
 
 /**
- * joinText — glue the items together with `separator` between them (replaces join).
- * Time O(n) · Space O(n)
+ * joinText - pagdugtungin yung items na may `separator` sa pagitan (kapalit ng join).
+ * Time: O(n), Space: O(n)
  */
 function joinText(items, separator) {
   let result = '';

@@ -1,20 +1,22 @@
 /* ==========================================================================
-   E3 Fiber Connect · ui/spring.js
-   A tiny spring animator for gesture-driven motion (the phone bottom sheets).
+   E3 Fiber Connect - ui/spring.js
+   Maliit na spring animator para sa galaw na sumusunod sa daliri (yung mga
+   bottom sheet sa phone).
 
-   From Apple's "Designing Fluid Interfaces": describe a spring with
-     response      how fast it reaches the target, in seconds (not a duration)
-     dampingRatio  1 = no overshoot; below 1 = a little bounce
-   It starts from the element's CURRENT position and the finger's velocity, so
-   a flick continues without a seam and the motion can be interrupted.
+   Kinuha namin sa "Designing Fluid Interfaces" ng Apple: dalawang value lang
+   ang kailangan para i-describe yung spring
+     response      gaano kabilis siya umaabot sa target, in seconds (hindi ito duration)
+     dampingRatio  1 = hindi lalampas sa target; pag mas mababa sa 1 = may konting talbog
+   Nagsisimula siya sa KASALUKUYANG position ng element at sa bilis ng daliri,
+   kaya tuloy-tuloy lang yung galaw pag pinitik, at pwede rin siyang putulin sa gitna.
    ========================================================================== */
 
 'use strict';
 
 /**
- * springAnimate — move a value from `from` to `to` with spring physics.
+ * springAnimate - igagalaw yung value mula `from` papuntang `to` gamit spring physics.
  * options: { from, to, velocity (units/s), response, dampingRatio, onUpdate(value), onComplete() }
- * Returns a record; set its `cancelled` field to true to stop (interrupt) it.
+ * Record yung binabalik; gawing true yung `cancelled` field nito para itigil (i-interrupt).
  */
 function springAnimate(options) {
   const response = options.response || 0.35;
@@ -54,8 +56,8 @@ function springAnimate(options) {
 }
 
 /**
- * projectMomentum — where a flick would come to rest (Apple's projection):
- * distance = (v / 1000) · d / (1 − d), with deceleration rate d ≈ 0.998.
+ * projectMomentum - kung saan titigil yung pinitik na sheet (yung projection ng Apple):
+ * distance = (v / 1000) * d / (1 - d), kung saan yung deceleration rate d ay mga 0.998.
  */
 function projectMomentum(velocity, decelerationRate) {
   const rate = decelerationRate || 0.998;
@@ -63,8 +65,8 @@ function projectMomentum(velocity, decelerationRate) {
 }
 
 /**
- * rubberband — resistance past an edge: the further you pull, the less the
- * element follows, like iOS scroll views.
+ * rubberband - pigil pag lumampas na sa dulo: habang palayo yung hila mo, lalong
+ * kumokonti yung sinusundan ng element, parang yung scroll views sa iOS.
  */
 function rubberband(overshoot, dimension, constant) {
   const c = constant || 0.55;
@@ -72,8 +74,8 @@ function rubberband(overshoot, dimension, constant) {
 }
 
 /**
- * releaseVelocity — px/s from the last few pointer samples [{ y, t }].
- * Time O(1) (uses the first and last sample)
+ * releaseVelocity - px/s galing sa huling ilang pointer sample [{ y, t }].
+ * Time: O(1) (yung una at huling sample lang yung ginagamit)
  */
 function releaseVelocity(samples) {
   if (samples.length < 2) {

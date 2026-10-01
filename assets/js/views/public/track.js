@@ -1,9 +1,9 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/public/track.js
-   Application tracker. The reference number is found with BINARY SEARCH on
-   the applications table (it is always sorted by reference number).
-   Personal details are partly hidden, because anyone with the number can look.
-   Defense module: Application tracking — presented by Joshua Santos.
+   E3 Fiber Connect - views/public/track.js
+   Application tracker. Hinahanap yung reference number gamit BINARY SEARCH sa
+   applications table (laging naka-sort ito by reference number).
+   Medyo tinatago yung personal details, kasi kahit sino na may number pwedeng tumingin.
+   Module sa defense: Application tracking - si Joshua Santos ang mag-eexplain.
    ========================================================================== */
 
 'use strict';

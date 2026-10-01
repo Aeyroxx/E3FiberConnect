@@ -1,7 +1,8 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/account.js
-   The signed-in staff member's profile and password. Staff who signed in with
-   a temporary password are sent here until they choose their own.
+   E3 Fiber Connect - views/admin/account.js
+   Profile at password ng naka-sign in na staff. Yung mga staff na nag-sign in
+   gamit temporary password, dito muna sila dadalhin hangga't wala pa silang
+   sariling password.
    ========================================================================== */
 
 'use strict';
@@ -26,7 +27,7 @@ function renderAccountView() {
 function initAccountView() {
   byId('passwordForm').addEventListener('submit', function (event) {
     event.preventDefault();
-    requireStepUp('change your password', savePassword);   // two-step verification first
+    requireStepUp('change your password', savePassword);   // two-step verification muna
   });
   function savePassword() {
     const staff = currentStaff();

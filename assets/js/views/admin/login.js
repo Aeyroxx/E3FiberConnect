@@ -1,8 +1,8 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/login.js
-   Staff sign-in. The e-mail is found with a HASH TABLE look-up (auth.js);
-   a wrong password gently shakes the card, like the Mac login window.
-   Defense module: Admin Login — presented by Dela Cruz Riceerich.
+   E3 Fiber Connect - views/admin/login.js
+   Sign-in ng staff. Hinahanap yung e-mail gamit HASH TABLE lookup (auth.js);
+   pag mali yung password, dahan-dahang nag-shake yung card, parang sa Mac login window.
+   Module sa defense: Admin Login - si Dela Cruz Riceerich ang mag-eexplain.
    ========================================================================== */
 
 'use strict';
@@ -18,7 +18,7 @@ function renderLoginView() {
   hideCodeNotification();
   forgotView.step = 'email';
   forgotView.code = '';
-  clearPasswordReset();                       // a reset left half-way ends here
+  clearPasswordReset();                       // dito natatapos yung reset na naiwan sa kalagitnaan
   const pending = routerState.pendingAdminPath;
   setFormAlert('loginAlert', pending && pending !== '/admin' ? 'Please sign in to continue.' : '', 'info');
   setFieldValue('loginPassword', '');

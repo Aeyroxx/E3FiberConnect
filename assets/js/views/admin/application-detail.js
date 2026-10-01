@@ -1,7 +1,7 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/application-detail.js
-   One application: details, coverage check, the progress timeline, history,
-   staff notes and the action for the next step. Found with binary search.
+   E3 Fiber Connect - views/admin/application-detail.js
+   Isang application: details, coverage check, progress timeline, history,
+   notes ng staff at yung action para sa susunod na step. Hinahanap gamit binary search.
    ========================================================================== */
 
 'use strict';

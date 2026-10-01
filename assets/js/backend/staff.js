@@ -1,67 +1,68 @@
 /* ==========================================================================
-   E3 Fiber Connect · backend/staff.js
-   Staff accounts.
+   E3 Fiber Connect - backend/staff.js
+   Dito yung mga staff account.
 
-     Active ◀──suspend / reactivate──▶ Suspended        Active or Suspended ──archive──▶ Archived
-                                                        Archived ──restore──▶ Active
+     Active <--suspend / reactivate--> Suspended        Active o Suspended --archive--> Archived
+                                                        Archived --restore--> Active
 
-   Accounts are never deleted: an archived account can't sign in, but its
-   record, history and e-mail stay, and it can be restored.
+   Hindi kami nagde-delete ng account: pag naka-archive, hindi na makaka-sign in,
+   pero nandun pa rin yung record, history at e-mail, at pwede pang i-restore.
 
-   Owners and Admins manage staff (never themselves; an Admin can't change an
-   Owner). Staff they add get a temporary password and must change it when they
-   first sign in; people who register themselves (registrations.js) keep the
-   password they chose. E-mails are indexed in a HASH TABLE (staffEmailIndex),
-   so the sign-in look-up and the "e-mail already used" check are O(1) on average.
-   Passwords are stored only as a salted hash (passwordHash + passwordSalt).
-   Defense module: Admin/Staff Creation & Management — presented by Dela Cruz Riceerich.
+   Owners at Admins lang ang nagma-manage ng staff (hindi pwede sarili nila, at
+   hindi pwedeng galawin ng Admin yung Owner). Yung staff na inadd nila, may
+   temporary password at kailangan palitan pag first sign in; yung mga nag-register
+   mismo (registrations.js), yung password na pinili nila yung gamit. Naka-index yung
+   e-mails sa HASH TABLE (staffEmailIndex), kaya O(1) on average yung lookup sa sign-in
+   at yung check kung "gamit na yung e-mail".
+   Salted hash lang yung sine-save para sa password (passwordHash + passwordSalt).
+   Module sa defense: Admin/Staff Creation & Management (si Dela Cruz Riceerich ang mag-eexplain)
    ========================================================================== */
 
 'use strict';
 
 const STAFF_STATUSES = ['Active', 'Suspended', 'Archived'];
 const ROLE_RANK = { Owner: 1, Admin: 2, Support: 3 };
-const TEMP_PASSWORD_LETTERS = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz'; // no I, L, O, i, l, o
-const TEMP_PASSWORD_DIGITS = '23456789';                                         // no 0 or 1
+const TEMP_PASSWORD_LETTERS = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz'; // walang I, L, O, i, l, o
+const TEMP_PASSWORD_DIGITS = '23456789';                                         // walang 0 at 1
 
-/** findStaffById — binary search on id ("STF-0002"). O(log n) */
+/** findStaffById - binary search gamit yung id ("STF-0002"). O(log n) */
 function findStaffById(id) {
   const index = binarySearch(staffMembers, 'id', id);
   return index === -1 ? null : staffMembers[index];
 }
 
-/** findStaffByEmail — hash-table look-up by e-mail, then by id. O(1) average */
+/** findStaffByEmail - hanapin yung staff gamit yung e-mail sa hash table, tapos by id. O(1) average */
 function findStaffByEmail(email) {
   const id = hashGet(staffEmailIndex, toLowerText(trimText(email)));
   return id === null ? null : findStaffById(id);
 }
 
-/** isStaffEmailTaken — O(1) average */
+/** isStaffEmailTaken - check kung may account na yung e-mail. O(1) average */
 function isStaffEmailTaken(email) {
   return hashHas(staffEmailIndex, toLowerText(trimText(email)));
 }
 
 /**
- * staffPasswordMatches — hash the typed password with the member's salt and
- * compare it with the stored hash (the password itself is never stored).
- * Time O(n) for the hash (400 fixed rounds over n characters) · Space O(1)
+ * staffPasswordMatches - i-hash yung tinype na password gamit yung salt ng member
+ * tapos i-compare sa naka-save na hash (hindi talaga sine-save yung mismong password).
+ * Time: O(n) sa hash (400 fixed rounds sa n characters), Space: O(1)
  */
 function staffPasswordMatches(member, password) {
   return hashPassword(password, member.passwordSalt) === member.passwordHash;
 }
 
-/** setStaffPassword — store a new password as a salted hash (salt = staff id). O(n) */
+/** setStaffPassword - i-save yung bagong password bilang salted hash (salt = staff id). O(n) */
 function setStaffPassword(member, password) {
   member.passwordSalt = member.id;
   member.passwordHash = hashPassword(password, member.id);
 }
 
-/** canManageStaff — Owners and Admins can manage the team. O(1) */
+/** canManageStaff - Owners at Admins lang pwedeng mag-manage ng team. O(1) */
 function canManageStaff(actor) {
   return actor !== null && actor !== undefined && (actor.role === 'Owner' || actor.role === 'Admin');
 }
 
-/** canManageMember — may `actor` change this particular member? O(1) */
+/** canManageMember - pwede bang galawin ni `actor` itong member na ito? O(1) */
 function canManageMember(actor, member) {
   if (!canManageStaff(actor) || !member || actor.id === member.id) {
     return false;
@@ -70,9 +71,9 @@ function canManageMember(actor, member) {
 }
 
 /**
- * generateTempPassword — 10 random characters from an alphabet without look-alike
- * characters, with at least two digits.
- * Time O(n) · Space O(n)
+ * generateTempPassword - 10 random characters galing sa alphabet na walang
+ * magkamukhang letra, tapos at least dalawang digits.
+ * Time: O(n), Space: O(n)
  */
 function generateTempPassword() {
   const alphabet = TEMP_PASSWORD_LETTERS + TEMP_PASSWORD_DIGITS;
@@ -80,7 +81,7 @@ function generateTempPassword() {
   for (let i = 0; i < 10; i++) {
     arrayAppend(chars, alphabet[randomIndex(alphabet.length)]);
   }
-  // make sure two positions hold digits and one holds a letter
+  // siguraduhin na may dalawang digit at may kahit isang letter
   chars[randomIndex(5)] = TEMP_PASSWORD_DIGITS[randomIndex(TEMP_PASSWORD_DIGITS.length)];
   chars[5 + randomIndex(5)] = TEMP_PASSWORD_DIGITS[randomIndex(TEMP_PASSWORD_DIGITS.length)];
   let hasLetter = false;
@@ -96,8 +97,8 @@ function generateTempPassword() {
 }
 
 /**
- * validateNewStaff — field-by-field checks for "Add staff".
- * Time O(1) average (hash look-up for the e-mail) · Space O(1)
+ * validateNewStaff - check isa-isa ng fields sa "Add staff".
+ * Time: O(1) average (hash lookup para sa e-mail), Space: O(1)
  */
 function validateNewStaff(data, actor) {
   const errors = {};
@@ -126,25 +127,25 @@ function validateNewStaff(data, actor) {
 }
 
 /**
- * addStaff — create an account with a temporary password. Returns the password
- * once, so it can be shown to the admin (it is only stored as a hash).
- * Time O(1) append + O(1) hash put · Space O(1)
+ * addStaff - gagawa ng account na may temporary password. Isang beses lang
+ * binabalik yung password para maipakita sa admin (hash lang kasi yung naka-save).
+ * Time: O(1) append + O(1) hash put, Space: O(1)
  */
 function addStaff(data, actor) {
-  const stepUp = stepUpRequired();                  // 0. two-step verification: a Google Authenticator code in the last 5 minutes
+  const stepUp = stepUpRequired();                  // 0. two-step verification: dapat may Google Authenticator code sa huling 5 minutes
   if (stepUp) {
     return stepUp;
   }
-  if (!canManageStaff(actor)) {                     // 1. only Owners and Admins add staff
+  if (!canManageStaff(actor)) {                     // 1. Owners at Admins lang pwedeng mag-add ng staff
     return { ok: false, errors: { fullName: 'Only an Owner or Admin can add staff.' } };
   }
-  const errors = validateNewStaff(data, actor);     // 2. check the fields (e-mail through the hash table)
+  const errors = validateNewStaff(data, actor);     // 2. i-check yung fields (yung e-mail, sa hash table)
   if (hasAnyErrors(errors)) {
     return { ok: false, errors: errors };
   }
-  counters.staff = counters.staff + 1;              // 3. the next staff id, e.g. STF-0006
+  counters.staff = counters.staff + 1;              // 3. susunod na staff id, halimbawa STF-0006
   const id = formatStaffId(counters.staff);
-  const tempPassword = generateTempPassword();      // 4. a random temporary password
+  const tempPassword = generateTempPassword();      // 4. random na temporary password
   const member = {
     id: id,
     fullName: collapseSpaces(data.fullName),
@@ -157,8 +158,8 @@ function addStaff(data, actor) {
     passwordSalt: id,
     mustChangePassword: true,
   };
-  arrayAppend(staffMembers, member);          // 5. ids increase → the table stays sorted
-  hashPut(staffEmailIndex, member.email, id); // 6. index the e-mail for sign-in
+  arrayAppend(staffMembers, member);          // 5. pataas yung ids -> naka-sort pa rin yung table
+  hashPut(staffEmailIndex, member.email, id); // 6. i-index yung e-mail para sa sign-in
   pushUndo('Add staff ' + member.fullName, [insertOperation('staffMembers', id)], nameOfActor(actor)); // 7. undo step
   logActivity('staff', 'Added ' + member.fullName + ' as ' + member.role, nameOfActor(actor));
   markDataChanged();
@@ -166,12 +167,12 @@ function addStaff(data, actor) {
 }
 
 /**
- * setStaffStatus — suspend, reactivate, archive or restore a staff account
- * (accounts are archived, never deleted).
- * Time O(log n)
+ * setStaffStatus - i-suspend, i-reactivate, i-archive o i-restore yung staff account
+ * (archive lang, hindi kami nagde-delete ng account).
+ * Time: O(log n)
  */
 function setStaffStatus(id, status, actor) {
-  const stepUp = stepUpRequired();            // 0. two-step verification: a Google Authenticator code in the last 5 minutes
+  const stepUp = stepUpRequired();            // 0. two-step verification: dapat may Google Authenticator code sa huling 5 minutes
   if (stepUp) {
     return stepUp;
   }
@@ -197,9 +198,9 @@ function setStaffStatus(id, status, actor) {
   return { ok: true, staff: member };
 }
 
-/** resetStaffPassword — issue a new temporary password. Time O(log n) */
+/** resetStaffPassword - bigyan ng bagong temporary password. Time: O(log n) */
 function resetStaffPassword(id, actor) {
-  const stepUp = stepUpRequired();            // 0. two-step verification: a Google Authenticator code in the last 5 minutes
+  const stepUp = stepUpRequired();            // 0. two-step verification: dapat may Google Authenticator code sa huling 5 minutes
   if (stepUp) {
     return stepUp;
   }
@@ -222,13 +223,13 @@ function resetStaffPassword(id, actor) {
 }
 
 /**
- * resetStaffTwoFactor — turn off a member's Google Authenticator (lost phone,
- * or someone else linked their phone). The member sets it up again, with their
- * password, the next time they change something. Not on the Undo stack: an old
- * secret must never come back. Time O(log n)
+ * resetStaffTwoFactor - i-off yung Google Authenticator ng member (nawala yung phone,
+ * o ibang tao yung naka-link na phone). Ise-setup ulit ng member, gamit password
+ * niya, sa susunod na may babaguhin siya. Wala ito sa Undo stack kasi hindi na
+ * dapat bumalik yung lumang secret. Time: O(log n)
  */
 function resetStaffTwoFactor(id, actor) {
-  const stepUp = stepUpRequired();            // 0. two-step verification: a Google Authenticator code in the last 5 minutes
+  const stepUp = stepUpRequired();            // 0. two-step verification: dapat may Google Authenticator code sa huling 5 minutes
   if (stepUp) {
     return stepUp;
   }
@@ -242,7 +243,7 @@ function resetStaffTwoFactor(id, actor) {
   if (member.status === 'Archived') {
     return { ok: false, error: 'Restore the account first.' };
   }
-  if (member.role !== 'Support' && actor.role !== 'Owner') {   // together with a password reset it would hand over the account
+  if (member.role !== 'Support' && actor.role !== 'Owner') {   // pag sinabay sa password reset, parang binigay na rin yung account
     return { ok: false, error: 'Only an Owner can reset an Admin’s authenticator.' };
   }
   if (!member.totpEnabled) {
@@ -258,12 +259,12 @@ function resetStaffTwoFactor(id, actor) {
 }
 
 /**
- * changeOwnPassword — the signed-in member sets a new password.
- * Returns field errors { currentPassword, newPassword, confirmPassword }.
- * Time O(n) for the hash (400 fixed rounds over n characters) · Space O(1)
+ * changeOwnPassword - dito nagpapalit ng password yung naka-sign in na member.
+ * Binabalik yung field errors { currentPassword, newPassword, confirmPassword }.
+ * Time: O(n) sa hash (400 fixed rounds sa n characters), Space: O(1)
  */
 function changeOwnPassword(member, currentPassword, newPassword, confirmPassword) {
-  const stepUp = stepUpRequired();            // 0. two-step verification: a Google Authenticator code in the last 5 minutes
+  const stepUp = stepUpRequired();            // 0. two-step verification: dapat may Google Authenticator code sa huling 5 minutes
   if (stepUp) {
     return stepUp;
   }
@@ -292,7 +293,7 @@ function changeOwnPassword(member, currentPassword, newPassword, confirmPassword
   return { ok: true, errors: {} };
 }
 
-/** staffRow — list fields plus a role rank so "Role" sorts Owner → Admin → Support. O(1) */
+/** staffRow - mga field para sa list, may role rank para ma-sort yung "Role" as Owner -> Admin -> Support. O(1) */
 function staffRow(member) {
   return {
     id: member.id,
@@ -308,8 +309,8 @@ function staffRow(member) {
 }
 
 /**
- * listStaff — filter, search, sort. options: { status, query, sortField, sortOrder, algorithm }
- * Time O(n²) + O(n²) · Space O(n)
+ * listStaff - filter, search, tapos sort. options: { status, query, sortField, sortOrder, algorithm }
+ * Time: O(n²) + O(n²), Space: O(n)
  */
 function listStaff(options) {
   const status = options.status || 'all';
@@ -327,7 +328,7 @@ function listStaff(options) {
   return { rows: sorted, total: staffMembers.length, stats: stats };
 }
 
-/** countStaffByStatus — one pass. O(n) */
+/** countStaffByStatus - bilangin yung staff per status, isang ikot lang. O(n) */
 function countStaffByStatus() {
   const counts = { all: staffMembers.length, Active: 0, Suspended: 0, Archived: 0 };
   for (let i = 0; i < staffMembers.length; i++) {

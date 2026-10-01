@@ -1,13 +1,15 @@
 /* ==========================================================================
-   E3 Fiber Connect · ui/router.js
-   One page, many screens. The part of the address after "#" picks the screen:
+   E3 Fiber Connect - ui/router.js
+   Isang page lang pero maraming screen. Yung part ng address pagkatapos ng "#"
+   ang nagsasabi kung anong screen ang ipapakita:
      #/apply/power   #/track/E3-2026-004879   #/admin/applications/E3-2026-004871
-   Changing screens only hides one <section> and shows another, so the arrays
-   in the "database" stay in memory the whole time.
+   Pag lumipat ng screen, tinatago lang yung isang <section> tapos pinapakita
+   yung iba, kaya yung mga array sa "database" naka-memory pa rin buong oras.
 
-   ROUTES is an array of records searched with a linear search.
-   The in-app Back button uses a STACK: every screen you leave is pushed
-   (with its scroll position); Back pops the newest one (LIFO).
+   Yung ROUTES ay array ng mga record na hinahanap gamit linear search.
+   Yung Back button sa loob ng app ay gumagamit ng STACK: bawat screen na
+   iniwan mo ay pinu-push (kasama yung scroll position); pag nag-Back, pop
+   yung pinakabago (LIFO).
    ========================================================================== */
 
 'use strict';
@@ -27,7 +29,7 @@ const routerState = {
   notFound: null,
 };
 
-/** pathSegments — "/admin/applications/" → ["admin", "applications"]. O(n) */
+/** pathSegments - hinahati yung path, "/admin/applications/" -> ["admin", "applications"]. O(n) */
 function pathSegments(path) {
   const parts = splitText(path, '/');
   const segments = [];
@@ -39,15 +41,15 @@ function pathSegments(path) {
   return segments;
 }
 
-/** normalizePath — always "/something" with no trailing slash ("/" for home). O(n) */
+/** normalizePath - laging "/something" na walang slash sa dulo ("/" pag home). O(n) */
 function normalizePath(path) {
   const segments = pathSegments(path);
   return segments.length === 0 ? '/' : '/' + joinText(segments, '/');
 }
 
 /**
- * registerRoute — add a screen. pattern like "/admin/applications/:ref";
- * options: { title, nav, auth, guestOnly }.
+ * registerRoute - dito nag-a-add ng screen. Yung pattern ay parang
+ * "/admin/applications/:ref"; options: { title, nav, auth, guestOnly }.
  */
 function registerRoute(pattern, viewId, shell, render, options) {
   const settings = options || {};
@@ -64,14 +66,15 @@ function registerRoute(pattern, viewId, shell, render, options) {
   });
 }
 
-/** registerNotFound — the screen shown for unknown addresses. */
+/** registerNotFound - yung screen na lalabas pag hindi kilala yung address. */
 function registerNotFound(viewId, render) {
   routerState.notFound = { pattern: '*', segments: [], viewId: viewId, shell: 'public', render: render, title: 'Page not found', nav: '', auth: false, guestOnly: false };
 }
 
 /**
- * matchRoute — linear search over ROUTES; ":name" segments capture values.
- * Time O(n²): every route × every path segment · Space O(n)
+ * matchRoute - linear search sa ROUTES; yung mga segment na ":name" ang
+ * kumukuha ng value galing sa address.
+ * Time: O(n²) (bawat route × bawat segment ng path), Space: O(n)
  */
 function matchRoute(path) {
   const segments = pathSegments(path);
@@ -98,7 +101,7 @@ function matchRoute(path) {
   return null;
 }
 
-/** currentHashPath — "#/plans" → "/plans"; "" → "/"; "#main" → null (not a screen). O(n) */
+/** currentHashPath - "#/plans" -> "/plans"; "" -> "/"; "#main" -> null (hindi screen yan). O(n) */
 function currentHashPath() {
   const hash = window.location.hash;
   if (hash === '' || hash === '#') {
@@ -110,34 +113,34 @@ function currentHashPath() {
   return normalizePath(textSlice(hash, 1));
 }
 
-/** navigate — go to a screen (adds a browser history entry). */
+/** navigate - pumunta sa isang screen (nadadagdagan yung history ng browser). */
 function navigate(path) {
   const target = normalizePath(path);
   if (target === routerState.path && currentHashPath() === target) {
-    resolveRoute(); // same address: just draw the screen again
+    resolveRoute(); // parehong address lang, i-draw ulit yung screen
     return;
   }
   window.location.hash = '#' + target;
 }
 
 /**
- * replaceRoute — go to a screen without adding a history entry (used for
- * redirects, so the browser's Back button never bounces into a redirect loop).
+ * replaceRoute - lipat ng screen pero walang bagong history entry. Ginagamit
+ * to sa redirects para hindi ma-stuck sa redirect loop yung Back ng browser.
  */
 function replaceRoute(path) {
   window.history.replaceState(null, '', '#' + normalizePath(path));
   resolveRoute();
 }
 
-/** peekBack — the screen the Back button would return to (stackPeek), or null. O(1) */
+/** peekBack - kung saang screen babalik yung Back button (stackPeek), o null. O(1) */
 function peekBack() {
   return stackPeek(routerState.backStack);
 }
 
 /**
- * goBack — pop the newest screen from the back stack and return to it at the
- * same scroll position; with an empty stack, go to `fallbackPath`.
- * Time O(1)
+ * goBack - i-pop yung pinakabagong screen sa back stack tapos bumalik dun sa
+ * dating scroll position. Pag empty yung stack, sa `fallbackPath` pupunta.
+ * Time: O(1)
  */
 function goBack(fallbackPath) {
   const previous = stackPop(routerState.backStack);
@@ -150,7 +153,7 @@ function goBack(fallbackPath) {
   navigate(previous.path);
 }
 
-/** showShell — the public site, the sign-in page and the admin app are three shells. */
+/** showShell - tatlo yung shell natin: public site, sign-in page, at admin app. */
 function showShell(name) {
   toggleElement(byId('publicShell'), name === 'public');
   toggleElement(byId('loginShell'), name === 'login');
@@ -158,7 +161,7 @@ function showShell(name) {
   document.documentElement.setAttribute('data-shell', name);
 }
 
-/** showView — reveal one <section data-view> and hide all others. O(n) */
+/** showView - ipakita yung isang <section data-view>, itago lahat ng iba. O(n) */
 function showView(viewId) {
   const views = qsa('[data-view]');
   for (let i = 0; i < views.length; i++) {
@@ -166,7 +169,7 @@ function showView(viewId) {
   }
 }
 
-/** markActiveNav — aria-current="page" on the links for this section. O(n) */
+/** markActiveNav - lagyan ng aria-current="page" yung mga link ng section na to. O(n) */
 function markActiveNav(navKey) {
   const links = qsa('[data-nav]');
   for (let i = 0; i < links.length; i++) {
@@ -178,7 +181,7 @@ function markActiveNav(navKey) {
   }
 }
 
-/** focusViewHeading — move focus to the new screen's title for screen-reader users. */
+/** focusViewHeading - ilipat yung focus sa title ng bagong screen, para sa mga gumagamit ng screen reader. */
 function focusViewHeading(viewId) {
   const view = qs('[data-view="' + viewId + '"]');
   const heading = view ? qs('h1', view) : null;
@@ -189,13 +192,13 @@ function focusViewHeading(viewId) {
 }
 
 /**
- * resolveRoute — find the screen for the address, apply the sign-in rules,
- * remember the previous screen on the back stack, then draw the new one.
+ * resolveRoute - hanapin yung screen para sa address, i-apply yung rules sa
+ * sign-in, i-save yung dating screen sa back stack, tapos i-draw yung bago.
  */
 function resolveRoute() {
   const path = currentHashPath();
   if (path === null) {
-    return; // an in-page anchor such as #main — not a screen change
+    return; // anchor lang sa loob ng page (halimbawa #main), hindi lilipat ng screen
   }
   const match = matchRoute(path) || { route: routerState.notFound, params: {} };
   const route = match.route;
@@ -243,7 +246,7 @@ function resolveRoute() {
   routerState.started = true;
 }
 
-/** refreshCurrentRoute — draw the current screen again after data changed (e.g. Undo). */
+/** refreshCurrentRoute - i-draw ulit yung current screen pag may nagbago sa data (halimbawa pag nag-Undo). */
 function refreshCurrentRoute() {
   if (routerState.route) {
     const y = window.scrollY;
@@ -252,7 +255,7 @@ function refreshCurrentRoute() {
   }
 }
 
-/** startRouter — listen for address changes and draw the first screen. */
+/** startRouter - makinig sa pagbabago ng address tapos i-draw yung unang screen. */
 function startRouter() {
   window.addEventListener('hashchange', resolveRoute);
   resolveRoute();

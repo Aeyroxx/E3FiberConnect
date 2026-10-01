@@ -1,34 +1,34 @@
 /* ==========================================================================
-   E3 Fiber Connect · backend/registrations.js
-   Staff registration ("Request staff access") and its approval.
+   E3 Fiber Connect - backend/registrations.js
+   Dito yung staff registration ("Request staff access") at yung pag-approve nito.
 
-     Pending ──approve──▶ Approved   (a staff account is created)
-        └──reject──▶ Rejected
+     Pending --approve--> Approved   (gagawa ng staff account)
+        `--reject--> Rejected
 
-   A new employee fills in the request form; the request waits in a QUEUE
-   (FIFO) until an Owner or Admin reviews it — first come, first served.
-   `registrations` is sorted by registrationId (ids only grow, so appending
-   keeps it sorted) → binary search finds a request. Before approving, the
-   e-mail is checked against the staff HASH TABLE (staffEmailIndex) in O(1).
-   The password the person chose is stored only as a salted hash, and that
-   hash moves to the new staff account unchanged — nobody else ever sees it.
-   Defense module: Admin Registration + Approval — presented by Dela Cruz Riceerich.
+   Yung bagong empleyado, magfi-fill up ng request form; tapos maghihintay yung
+   request sa QUEUE (FIFO) hanggang i-review ng Owner o Admin, first come first served.
+   Naka-sort yung `registrations` by registrationId (pataas lang yung id, kaya kahit
+   append lang, sorted pa rin) -> binary search yung panghanap ng request. Bago
+   i-approve, chine-check muna yung e-mail sa staff HASH TABLE (staffEmailIndex), O(1).
+   Yung password na pinili ng tao, salted hash lang yung sine-save, at yung hash na
+   yun mismo yung nililipat sa bagong staff account. Walang ibang nakakakita nito.
+   Module sa defense: Admin Registration + Approval (si Dela Cruz Riceerich ang mag-eexplain)
    ========================================================================== */
 
 'use strict';
 
-/** findRegistration — binary search on registrationId. Time O(log n) · Space O(1) */
+/** findRegistration - binary search gamit yung registrationId. Time: O(log n), Space: O(1) */
 function findRegistration(registrationId) {
   const index = binarySearch(registrations, 'registrationId', registrationId);
   return index === -1 ? null : registrations[index];
 }
 
-/** isWorkEmail — a valid e-mail that ends with "@e3fiberconnect.ph". O(n) */
+/** isWorkEmail - valid na e-mail at nagtatapos sa "@e3fiberconnect.ph". O(n) */
 function isWorkEmail(email) {
   return isValidEmail(email) && textEndsWithIgnoreCase(trimText(email), STAFF_EMAIL_DOMAIN);
 }
 
-/** pendingRegistrationFor — a request for this e-mail that is still waiting (linear search). O(n) */
+/** pendingRegistrationFor - hanapin kung may naghihintay pang request para sa e-mail na ito (linear search). O(n) */
 function pendingRegistrationFor(email) {
   const wanted = toLowerText(trimText(email));
   for (let i = 0; i < registrations.length; i++) {
@@ -40,10 +40,10 @@ function pendingRegistrationFor(email) {
 }
 
 /**
- * validateRegistration — field-by-field checks for the request form.
- * It does NOT say whether the e-mail already has a staff account (strangers
- * could use that to find out which e-mails exist); the reviewer sees that check.
- * Time O(n) · Space O(1)
+ * validateRegistration - isa-isang check ng mga field sa request form.
+ * HINDI nito sinasabi kung may staff account na yung e-mail (pwede kasing gamitin
+ * ng ibang tao para malaman kung anong e-mail ang meron); sa reviewer lang lumalabas yun.
+ * Time: O(n), Space: O(1)
  */
 function validateRegistration(data) {
   const errors = {};
@@ -85,8 +85,8 @@ function validateRegistration(data) {
 }
 
 /**
- * submitRegistration — save a request with the next id (appended → still sorted).
- * Time O(n) for the checks + O(1) append · Space O(1)
+ * submitRegistration - i-save yung request gamit yung susunod na id (append lang -> sorted pa rin).
+ * Time: O(n) sa mga check + O(1) append, Space: O(1)
  */
 function submitRegistration(data) {
   const errors = validateRegistration(data);
@@ -118,9 +118,9 @@ function submitRegistration(data) {
 }
 
 /**
- * registrationQueue — requests waiting for approval, oldest first (FIFO).
- * The table is in arrival order, so one pass enqueues them.
- * Time O(n) · Space O(n) for the pending requests
+ * registrationQueue - yung mga request na naghihintay ng approval, oldest first (FIFO).
+ * Naka-order na yung table ayon sa pagdating, kaya isang loop lang para ma-enqueue lahat.
+ * Time: O(n), Space: O(n) para sa mga Pending na request
  */
 function registrationQueue() {
   const queue = createQueue(4);
@@ -132,7 +132,7 @@ function registrationQueue() {
   return queue;
 }
 
-/** countRegistrationsByStatus — one pass, for badges and filters. Time O(n) · Space O(1) */
+/** countRegistrationsByStatus - isang loop lang, para sa mga badge at filter. Time: O(n), Space: O(1) */
 function countRegistrationsByStatus() {
   const counts = { all: registrations.length, Pending: 0, Approved: 0, Rejected: 0 };
   for (let i = 0; i < registrations.length; i++) {
@@ -142,10 +142,11 @@ function countRegistrationsByStatus() {
 }
 
 /**
- * registrationChecks — what the reviewer should know before approving:
- * a work e-mail, no staff account with that e-mail yet (hash table), and a
- * reviewer who is allowed to approve. Returns { checks, passed, firstFailure }.
- * Time O(n) · Space O(1)
+ * registrationChecks - mga dapat malaman ng reviewer bago mag-approve:
+ * work e-mail ba, wala pa bang staff account na may ganung e-mail (hash table),
+ * at allowed ba yung reviewer na mag-approve.
+ * Binabalik: { checks, passed, firstFailure }
+ * Time: O(n), Space: O(1)
  */
 function registrationChecks(request, actor) {
   const checks = [];
@@ -176,28 +177,28 @@ function registrationChecks(request, actor) {
 }
 
 /**
- * approveRegistration — Pending → Approved. Creates the staff account with the
- * role and the (hashed) password from the request, and puts the e-mail in the
- * hash table. One undo step removes the account and re-opens the request.
- * Time O(log n) + O(1) append + O(1) average hash put · Space O(1)
+ * approveRegistration - Pending -> Approved. Gagawa ng staff account gamit yung
+ * role at yung (naka-hash na) password galing sa request, tapos ilalagay yung
+ * e-mail sa hash table. Isang undo lang, tanggal yung account at bukas ulit yung request.
+ * Time: O(log n) + O(1) append + O(1) average na hash put, Space: O(1)
  */
 function approveRegistration(registrationId, actor) {
-  const stepUp = stepUpRequired();                            // 0. two-step verification: a Google Authenticator code in the last 5 minutes
+  const stepUp = stepUpRequired();                            // 0. two-step verification: kailangan may Google Authenticator code sa nakaraang 5 minutes
   if (stepUp) {
     return stepUp;
   }
-  const request = findRegistration(registrationId);           // 1. binary search by request id
+  const request = findRegistration(registrationId);           // 1. binary search gamit yung request id
   if (!request) {
     return { ok: false, error: 'Registration not found.' };
   }
   if (request.status !== 'Pending') {
     return { ok: false, error: 'This request was already ' + toLowerText(request.status) + '.' };
   }
-  const review = registrationChecks(request, actor);          // 2. work e-mail, e-mail free (hash table), reviewer allowed
+  const review = registrationChecks(request, actor);          // 2. work e-mail, hindi pa gamit yung e-mail (hash table), allowed yung reviewer
   if (!review.passed) {
     return { ok: false, error: 'Can’t approve — ' + review.firstFailure.text };
   }
-  counters.staff = counters.staff + 1;                        // 3. build the staff account with the chosen password hash
+  counters.staff = counters.staff + 1;                        // 3. buuin yung staff account gamit yung hash ng pinili niyang password
   const id = formatStaffId(counters.staff);
   const member = {
     id: id,
@@ -211,10 +212,10 @@ function approveRegistration(registrationId, actor) {
     passwordSalt: request.passwordSalt,
     mustChangePassword: false,
   };
-  arrayAppend(staffMembers, member);          // 4. ids increase → the table stays sorted
-  hashPut(staffEmailIndex, member.email, id); // 5. index the e-mail so the new member can sign in
+  arrayAppend(staffMembers, member);          // 4. pataas yung id -> sorted pa rin yung table
+  hashPut(staffEmailIndex, member.email, id); // 5. i-index yung e-mail para makapag-sign in na yung bagong member
   const before = snapshotFields(request, ['status', 'reviewedBy', 'reviewedAt', 'staffId']);
-  request.status = 'Approved';                // 6. mark the request approved (it leaves the queue)
+  request.status = 'Approved';                // 6. gawing Approved yung request (aalis na siya sa queue)
   request.reviewedBy = nameOfActor(actor);
   request.reviewedAt = nowISO();
   request.staffId = id;
@@ -227,7 +228,7 @@ function approveRegistration(registrationId, actor) {
   return { ok: true, registration: request, staff: member };
 }
 
-/** rejectRegistration — Pending → Rejected, with a reason. Time O(log n) · Space O(1) */
+/** rejectRegistration - Pending -> Rejected, may kasamang reason. Time: O(log n), Space: O(1) */
 function rejectRegistration(registrationId, reason, note, actor) {
   if (!canManageStaff(actor)) {
     return { ok: false, error: 'Only an Owner or Admin can review staff requests.' };
@@ -257,7 +258,7 @@ function rejectRegistration(registrationId, reason, note, actor) {
   return { ok: true, registration: request };
 }
 
-/** registrationRow — list fields plus a role rank for sorting. O(1) */
+/** registrationRow - mga field para sa list, plus role rank pang-sort. O(1) */
 function registrationRow(request) {
   return {
     registrationId: request.registrationId,
@@ -272,9 +273,9 @@ function registrationRow(request) {
 }
 
 /**
- * listRegistrations — filter by status, search the text, sort with the chosen
- * algorithm. options: { status, query, sortField, sortOrder, algorithm }
- * Time O(n²) search + O(n²) sort · Space O(n)
+ * listRegistrations - i-filter by status, i-search yung text, tapos i-sort gamit
+ * yung napiling algorithm. options: { status, query, sortField, sortOrder, algorithm }
+ * Time: O(n²) search + O(n²) sort, Space: O(n)
  */
 function listRegistrations(options) {
   const status = options.status || 'all';
@@ -293,19 +294,19 @@ function listRegistrations(options) {
 }
 
 /**
- * registrationForSignIn — for the sign-in page: the newest request for this
- * e-mail, when it is still waiting or was rejected, but only if the password
- * matches the one chosen when registering (otherwise null).
- * Time O(n) linear search from the newest + one password hash (400 fixed rounds
- * over the n characters, so O(n)) · Space O(1)
+ * registrationForSignIn - para sa sign-in page: yung pinakabagong request ng e-mail
+ * na ito, kung naghihintay pa o na-reject, pero kung tugma lang yung password sa
+ * pinili nung nag-register (kung hindi, null).
+ * Time: O(n) linear search mula sa pinakabago + isang password hash (400 fixed rounds
+ * sa n characters, kaya O(n)), Space: O(1)
  */
 function registrationForSignIn(email, password) {
   const wanted = toLowerText(trimText(email));
   for (let i = registrations.length - 1; i >= 0; i--) {
     const request = registrations[i];
-    if (request.email === wanted) {                  // only the NEWEST request for this e-mail counts
+    if (request.email === wanted) {                  // yung PINAKABAGONG request lang ng e-mail na ito ang binibilang
       if (request.status === 'Approved') {
-        return null;                                 // they have an account now — old requests don't matter
+        return null;                                 // may account na sila, wala nang epekto yung mga lumang request
       }
       return hashPassword(password, request.passwordSalt) === request.passwordHash ? request : null;
     }
@@ -314,9 +315,9 @@ function registrationForSignIn(email, password) {
 }
 
 /**
- * registrationStatusMessage — what the sign-in page says about a request.
- * "Duplicate request" is not repeated to the person: it would hint that the
- * e-mail already belongs to a staff account. Time O(n) for the reason's length
+ * registrationStatusMessage - yung sasabihin ng sign-in page tungkol sa request.
+ * Hindi namin pinapakita yung "Duplicate request" sa tao, kasi parang sinabi na rin
+ * namin na may staff account na yung e-mail. Time: O(n) sa haba ng reason
  */
 function registrationStatusMessage(request) {
   if (request.status === 'Pending') {
@@ -327,7 +328,7 @@ function registrationStatusMessage(request) {
     return 'Your request ' + request.registrationId + ' was not approved. Please ask the office before sending a new request.';
   }
   if (reason.length > 0 && reason[reason.length - 1] === '.') {
-    reason = textSlice(reason, 0, reason.length - 1);   // the sentence below adds its own full stop
+    reason = textSlice(reason, 0, reason.length - 1);   // may sariling period na yung sentence sa baba
   }
   return 'Your request ' + request.registrationId + ' was not approved: ' + reason + '. You can send a new request.';
 }

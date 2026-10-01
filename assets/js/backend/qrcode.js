@@ -1,23 +1,23 @@
 /* ==========================================================================
-   E3 Fiber Connect · backend/qrcode.js
-   A QR code encoder written by hand, for the Google Authenticator setup link
-   (otpauth://…). It follows the QR standard (ISO/IEC 18004):
+   E3 Fiber Connect - backend/qrcode.js
+   QR code encoder na ginawa namin by hand, para sa setup link ng Google Authenticator
+   (otpauth://...). Sinusunod nito yung QR standard (ISO/IEC 18004):
 
-     1. data  → bits: mode "byte" (0100), character count, the bytes, padding;
-     2. bits  → codewords, split into blocks, each with Reed–Solomon error
-                correction (level M: ~15% of the code can be damaged);
-     3. place the finder, timing and alignment patterns, then the data in a
-        zig-zag from the bottom-right corner;
-     4. try all 8 masks and keep the one with the lowest penalty score, then
-        write the format (and, from version 7, version) information.
+     1. data  -> bits: mode "byte" (0100), character count, yung bytes, padding;
+     2. bits  -> codewords, hinahati sa blocks, tapos bawat isa may Reed-Solomon error
+                correction (level M: kahit ~15% ng code masira, mababasa pa rin);
+     3. ilagay yung finder, timing at alignment patterns, tapos yung data na pa-zig-zag
+        simula sa bottom-right na corner;
+     4. subukan lahat ng 8 masks at piliin yung may pinakamababang penalty score, tapos
+        isulat yung format information (at simula version 7, pati version information).
 
-   Versions 1–10 (up to 213 bytes at level M) are supported — plenty for an
-   otpauth link. The result is a square grid of true (dark) / false (light).
+   Versions 1-10 lang yung supported (hanggang 213 bytes sa level M) - sobra na yun
+   para sa otpauth link. Yung result ay square grid ng true (dark) / false (light).
    ========================================================================== */
 
 'use strict';
 
-// Level M: total codewords, error-correction codewords per block, blocks [count, data codewords].
+// Level M: total na codewords, error-correction codewords kada block, blocks [count, data codewords].
 const QR_M_BLOCKS = [
   null,
   { total: 26, ec: 10, groups: [[1, 16]] },
@@ -32,13 +32,13 @@ const QR_M_BLOCKS = [
   { total: 346, ec: 26, groups: [[4, 43], [1, 44]] },
 ];
 const QR_ALIGNMENT = [null, [], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34], [6, 22, 38], [6, 24, 42], [6, 26, 46], [6, 28, 50]];
-const QR_EC_LEVEL_M = 0;   // format bits for level M
+const QR_EC_LEVEL_M = 0;   // format bits para sa level M
 
 /* ----------------------------------------------------- Galois field GF(256) */
 
 const qrGf = { exp: [], log: [] };
 
-/** qrInitGalois — exponent / logarithm tables for GF(256) with polynomial 0x11D. O(1) */
+/** qrInitGalois - exponent / logarithm tables para sa GF(256) gamit yung polynomial 0x11D. O(1) */
 function qrInitGalois() {
   if (qrGf.exp.length > 0) {
     return;
@@ -57,7 +57,7 @@ function qrInitGalois() {
   }
 }
 
-/** qrMultiply — multiplication in GF(256). O(1) */
+/** qrMultiply - multiplication sa loob ng GF(256). O(1) */
 function qrMultiply(a, b) {
   if (a === 0 || b === 0) {
     return 0;
@@ -65,7 +65,7 @@ function qrMultiply(a, b) {
   return qrGf.exp[qrGf.log[a] + qrGf.log[b]];
 }
 
-/** qrGenerator — the Reed–Solomon generator polynomial (x − α⁰)(x − α¹)…, highest power first. O(n²) */
+/** qrGenerator - yung Reed-Solomon generator polynomial (x - α⁰)(x - α¹)..., nauuna yung pinakamataas na power. O(n²) */
 function qrGenerator(degree) {
   let poly = [1];
   for (let i = 0; i < degree; i++) {
@@ -82,7 +82,7 @@ function qrGenerator(degree) {
   return poly;
 }
 
-/** qrErrorCorrection — the remainder of data · xⁿ divided by the generator = the EC codewords. O(n²) */
+/** qrErrorCorrection - yung remainder ng data * xⁿ na hinati sa generator = yung EC codewords. O(n²) */
 function qrErrorCorrection(data, degree) {
   const generator = qrGenerator(degree);
   const work = [];
@@ -107,16 +107,16 @@ function qrErrorCorrection(data, degree) {
   return ec;
 }
 
-/* ----------------------------------------------------------- data encoding */
+/* ------------------------------------------------------ pag-encode ng data */
 
-/** qrAppendBits — add `length` bits of `value` (most significant first). O(n) */
+/** qrAppendBits - idagdag yung `length` na bits ng `value` (most significant muna). O(n) */
 function qrAppendBits(bits, value, length) {
   for (let i = length - 1; i >= 0; i--) {
     arrayAppend(bits, (value >>> i) & 1);
   }
 }
 
-/** qrDataCapacity — data codewords of a version at level M. O(1) */
+/** qrDataCapacity - ilang data codewords kasya sa isang version sa level M. O(1) */
 function qrDataCapacity(version) {
   const groups = QR_M_BLOCKS[version].groups;
   let total = 0;
@@ -127,9 +127,9 @@ function qrDataCapacity(version) {
 }
 
 /**
- * qrCodewords — 1. choose the smallest version that fits; 2. build the bit
- * stream; 3. pad; 4. split into blocks, add EC, and interleave.
- * Time O(n²)
+ * qrCodewords - 1. piliin yung pinakamaliit na version na kasya; 2. buuin yung bit
+ * stream; 3. pad; 4. hatiin sa blocks, lagyan ng EC, tapos i-interleave.
+ * Time: O(n²)
  */
 function qrCodewords(bytes) {
   let version = 1;
@@ -141,8 +141,8 @@ function qrCodewords(bytes) {
   }
   const capacity = qrDataCapacity(version);
   const bits = [];
-  qrAppendBits(bits, 4, 4);                                  // mode: byte
-  qrAppendBits(bits, bytes.length, version < 10 ? 8 : 16);  // character count
+  qrAppendBits(bits, 4, 4);                                  // byte mode yung gamit natin
+  qrAppendBits(bits, bytes.length, version < 10 ? 8 : 16);  // bilang ng characters
   for (let i = 0; i < bytes.length; i++) {
     qrAppendBits(bits, bytes[i], 8);
   }
@@ -160,7 +160,7 @@ function qrCodewords(bytes) {
     arrayAppend(data, byte);
   }
   for (let pad = 0; data.length < capacity; pad++) {
-    arrayAppend(data, pad % 2 === 0 ? 0xec : 0x11);          // the standard pad bytes
+    arrayAppend(data, pad % 2 === 0 ? 0xec : 0x11);          // yung standard na pad bytes
   }
 
   qrInitGalois();
@@ -184,7 +184,7 @@ function qrCodewords(bytes) {
   for (let b = 0; b < dataBlocks.length; b++) {
     longest = dataBlocks[b].length > longest ? dataBlocks[b].length : longest;
   }
-  for (let i = 0; i < longest; i++) {                        // interleave: first byte of every block, then the second…
+  for (let i = 0; i < longest; i++) {                        // interleave: unang byte ng bawat block, tapos yung pangalawa...
     for (let b = 0; b < dataBlocks.length; b++) {
       if (i < dataBlocks[b].length) {
         arrayAppend(result, dataBlocks[b][i]);
@@ -199,9 +199,9 @@ function qrCodewords(bytes) {
   return { version: version, codewords: result };
 }
 
-/* ----------------------------------------------------------------- matrix */
+/* ------------------------------------------------------ yung matrix ng QR */
 
-/** qrGrid — a size × size grid filled with `value`. O(n²) */
+/** qrGrid - size × size na grid na puro `value` ang laman. O(n²) */
 function qrGrid(size, value) {
   const grid = [];
   for (let y = 0; y < size; y++) {
@@ -214,13 +214,13 @@ function qrGrid(size, value) {
   return grid;
 }
 
-/** qrSet — set a function-pattern module (never touched by data or masks). O(1) */
+/** qrSet - mag-set ng function-pattern module (hindi na ito gagalawin ng data o ng masks). O(1) */
 function qrSet(qr, x, y, dark) {
   qr.modules[y][x] = dark;
   qr.reserved[y][x] = true;
 }
 
-/** qrFinder — the 7×7 "eye" plus its light separator, centred at (cx, cy). O(1) */
+/** qrFinder - yung 7×7 na "eye" kasama yung light na separator, naka-center sa (cx, cy). O(1) */
 function qrFinder(qr, cx, cy) {
   for (let dy = -4; dy <= 4; dy++) {
     for (let dx = -4; dx <= 4; dx++) {
@@ -234,7 +234,7 @@ function qrFinder(qr, cx, cy) {
   }
 }
 
-/** qrAlignment — a 5×5 alignment pattern centred at (cx, cy). O(1) */
+/** qrAlignment - 5×5 na alignment pattern na naka-center sa (cx, cy). O(1) */
 function qrAlignment(qr, cx, cy) {
   for (let dy = -2; dy <= 2; dy++) {
     for (let dx = -2; dx <= 2; dx++) {
@@ -243,7 +243,7 @@ function qrAlignment(qr, cx, cy) {
   }
 }
 
-/** qrFormatBits — 15 bits: level + mask, BCH error correction, XOR 0x5412. O(1) */
+/** qrFormatBits - 15 bits: level + mask, BCH error correction, tapos XOR 0x5412. O(1) */
 function qrFormatBits(mask) {
   const data = (QR_EC_LEVEL_M << 3) | mask;
   let rem = data;
@@ -253,7 +253,7 @@ function qrFormatBits(mask) {
   return ((data << 10) | rem) ^ 0x5412;
 }
 
-/** qrDrawFormat — write both copies of the format information. O(1) */
+/** qrDrawFormat - isulat yung dalawang kopya ng format information. O(1) */
 function qrDrawFormat(qr, mask) {
   const bits = qrFormatBits(mask);
   const bit = function (i) { return ((bits >>> i) & 1) === 1; };
@@ -272,10 +272,10 @@ function qrDrawFormat(qr, mask) {
   for (let i = 8; i < 15; i++) {
     qrSet(qr, 8, qr.size - 15 + i, bit(i));
   }
-  qrSet(qr, 8, qr.size - 8, true);    // the "dark module"
+  qrSet(qr, 8, qr.size - 8, true);    // ito yung tinatawag na "dark module"
 }
 
-/** qrDrawVersion — versions 7+ carry an 18-bit version block in two corners. O(1) */
+/** qrDrawVersion - pag version 7 pataas, may 18-bit na version block sa dalawang corner. O(1) */
 function qrDrawVersion(qr) {
   if (qr.version < 7) {
     return;
@@ -294,7 +294,7 @@ function qrDrawVersion(qr) {
   }
 }
 
-/** qrMaskHit — the 8 standard mask rules: true where a data module is flipped. O(1) */
+/** qrMaskHit - yung 8 standard na mask rules: true kung saan ifi-flip yung data module. O(1) */
 function qrMaskHit(mask, x, y) {
   if (mask === 0) { return (x + y) % 2 === 0; }
   if (mask === 1) { return y % 2 === 0; }
@@ -306,13 +306,13 @@ function qrMaskHit(mask, x, y) {
   return ((x + y) % 2 + (x * y) % 3) % 2 === 0;
 }
 
-/** qrPenalty — the standard 4-rule penalty (long runs, 2×2 blocks, finder-like runs, dark balance). O(n²) */
+/** qrPenalty - yung standard na 4-rule penalty (mahahabang runs, 2×2 blocks, runs na kamukha ng finder, balance ng dark). O(n²) */
 function qrPenalty(qr) {
   const size = qr.size;
   const m = qr.modules;
   let score = 0;
   let dark = 0;
-  for (let pass = 0; pass < 2; pass++) {                  // rule 1 + rule 3, rows then columns
+  for (let pass = 0; pass < 2; pass++) {                  // rule 1 + rule 3, rows muna tapos columns
     for (let a = 0; a < size; a++) {
       let run = 1;
       for (let b = 0; b < size; b++) {
@@ -341,7 +341,7 @@ function qrPenalty(qr) {
       }
     }
   }
-  for (let y = 0; y < size; y++) {                        // rule 2 + rule 4
+  for (let y = 0; y < size; y++) {                        // rule 2 + rule 4 naman dito
     for (let x = 0; x < size; x++) {
       if (m[y][x]) { dark++; }
       if (y + 1 < size && x + 1 < size && m[y][x] === m[y][x + 1] && m[y][x] === m[y + 1][x] && m[y][x] === m[y + 1][x + 1]) {
@@ -356,23 +356,23 @@ function qrPenalty(qr) {
 }
 
 /**
- * makeQrMatrix — the finished QR code for `text` (ASCII), or null if too long.
- * Returns { size, version, mask, modules } where modules[y][x] is true for dark.
- * Time O(n²) · Space O(n²)
+ * makeQrMatrix - yung buong QR code para sa `text` (ASCII), o null kung masyadong mahaba.
+ * Binabalik: { size, version, mask, modules } kung saan true yung modules[y][x] pag dark.
+ * Time: O(n²), Space: O(n²)
  */
 function makeQrMatrix(text) {
   const bytes = [];
   for (let i = 0; i < text.length; i++) {
     arrayAppend(bytes, text.charCodeAt(i) & 0xff);
   }
-  const encoded = qrCodewords(bytes);                     // 1–2. bits, blocks, error correction
+  const encoded = qrCodewords(bytes);                     // 1-2. gawin yung bits, blocks at error correction
   if (!encoded) {
     return null;
   }
   const size = 17 + encoded.version * 4;
   const qr = { version: encoded.version, size: size, modules: qrGrid(size, false), reserved: qrGrid(size, false) };
 
-  qrFinder(qr, 3, 3);                                     // 3. function patterns
+  qrFinder(qr, 3, 3);                                     // 3. ilagay yung function patterns
   qrFinder(qr, size - 4, 3);
   qrFinder(qr, 3, size - 4);
   for (let i = 0; i < size; i++) {
@@ -388,14 +388,14 @@ function makeQrMatrix(text) {
       }
     }
   }
-  qrDrawFormat(qr, 0);                                    // reserve the format areas
+  qrDrawFormat(qr, 0);                                    // i-reserve muna yung format areas
   qrDrawVersion(qr);
 
-  const bitCount = encoded.codewords.length * 8;          // zig-zag data placement
+  const bitCount = encoded.codewords.length * 8;          // paglagay ng data pa-zig-zag
   let bitIndex = 0;
   for (let right = size - 1; right >= 1; right -= 2) {
     if (right === 6) {
-      right = 5;                                          // skip the vertical timing line
+      right = 5;                                          // laktawan yung vertical na timing line
     }
     for (let vert = 0; vert < size; vert++) {
       for (let j = 0; j < 2; j++) {
@@ -411,7 +411,7 @@ function makeQrMatrix(text) {
     }
   }
 
-  let bestMask = 0;                                       // 4. the mask with the lowest penalty
+  let bestMask = 0;                                       // 4. hanapin yung mask na pinakamababa ang penalty
   let bestScore = -1;
   let best = null;
   for (let mask = 0; mask < 8; mask++) {

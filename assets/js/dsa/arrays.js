@@ -1,21 +1,22 @@
 /* ==========================================================================
-   E3 Fiber Connect · dsa/arrays.js
-   Hand-written array operations.
+   E3 Fiber Connect - dsa/arrays.js
+   Mga array operation na kami mismo ang sumulat.
 
-   Project rule: no built-in array methods (push, pop, shift, unshift, splice,
-   slice, concat, reverse, fill …). Each function below moves the elements
-   itself with a loop, so the cost of every operation is visible in the code.
+   Rule ng project: bawal gumamit ng built-in array methods (push, pop, shift,
+   unshift, splice, slice, concat, reverse, fill ...). Kaya bawat function dito
+   ay nagli-loop at ginagalaw yung mga element nang mano-mano, para kita agad
+   sa code kung magkano yung cost ng bawat operation.
 
-   The only built-in array features used anywhere in this project:
-     array[i]        read / write one slot ....................... O(1)
-     array.length    read the size, or cut items off the end ...... O(1)
+   Ito lang yung built-in array features na ginamit namin sa buong project:
+     array[i]        basa / sulat sa isang slot ................... O(1)
+     array.length    kunin yung size, o putulin yung dulo ......... O(1)
    ========================================================================== */
 
 'use strict';
 
 /**
- * arrayAppend — add an item after the last one (replaces push).
- * Time O(1) · Space O(1)
+ * arrayAppend - idagdag yung item pagkatapos ng huli (kapalit ng push).
+ * Time: O(1), Space: O(1)
  */
 function arrayAppend(array, item) {
   array[array.length] = item;
@@ -23,8 +24,8 @@ function arrayAppend(array, item) {
 }
 
 /**
- * arrayRemoveLast — take the last item off and return it (replaces pop).
- * Time O(1) · Space O(1)
+ * arrayRemoveLast - tanggalin yung huling item tapos i-return (kapalit ng pop).
+ * Time: O(1), Space: O(1)
  */
 function arrayRemoveLast(array) {
   if (array.length === 0) {
@@ -36,9 +37,9 @@ function arrayRemoveLast(array) {
 }
 
 /**
- * arrayPrepend — add an item before the first one (replaces unshift).
- * Every item moves one slot to the right to make room.
- * Time O(n) · Space O(1)
+ * arrayPrepend - ilagay yung item sa unahan (kapalit ng unshift).
+ * Lahat ng item ay uusog ng isang slot pakanan para magkaroon ng space.
+ * Time: O(n), Space: O(1)
  */
 function arrayPrepend(array, item) {
   for (let i = array.length; i > 0; i--) {
@@ -49,9 +50,9 @@ function arrayPrepend(array, item) {
 }
 
 /**
- * arrayRemoveFirst — take the first item off and return it (replaces shift).
- * Every other item moves one slot to the left to close the gap.
- * Time O(n) · Space O(1)
+ * arrayRemoveFirst - tanggalin yung unang item tapos i-return (kapalit ng shift).
+ * Yung ibang item uusog ng isang slot pakaliwa para matakpan yung butas.
+ * Time: O(n), Space: O(1)
  */
 function arrayRemoveFirst(array) {
   if (array.length === 0) {
@@ -66,46 +67,46 @@ function arrayRemoveFirst(array) {
 }
 
 /**
- * arrayInsertAt — put an item at a position (replaces splice(index, 0, item)).
- * Items from `index` onward move one slot to the right.
- * Time O(n) — only the records after the index move · Space O(1)
+ * arrayInsertAt - isingit yung item sa isang position (kapalit ng splice(index, 0, item)).
+ * Yung mga item simula sa `index` ay uusog ng isang slot pakanan.
+ * Time: O(n) - yung mga record lang after ng index ang gagalaw, Space: O(1)
  */
 function arrayInsertAt(array, index, item) {
   let position = index;
-  if (position < 0) {                                // keep the position inside the array
+  if (position < 0) {                                // siguraduhin na nasa loob ng array yung position
     position = 0;
   }
   if (position > array.length) {
     position = array.length;
   }
-  for (let i = array.length; i > position; i--) {    // 1. from the end, move each item one slot right
+  for (let i = array.length; i > position; i--) {    // 1. simula sa dulo, iusog pakanan yung bawat item
     array[i] = array[i - 1];
   }
-  array[position] = item;                            // 2. the gap is now at `position` → write the item
+  array[position] = item;                            // 2. bakante na yung `position` -> dito isulat yung item
   return array.length;
 }
 
 /**
- * arrayRemoveAt — take out the item at a position (replaces splice(index, 1)).
- * Items after it move one slot to the left.
- * Time O(n) — only the records after the index move · Space O(1)
+ * arrayRemoveAt - tanggalin yung item sa isang position (kapalit ng splice(index, 1)).
+ * Yung mga item pagkatapos nito uusog ng isang slot pakaliwa.
+ * Time: O(n) - yung mga record lang after ng index ang gagalaw, Space: O(1)
  */
 function arrayRemoveAt(array, index) {
   if (index < 0 || index >= array.length) {
     return undefined;
   }
-  const removed = array[index];                      // 1. keep the item being removed
-  for (let i = index; i < array.length - 1; i++) {   // 2. move every later item one slot left
+  const removed = array[index];                      // 1. itabi muna yung item na tatanggalin
+  for (let i = index; i < array.length - 1; i++) {   // 2. iusog pakaliwa lahat ng kasunod
     array[i] = array[i + 1];
   }
-  array.length = array.length - 1;                   // 3. drop the duplicate last slot
+  array.length = array.length - 1;                   // 3. tanggalin yung huling slot kasi doble na siya
   return removed;
 }
 
 /**
- * arrayCopy — a new array holding the same items (replaces slice()).
- * The sorts work on a copy, so the "database" tables keep their own order.
- * Time O(n) · Space O(n)
+ * arrayCopy - bagong array na pareho yung laman (kapalit ng slice()).
+ * Sa copy nagso-sort yung mga sort natin, para hindi magulo yung order ng "database" tables.
+ * Time: O(n), Space: O(n)
  */
 function arrayCopy(array) {
   const copy = [];
@@ -116,9 +117,9 @@ function arrayCopy(array) {
 }
 
 /**
- * arrayRange — up to `count` items starting at `start` (replaces slice(start, start + count)).
- * Used to show long lists one page at a time.
- * Time O(n) · Space O(n)
+ * arrayRange - hanggang `count` na item simula sa `start` (kapalit ng slice(start, start + count)).
+ * Ginagamit para ipakita yung mahahabang list nang paisa-isang page.
+ * Time: O(n), Space: O(n)
  */
 function arrayRange(array, start, count) {
   const part = [];
@@ -129,8 +130,8 @@ function arrayRange(array, start, count) {
 }
 
 /**
- * arrayReverseCopy — a new array with the items in the opposite order (replaces reverse()).
- * Time O(n) · Space O(n)
+ * arrayReverseCopy - bagong array na baliktad yung order ng items (kapalit ng reverse()).
+ * Time: O(n), Space: O(n)
  */
 function arrayReverseCopy(array) {
   const reversed = [];
@@ -141,8 +142,8 @@ function arrayReverseCopy(array) {
 }
 
 /**
- * arrayFilled — a new array with `count` copies of `value` (replaces new Array(n).fill(value)).
- * Time O(n) · Space O(n)
+ * arrayFilled - bagong array na may `count` na kopya ng `value` (kapalit ng new Array(n).fill(value)).
+ * Time: O(n), Space: O(n)
  */
 function arrayFilled(count, value) {
   const filled = [];
@@ -153,8 +154,8 @@ function arrayFilled(count, value) {
 }
 
 /**
- * arraySwap — exchange the items in two slots. Used by bubble sort and selection sort.
- * Time O(1) · Space O(1)
+ * arraySwap - pagpalitin yung laman ng dalawang slot. Gamit ito ng bubble sort at selection sort.
+ * Time: O(1), Space: O(1)
  */
 function arraySwap(array, i, j) {
   const temp = array[i];
@@ -163,8 +164,8 @@ function arraySwap(array, i, j) {
 }
 
 /**
- * arrayClear — remove every item but keep the same array (other code may hold it).
- * Time O(1) · Space O(1)
+ * arrayClear - burahin lahat ng item pero same array pa rin (baka may ibang code na may hawak nito).
+ * Time: O(1), Space: O(1)
  */
 function arrayClear(array) {
   array.length = 0;

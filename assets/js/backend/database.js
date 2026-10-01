@@ -1,31 +1,31 @@
 /* ==========================================================================
-   E3 Fiber Connect · backend/database.js
-   The "database": plain JavaScript arrays that live in memory.
+   E3 Fiber Connect - backend/database.js
+   Ito yung "database" namin: mga plain JavaScript array lang na nasa memory.
 
-   The whole website is ONE page (index.html), so these arrays stay alive while
-   you move between screens — nothing has to "transfer" between pages, and no
-   localStorage or server is needed. Reloading the browser starts again from
-   the sample data created by seedDatabase().
+   ONE page lang yung buong website (index.html), kaya buhay pa rin yung mga
+   array kahit lumipat ka ng screen. Walang kailangang i-"transfer" between
+   pages, at hindi na kailangan ng localStorage o server. Pag ni-reload yung
+   browser, babalik ulit sa sample data na gawa ng seedDatabase().
 
-   Every table is kept sorted by its key, so records can be binary-searched:
-     applications  by referenceNo   issued in increasing order → appended
-     subscribers   by accountNo     sortedInsert (accounts open in any order)
+   Naka-sort lahat ng table by key, kaya pwede gamitan ng binary search:
+     applications  by referenceNo   pataas yung bigay ng number -> append lang
+     subscribers   by accountNo     sortedInsert (kahit anong order nagbubukas yung account)
      bills         by billId        sortedInsert
-     payments      by paymentId     issued in increasing order → appended
-     tickets       by ticketNo      issued in increasing order → appended
-     staffMembers  by id            issued in increasing order → appended
-     registrations by registrationId issued in increasing order → appended
-     activityLog   oldest → newest  append only
+     payments      by paymentId     pataas yung bigay ng number -> append lang
+     tickets       by ticketNo      pataas yung bigay ng number -> append lang
+     staffMembers  by id            pataas yung bigay ng number -> append lang
+     registrations by registrationId pataas yung bigay ng number -> append lang
+     activityLog   oldest -> newest  append lang
 
-   Two hash tables sit next to the arrays as indexes:
-     staffEmailIndex        e-mail → staff id                (sign-in, "e-mail used?")
-     paymentReferenceIndex  "METHOD:REFERENCE" → payment ids (duplicate-reference check)
+   May dalawang hash table din sa tabi ng mga array, bilang index:
+     staffEmailIndex        e-mail -> staff id                (sign-in, "gamit na ba yung e-mail?")
+     paymentReferenceIndex  "METHOD:REFERENCE" -> payment ids (check kung duplicate yung reference)
    ========================================================================== */
 
 'use strict';
 
 /* --------------------------------------------------------------------------
-   Fixed lists (they never change while the site runs)
+   Mga fixed list (hindi nagbabago habang tumatakbo yung site)
    -------------------------------------------------------------------------- */
 
 const PLANS = [
@@ -41,7 +41,7 @@ const PLAN_FEATURES = ['No data capping', 'Free or low-cost installation', 'No l
 const SERVICE_CITY = 'Santa Maria';
 const SERVICE_PROVINCE = 'Bulacan';
 
-// Sorted by `key` (lower-case name) so coverage look-ups can use binary search.
+// Naka-sort by `key` (lower-case na pangalan) para binary search na lang yung coverage lookup.
 const BARANGAYS = [
   { name: 'Bagbaguin', key: 'bagbaguin', status: 'available', accessPoints: 7 },
   { name: 'Balasing', key: 'balasing', status: 'available', accessPoints: 5 },
@@ -79,12 +79,12 @@ const TICKET_CATEGORIES = ['No connection', 'Slow connection', 'Billing', 'Insta
 const PAYMENT_METHODS = ['GCash', 'Maya', 'Bank transfer', 'Over the counter'];
 const INSTALL_SLOTS = ['Morning (8 AM – 12 PM)', 'Afternoon (1 PM – 5 PM)'];
 const REJECT_REASONS = ['Outside the coverage area', 'ID could not be verified', 'Could not reach the applicant', 'Duplicate application', 'Other'];
-const REGISTRATION_ROLES = ['Admin', 'Support'];   // an Owner account is never self-registered
+const REGISTRATION_ROLES = ['Admin', 'Support'];   // hindi pwedeng mag-register mag-isa ng Owner account
 const REGISTRATION_REJECT_REASONS = ['Not on the E3 staff list', 'Wrong role requested', 'Duplicate request', 'Other'];
 const STAFF_EMAIL_DOMAIN = '@e3fiberconnect.ph';
 
 /* --------------------------------------------------------------------------
-   Tables — `const` so a table is never replaced, only changed in place
+   Mga table - naka-`const` para hindi mapalitan yung table, binabago lang yung laman
    -------------------------------------------------------------------------- */
 
 const applications = [];
@@ -98,15 +98,15 @@ const activityLog = [];
 
 const counters = { reference: 0, ticket: 0, payment: 0, staff: 0, registration: 0 };
 
-// e-mail (lower case) → staff id; kept in step with staffMembers (dsa/hashtable.js)
+// e-mail (lower case) -> staff id; dapat laging sabay sa staffMembers (dsa/hashtable.js)
 const staffEmailIndex = createHashTable(17);
 
-// "GCASH:5012873246119" → ids of the payments that used it (payments.js, duplicate check)
+// "GCASH:5012873246119" -> ids ng mga payment na gumamit nito (payments.js, pang-check ng duplicate)
 const paymentReferenceIndex = createHashTable(17);
 
 const databaseState = { changed: false };
 
-// Table directory for the undo feature: name → array + key field.
+// Listahan ng mga table para sa undo: name -> array + key field.
 const TABLE_DIRECTORY = [
   { name: 'applications', rows: applications, keyField: 'referenceNo' },
   { name: 'subscribers', rows: subscribers, keyField: 'accountNo' },
@@ -117,7 +117,7 @@ const TABLE_DIRECTORY = [
   { name: 'registrations', rows: registrations, keyField: 'registrationId' },
 ];
 
-/** findTable — the directory entry for a table name (linear search, 7 tables). O(1) */
+/** findTable - hanapin yung entry ng table gamit yung name (linear search, 7 table lang). O(1) */
 function findTable(name) {
   for (let i = 0; i < TABLE_DIRECTORY.length; i++) {
     if (TABLE_DIRECTORY[i].name === name) {
@@ -127,18 +127,18 @@ function findTable(name) {
   return null;
 }
 
-/** findRecordIndex — position of a record by key; every table is sorted by its key. O(log n) */
+/** findRecordIndex - index ng record gamit yung key; naka-sort kasi lahat ng table by key. O(log n) */
 function findRecordIndex(tableName, key) {
   const table = findTable(tableName);
   return table ? binarySearch(table.rows, table.keyField, key) : -1;
 }
 
-/** markDataChanged — remember that something changed (used to warn before a reload). O(1) */
+/** markDataChanged - tandaan na may nagbago (para ma-warning-an bago mag-reload). O(1) */
 function markDataChanged() {
   databaseState.changed = true;
 }
 
-/** rebuildStaffEmailIndex — refill the e-mail hash table from staffMembers. O(n) */
+/** rebuildStaffEmailIndex - punuin ulit yung e-mail hash table galing sa staffMembers. O(n) */
 function rebuildStaffEmailIndex() {
   const fresh = createHashTable(17);
   staffEmailIndex.buckets = fresh.buckets;
@@ -148,7 +148,7 @@ function rebuildStaffEmailIndex() {
   }
 }
 
-/** rebuildPaymentReferenceIndex — refill the reference hash table from payments. O(n) */
+/** rebuildPaymentReferenceIndex - punuin ulit yung reference hash table galing sa payments. O(n) */
 function rebuildPaymentReferenceIndex() {
   const fresh = createHashTable(17);
   paymentReferenceIndex.buckets = fresh.buckets;
@@ -158,13 +158,13 @@ function rebuildPaymentReferenceIndex() {
   }
 }
 
-/** notInFuture — a sample date-time, or `minutesAgo` minutes ago if it would be in the future. O(1) */
+/** notInFuture - yung sample date-time, pero kung nasa future na, `minutesAgo` minutes ago na lang. O(1) */
 function notInFuture(isoDateTime, minutesAgo) {
   return isoDateTime > nowISO() ? minutesAgoISO(minutesAgo) : isoDateTime;
 }
 
 /* --------------------------------------------------------------------------
-   Sample data — dates are relative to today, so the demo always looks current
+   Sample data - naka-base sa araw ngayon yung mga date, para laging updated tingnan yung demo
    -------------------------------------------------------------------------- */
 
 const SEED_STAFF = [
@@ -175,8 +175,8 @@ const SEED_STAFF = [
   { fullName: 'Daniel Tan', email: 'daniel.tan@e3fiberconnect.ph', role: 'Admin', status: 'Archived', startDate: '2026-03-20', password: 'daniel1234', lastSignInDaysAgo: 45 },
 ];
 
-// Staff registrations ("Request access"), oldest first. Grace Lim's account came
-// from an approved request; Kevin asked for the wrong role; two are waiting.
+// Mga staff registration ("Request access"), oldest first. Yung account ni Grace Lim
+// galing sa na-approve na request; mali yung role na hiningi ni Kevin; dalawa pa ang naghihintay.
 const SEED_REGISTRATIONS = [
   { fullName: 'Grace Lim', email: 'grace.lim@e3fiberconnect.ph', mobile: '0917 555 0129', role: 'Support', note: 'Customer support — starting March 2.', password: 'grace1234', submittedAt: '2026-02-26T09:12:00', outcome: 'Approved', reviewedAt: '2026-02-27T10:05:00', reviewedBy: 'Maria Santos' },
   { fullName: 'Kevin Aquino', email: 'kevin.aquino@e3fiberconnect.ph', mobile: '0917 555 0126', role: 'Admin', note: 'Field technician — needs to see the installation schedule.', password: 'kevin2026', daysAgo: 6, hour: 14, minute: 30, outcome: 'Rejected', reviewDaysAgo: 5, reviewedBy: 'Maria Santos', reason: 'Wrong role requested — please send a new request for Support access.' },
@@ -184,7 +184,7 @@ const SEED_REGISTRATIONS = [
   { fullName: 'Trisha Manalo', email: 'trisha.manalo@e3fiberconnect.ph', mobile: '0919 555 0146', role: 'Support', note: 'Cashier at the main office — will validate payments.', password: 'trisha2026', daysAgo: 0, outcome: 'Pending' },
 ];
 
-// daysAgo = when the application was sent; outcome = where it is today.
+// daysAgo = kailan pinasa yung application; outcome = nasaan na siya ngayon.
 const SEED_APPLICANTS = [
   { fullName: 'Liza Fernandez', email: 'liza.fernandez@gmail.com', contactNumber: '0917 555 0141', birthDate: '1987-03-12', barangay: 'Santa Clara', completeAddress: '18 Mabini St., Purok 2', landmark: 'Near Santa Clara Chapel', planId: 'starter', idType: 'PhilSys National ID', idNumber: '4827-1930-5561-2048', idPhotoName: 'liza-philsys.jpg', source: 'online', daysAgo: 78, outcome: 'Completed', account: 'Active' },
   { fullName: 'Ramon Villareal', email: 'ramon.villareal@yahoo.com', contactNumber: '0918 555 0172', birthDate: '1979-11-02', barangay: 'Silangan', completeAddress: '45 Rizal Ave.', landmark: 'Beside Silangan Barangay Hall', planId: 'power', idType: "Driver's License", idNumber: 'N02-14-778120', idPhotoName: 'ramon-license.jpg', source: 'walk-in', daysAgo: 74, outcome: 'Completed', account: 'Active' },
@@ -205,9 +205,10 @@ const SEED_APPLICANTS = [
 ];
 
 /**
- * seedDatabase — empty every table and load the sample data.
- * Runs once when the page opens (app.js). Time O(n²) overall — each
- * sorted insert of a bill is O(n) · Space O(n)
+ * seedDatabase - i-empty lahat ng table tapos i-load yung sample data.
+ * Isang beses lang tumatakbo, pagbukas ng page (app.js). Kasi O(n) bawat
+ * sorted insert ng bill, O(n²) siya overall.
+ * Time: O(n²), Space: O(n)
  */
 function seedDatabase() {
   arrayClear(applications);
@@ -237,7 +238,7 @@ function seedDatabase() {
   databaseState.changed = false;
 }
 
-/** seedStaffMembers — the five staff accounts (passwords are stored hashed). */
+/** seedStaffMembers - yung limang staff account (naka-hash yung mga password). */
 function seedStaffMembers() {
   for (let i = 0; i < SEED_STAFF.length; i++) {
     const seed = SEED_STAFF[i];
@@ -259,7 +260,7 @@ function seedStaffMembers() {
   }
 }
 
-/** seedTime — the date `daysAgo` days before today at a fixed time (never in the future). */
+/** seedTime - yung date na `daysAgo` days bago ngayon, sa fixed na oras (hindi pwedeng future). */
 function seedTime(daysAgo, hour, minute) {
   if (daysAgo <= 0) {
     return minutesAgoISO(95);
@@ -267,7 +268,7 @@ function seedTime(daysAgo, hour, minute) {
   return atTime(addDaysISO(todayISO(), -daysAgo), hour, minute);
 }
 
-/** seedApplicationsAndSubscribers — 16 applications; the completed ones become subscribers. */
+/** seedApplicationsAndSubscribers - 16 na application; yung mga Completed, nagiging subscriber. */
 function seedApplicationsAndSubscribers() {
   const today = todayISO();
   for (let i = 0; i < SEED_APPLICANTS.length; i++) {
@@ -346,10 +347,11 @@ function seedApplicationsAndSubscribers() {
 }
 
 /**
- * seedBills — every month's bill from each subscriber's first month to now.
- * Past bills are paid, except for the late payers who show the overdue flow;
- * two customers pay early. Kristine Ramos has one overdue bill (and reports a
- * payment for it); Patricia Gonzales has two, which is why she is suspended.
+ * seedBills - gawa ng bill kada buwan, mula sa unang buwan ng subscriber hanggang ngayon.
+ * Bayad na yung mga lumang bill, maliban sa mga late magbayad (para makita yung
+ * overdue flow); may dalawang customer na maagang nagbabayad. Si Kristine Ramos
+ * may isang overdue na bill (at nag-report siya ng payment para dun); si Patricia
+ * Gonzales may dalawa, kaya siya naka-suspend.
  */
 function seedBills() {
   const today = todayISO();
@@ -388,7 +390,7 @@ function seedBills() {
 
     const name = subscriber.fullName;
     let pastDueSeen = 0;
-    for (let b = personal.length - 1; b >= 0; b--) {   // newest bill first
+    for (let b = personal.length - 1; b >= 0; b--) {   // simula sa pinakabagong bill
       const bill = personal[b];
       const isPastDue = bill.dueDate < today;
       if (isPastDue) {
@@ -405,7 +407,7 @@ function seedBills() {
     }
 
     if (name === 'Patricia Gonzales') {
-      // Suspended a week after her second missed due date; no bills after that.
+      // Na-suspend siya isang linggo after nung pangalawang na-miss na due date; wala nang bill after nun.
       let suspendedOn = today;
       for (let b = 0; b < personal.length; b++) {
         if (personal[b].status === 'Unpaid' && personal[b].dueDate < today) {
@@ -427,11 +429,11 @@ function seedBills() {
 }
 
 /**
- * seedPayments — one confirmed GCash payment, then four reports waiting in the
- * validation queue (oldest first). Kristine's passes every check; each of the
- * others breaks one rule, so the Payments page can show every kind of failure:
- * Liza also paid the same bill at the office, Patricia sent less than her bill,
- * and Mark typed a GCash reference number that was already used.
+ * seedPayments - isang Confirmed na GCash payment, tapos apat na report na
+ * naghihintay sa validation queue (oldest first). Pasado lahat ng check yung kay
+ * Kristine; yung iba tig-iisang rule yung nilalabag, para makita sa Payments page
+ * lahat ng klase ng failure: si Liza nagbayad din ng parehong bill sa office, si
+ * Patricia kulang yung pinadala, at si Mark gumamit ng GCash reference number na nagamit na.
  */
 function seedPayments() {
   const usedReference = '5012873246119';
@@ -453,7 +455,7 @@ function seedPayments() {
   const lizaBill = liza ? newestBillWithStatus(liza.accountNo, 'Unpaid') : null;
   if (lizaBill) {
     seedPaymentReport(liza, lizaBill, lizaBill.amount, 'Maya', '4F7K2M9Q1T8B', seedTime(1, 20, 15));
-    lizaBill.status = 'Paid'; // …and this morning she paid the same bill at the office
+    lizaBill.status = 'Paid'; // ...tapos kaninang umaga binayaran din niya yung parehong bill sa office
     lizaBill.paidOn = todayISO();
     lizaBill.paymentRef = 'Office payment';
   }
@@ -470,7 +472,7 @@ function seedPayments() {
   rebuildPaymentReferenceIndex();
 }
 
-/** seedPaymentReport — append one report (ids only grow, so the table stays sorted). O(1) */
+/** seedPaymentReport - mag-append ng isang report (pataas lang yung id, kaya sorted pa rin yung table). O(1) */
 function seedPaymentReport(subscriber, bill, amount, method, referenceCode, submittedAt) {
   counters.payment = counters.payment + 1;
   const payment = {
@@ -482,13 +484,13 @@ function seedPaymentReport(subscriber, bill, amount, method, referenceCode, subm
   return payment;
 }
 
-/** findSubscriberByName — linear search by full name (used only by the sample data). O(n) */
+/** findSubscriberByName - linear search gamit yung full name (sa sample data lang ginagamit). O(n) */
 function findSubscriberByName(fullName) {
   const index = linearSearch(subscribers, 'fullName', fullName);
   return index === -1 ? null : subscribers[index];
 }
 
-/** newestBillWithStatus — the latest bill of an account with the given status. O(n) */
+/** newestBillWithStatus - pinakabagong bill ng account na may ganitong status. O(n) */
 function newestBillWithStatus(accountNo, status) {
   let newest = null;
   for (let i = 0; i < bills.length; i++) {
@@ -501,7 +503,7 @@ function newestBillWithStatus(accountNo, status) {
   return newest;
 }
 
-/** newestOverdueBill — the latest unpaid bill of an account that is past its due date. O(n) */
+/** newestOverdueBill - pinakabagong unpaid na bill ng account na lampas na sa due date. O(n) */
 function newestOverdueBill(accountNo) {
   const today = todayISO();
   let newest = null;
@@ -516,7 +518,7 @@ function newestOverdueBill(accountNo) {
   return newest;
 }
 
-/** seedTickets — four support tickets in every state. */
+/** seedTickets - apat na support ticket, may isa sa bawat status. */
 function seedTickets() {
   const liza = findSubscriberByName('Liza Fernandez');
   const ramon = findSubscriberByName('Ramon Villareal');
@@ -535,7 +537,7 @@ function seedTickets() {
   }
 }
 
-/** seedRegistrations — the staff access requests (passwords stored as salted hashes). */
+/** seedRegistrations - yung mga staff access request (salted hash yung naka-save na password). */
 function seedRegistrations() {
   for (let i = 0; i < SEED_REGISTRATIONS.length; i++) {
     const seed = SEED_REGISTRATIONS[i];
@@ -562,8 +564,8 @@ function seedRegistrations() {
 }
 
 /**
- * seedActivity — build the recent-activity feed from the sample records
- * (last 10 days), then order it by time with insertion sort.
+ * seedActivity - buuin yung recent activity feed galing sa sample records
+ * (last 10 days), tapos i-sort by time gamit insertion sort.
  */
 function seedActivity() {
   const since = addDaysISO(todayISO(), -10);

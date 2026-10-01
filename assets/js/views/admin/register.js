@@ -1,10 +1,10 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/register.js
-   "Request staff access": a new employee asks for an account. The request is
-   checked field by field (backend/registrations.js), stored with a salted
-   password hash, and joins the approval QUEUE that Owners and Admins work
-   through on the Registrations page.
-   Defense module: Admin Registration — presented by Dela Cruz Riceerich.
+   E3 Fiber Connect - views/admin/register.js
+   "Request staff access": dito humihingi ng account yung bagong empleyado.
+   Chine-check yung request field by field (backend/registrations.js), sine-save
+   kasama yung salted password hash, tapos papasok sa approval QUEUE na
+   inaasikaso ng mga Owner at Admin sa Registrations page.
+   Module sa defense: Admin Registration - si Dela Cruz Riceerich ang mag-eexplain.
    ========================================================================== */
 
 'use strict';
@@ -18,7 +18,7 @@ const REGISTER_ROLE_TEXT = [
   { role: 'Admin', text: 'Everything in Support, plus managing staff and approving requests.' },
 ];
 
-/** registerFormData — the form as a plain record for submitRegistration. */
+/** registerFormData - ginagawang plain record yung form para sa submitRegistration. */
 function registerFormData() {
   return {
     fullName: fieldValue('registerName'),
@@ -32,9 +32,9 @@ function registerFormData() {
   };
 }
 
-/** showRegisterForm — a fresh form every time the screen opens. */
+/** showRegisterForm - laging bagong form tuwing bubuksan yung screen. */
 function showRegisterForm() {
-  byId('registerForm').reset();              // nothing typed earlier (or a password) is left behind
+  byId('registerForm').reset();              // walang maiiwan na na-type dati (lalo na password)
   clearFieldErrors(REGISTER_FIELDS);
   setRegisterPasswordsVisible(false);
   toggleElement(byId('registerFormView'), true);

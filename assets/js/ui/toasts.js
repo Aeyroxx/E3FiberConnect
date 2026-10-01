@@ -1,19 +1,20 @@
 /* ==========================================================================
-   E3 Fiber Connect · ui/toasts.js
-   Short confirmations ("Application approved · Undo") shown in a floating HUD.
-   Messages wait in a QUEUE and appear one at a time, in the order they were
-   sent (FIFO). When several are waiting, each one is shown more briefly.
+   E3 Fiber Connect - ui/toasts.js
+   Maiikling confirmation ("Application approved · Undo") na lumalabas sa floating HUD.
+   Naka-QUEUE yung mga message at isa-isa silang lumalabas, kung ano yung naunang
+   pumasok yun din ang unang lalabas (FIFO). Pag marami yung naghihintay, mas
+   maikli yung pakita sa bawat isa.
    ========================================================================== */
 
 'use strict';
 
 const toastState = { queue: createQueue(4), showing: false, timer: null, element: null, current: null, shownAt: 0 };
-const TOAST_MIN_VISIBLE_MS = 1200; // a newer message waits at most this long
+const TOAST_MIN_VISIBLE_MS = 1200; // hanggang ganito lang katagal maghihintay yung bagong message
 
 /**
- * showToast — queue a message. options: { tone: 'success' | 'error' | 'info',
+ * showToast - ilagay sa queue yung message. options: { tone: 'success' | 'error' | 'info',
  * actionLabel, onAction, duration }
- * Time O(1) enqueue
+ * Time: O(1) (enqueue)
  */
 function showToast(message, options) {
   const settings = options || {};
@@ -28,8 +29,8 @@ function showToast(message, options) {
     showNextToast();
     return;
   }
-  // Something is already showing: let it finish its minimum time, then move on,
-  // so a fresh confirmation (and its Undo button) never waits long in the queue.
+  // May nakalabas na: hayaan munang matapos yung minimum time niya bago mag-next,
+  // para yung bagong confirmation (pati yung Undo button niya) hindi matagal maghintay sa queue.
   if (toastState.element) {
     const elapsed = performance.now() - toastState.shownAt;
     clearTimeout(toastState.timer);
@@ -37,7 +38,7 @@ function showToast(message, options) {
   }
 }
 
-/** toastIcon — the icon name for a tone. */
+/** toastIcon - yung pangalan ng icon para sa tone. */
 function toastIcon(tone) {
   if (tone === 'error') {
     return 'exclamation';
@@ -48,7 +49,7 @@ function toastIcon(tone) {
   return 'check-circle';
 }
 
-/** showNextToast — dequeue the oldest waiting message and display it. O(1) */
+/** showNextToast - i-dequeue yung pinakamatagal nang naghihintay na message tapos ipakita. O(1) */
 function showNextToast() {
   const toast = dequeue(toastState.queue);
   if (!toast) {
@@ -83,7 +84,7 @@ function showNextToast() {
   toastState.timer = setTimeout(hideCurrentToast, duration);
 }
 
-/** hideCurrentToast — fade the HUD out, then show the next queued message. */
+/** hideCurrentToast - i-fade out yung HUD, tapos ipakita yung susunod sa queue. */
 function hideCurrentToast() {
   clearTimeout(toastState.timer);
   const element = toastState.element;

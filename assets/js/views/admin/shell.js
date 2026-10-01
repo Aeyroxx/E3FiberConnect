@@ -1,16 +1,17 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/shell.js
-   The admin frame shared by every admin screen: sidebar (a drawer on small
-   screens), counters, the Undo button (peeks at the undo stack), the Back
-   button label (peeks at the back stack), clickable table rows, a shared
-   "Are you sure?" sheet and keyboard shortcuts (Ctrl/⌘+Z, "/" to search).
+   E3 Fiber Connect - views/admin/shell.js
+   Ito yung admin frame na share ng lahat ng admin screen: sidebar (drawer
+   pag maliit yung screen), mga counter, yung Undo button (sinisilip yung
+   undo stack), label ng Back button (sinisilip yung back stack), table rows
+   na pwedeng i-click, isang shared "Are you sure?" sheet at keyboard
+   shortcuts (Ctrl/Cmd+Z, "/" para mag-search).
    ========================================================================== */
 
 'use strict';
 
 const adminShellState = { drawerOpen: false, confirmAction: null };
 
-// activity kind → icon + colour (linear search; 8 entries)
+// activity kind -> icon + kulay (linear search; 8 entries)
 const ACTIVITY_KINDS = [
   { kind: 'application', icon: 'doc', tone: 'blue' },
   { kind: 'subscriber', icon: 'users', tone: 'green' },
@@ -22,13 +23,13 @@ const ACTIVITY_KINDS = [
   { kind: 'undo', icon: 'undo', tone: 'red' },
 ];
 
-/** activityKindStyle — icon and tone for an activity line. O(n) */
+/** activityKindStyle - icon at tone para sa isang activity line. O(n) */
 function activityKindStyle(kind) {
   const index = linearSearch(ACTIVITY_KINDS, 'kind', kind);
   return index === -1 ? { icon: 'info', tone: 'gray' } : ACTIVITY_KINDS[index];
 }
 
-/** activityRowHTML — one line of the activity feed. */
+/** activityRowHTML - isang line sa activity feed. */
 function activityRowHTML(entry) {
   const style = activityKindStyle(entry.kind);
   return '<li class="row-item"><span class="icon-bubble tone-' + style.tone + '">' + iconHTML(style.icon) + '</span>'
@@ -64,7 +65,7 @@ function closeAdminDrawer() {
   adminShellState.drawerOpen = false;
 }
 
-/** renderUndoButton — enabled only when the undo stack has something on top. O(1) */
+/** renderUndoButton - enabled lang pag may laman sa taas ng undo stack. O(1) */
 function renderUndoButton() {
   const top = peekUndo();
   const button = byId('undoButton');
@@ -73,7 +74,7 @@ function renderUndoButton() {
   button.setAttribute('aria-label', top ? 'Undo: ' + top.label : 'Undo — nothing to undo');
 }
 
-/** updateBackButtons — label each Back button with the screen it returns to. O(n) */
+/** updateBackButtons - lagyan ng label bawat Back button kung saang screen siya babalik. O(n) */
 function updateBackButtons() {
   const previous = peekBack();
   const buttons = qsa('[data-back]');
@@ -84,7 +85,7 @@ function updateBackButtons() {
   }
 }
 
-/** renderAdminChrome — sidebar user, counters, Undo and Back; called by every admin screen. */
+/** renderAdminChrome - sidebar user, mga counter, Undo at Back; tinatawag ng bawat admin screen. */
 function renderAdminChrome() {
   const staff = currentStaff();
   if (!staff) {
@@ -104,9 +105,9 @@ function renderAdminChrome() {
 }
 
 /**
- * performUndo — pop the undo stack, reverse the action and redraw the screen.
- * Undoing an account change (staff or subscriber) asks for a Google
- * Authenticator code first, like the change itself did.
+ * performUndo - i-pop yung undo stack, i-reverse yung action tapos i-redraw
+ * yung screen. Pag account change (staff o subscriber) yung ia-undo, hihingi
+ * muna ng Google Authenticator code, gaya nung ginawa yung change.
  */
 function performUndo() {
   const top = peekUndo();
@@ -132,9 +133,9 @@ function runUndo() {
 }
 
 /**
- * announce — confirm an action with a toast that offers Undo. The toast's Undo
- * only reverses the action it announced: if something newer is on top of the
- * stack by then (or it was already undone), it does nothing.
+ * announce - i-confirm yung action gamit ang toast na may Undo. Yung Undo sa
+ * toast, yung action lang na in-announce niya ang ire-reverse: kung may mas
+ * bago na sa taas ng stack (o na-undo na dati), wala siyang gagawin.
  */
 function announce(message) {
   const announced = peekUndo();
@@ -150,14 +151,14 @@ function announce(message) {
   });
 }
 
-/** reportFailure — show a service error as a toast. */
+/** reportFailure - ipakita bilang toast yung service error. */
 function reportFailure(result) {
   showToast(result.error || 'That didn’t work. Please try again.', { tone: 'error' });
 }
 
 /**
- * askToConfirm — the shared "Are you sure?" sheet, used only for actions
- * that are hard to take back. options: { title, text, confirmLabel, danger, onConfirm }
+ * askToConfirm - yung shared "Are you sure?" sheet, ginagamit lang sa mga
+ * action na mahirap nang ibalik. options: { title, text, confirmLabel, danger, onConfirm }
  */
 function askToConfirm(options) {
   setText('confirmTitle', options.title);
@@ -169,7 +170,7 @@ function askToConfirm(options) {
   openSheet('sheetConfirm', document.activeElement);
 }
 
-/** isInteractiveTarget — did the click land on a link, button or field inside a row? */
+/** isInteractiveTarget - sa link, button o field ba sa loob ng row tumama yung click? */
 function isInteractiveTarget(node, stopAt) {
   let current = node;
   while (current && current !== stopAt) {
@@ -182,7 +183,7 @@ function isInteractiveTarget(node, stopAt) {
   return false;
 }
 
-/** isTypingTarget — keyboard shortcuts must not fire while typing. */
+/** isTypingTarget - hindi dapat gumana yung keyboard shortcuts habang nagta-type. */
 function isTypingTarget(element) {
   if (!element) {
     return false;
@@ -255,7 +256,7 @@ function initAdminShell() {
     }
   });
 
-  // Whole table rows open the record; the name inside is a real link for keyboard users.
+  // Buong table row nagbubukas ng record; yung name sa loob ay totoong link para sa mga keyboard user.
   byId('adminMain').addEventListener('click', function (event) {
     const row = findAncestorWith(event.target, 'data-href', byId('adminMain'));
     if (row && !isInteractiveTarget(event.target, row)) {

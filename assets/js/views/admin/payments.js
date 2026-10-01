@@ -1,16 +1,16 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/payments.js
-   Payments: the validation QUEUE (the report at the front is checked
-   automatically), the five validation checks, Confirm / Decline, and the list
-   of every payment (filter → search → sort with the algorithm you pick).
-   Defense module: Payments (Payments Validation) — presented by Aaron Sebastian.
+   E3 Fiber Connect - views/admin/payments.js
+   Payments: yung validation QUEUE (automatic na chine-check yung report na
+   nasa harap), yung limang validation check, Confirm / Decline, at yung list
+   ng lahat ng payment (filter -> search -> sort gamit yung algorithm na pinili mo).
+   Module sa defense: Payments (Payments Validation) - si Aaron Sebastian ang mag-eexplain.
    ========================================================================== */
 
 'use strict';
 
 const paymentsViewState = { status: 'all', query: '', sort: 'submittedAt-desc', algorithm: 'insertion', paymentId: '' };
 
-/** paymentActionButtons — Decline, and Confirm (only enabled when every check passed). */
+/** paymentActionButtons - Decline, at Confirm (enabled lang pag pasado lahat ng check). */
 function paymentActionButtons(payment, validation, compact) {
   const id = escapeHTML(payment.paymentId);
   const size = compact ? ' btn-sm' : '';
@@ -20,8 +20,8 @@ function paymentActionButtons(payment, validation, compact) {
 }
 
 /**
- * paymentVerdictHTML — for a waiting payment, what the checks mean (confirm or
- * decline); for one already handled, only what was decided and by whom.
+ * paymentVerdictHTML - kung naghihintay pa yung payment, ano ibig sabihin ng
+ * mga check (confirm o decline); kung tapos na, kung ano lang yung desisyon at sino nag-decide.
  */
 function paymentVerdictHTML(payment, validation) {
   if (payment.status === 'Confirmed') {
@@ -37,7 +37,7 @@ function paymentVerdictHTML(payment, validation) {
     + '<span>' + (validation.passed ? 'All 5 checks passed — safe to confirm.' : escapeHTML(pluralize(validation.failed, 'check') + ' failed — decline it with a reason.')) + '</span></p>';
 }
 
-/** paymentCardHTML — who paid what, the five checks, and the verdict. */
+/** paymentCardHTML - sino nagbayad ng ano, yung limang check, at yung verdict. */
 function paymentCardHTML(payment, validation, withActions) {
   const bill = validation.bill;
   const billText = bill ? formatMonthYear(bill.billingYear, bill.billingMonth) + ' bill of ' + formatPeso(bill.amount) : 'bill ' + payment.billId;
@@ -75,7 +75,7 @@ function paymentRowHTML(row) {
     + '</div></td></tr>';
 }
 
-/** renderPaymentsQueue — the queue strip and the front report with its checks (queuePeek). */
+/** renderPaymentsQueue - yung queue strip at yung report sa harap kasama mga check nito (queuePeek). */
 function renderPaymentsQueue() {
   const queue = paymentsQueue();
   const waiting = queueToArray(queue);
@@ -118,7 +118,7 @@ function renderPaymentsView() {
   setHTML('paymentsCaption', algorithmCaption(result.rows.length, result.total, 'payment', result.stats, state.algorithm));
 }
 
-/** openPaymentSheet — the checks for one payment (any status), with the actions if it is waiting. */
+/** openPaymentSheet - mga check ng isang payment (kahit anong status), may actions kung naghihintay pa. */
 function openPaymentSheet(paymentId) {
   const payment = findPayment(paymentId);
   if (!payment) {
@@ -134,7 +134,7 @@ function openPaymentSheet(paymentId) {
   openSheet('sheetPayment', document.activeElement);
 }
 
-/** openDeclineSheet — the reason is pre-filled from the first failed check. */
+/** openDeclineSheet - naka-fill na agad yung reason galing sa unang check na bumagsak. */
 function openDeclineSheet(paymentId) {
   const payment = findPayment(paymentId);
   if (!payment) {
@@ -149,7 +149,7 @@ function openDeclineSheet(paymentId) {
 
 function runPaymentAction(action, element, event) {
   if (event && event.detail > 1) {
-    return; // the 2nd click of a double-click would land on the NEXT payment's button after the redraw
+    return; // yung 2nd click ng double-click, sa button ng KASUNOD na payment tatama pagka-redraw
   }
   const paymentId = element.getAttribute('data-payment');
   if (action === 'validate-payment') {

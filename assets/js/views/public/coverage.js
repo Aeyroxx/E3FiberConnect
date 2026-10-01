@@ -1,14 +1,14 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/public/coverage.js
-   Coverage check: suggestions while typing (linear search + naive string
-   matching) and the exact answer with BINARY SEARCH on the sorted barangays.
+   E3 Fiber Connect - views/public/coverage.js
+   Coverage check: may suggestions habang nagta-type (linear search + naive string
+   matching), tapos yung exact na sagot gamit BINARY SEARCH sa naka-sort na barangays.
    ========================================================================== */
 
 'use strict';
 
 const coverageViewState = { filter: 'all', suggestions: [], activeIndex: -1 };
 
-/** highlightMatch — wrap the part of `name` that matches the query in <mark>. O(n²) */
+/** highlightMatch - binabalot sa <mark> yung part ng `name` na tugma sa query. O(n²) */
 function highlightMatch(name, query) {
   const needle = normalizeBarangayName(query);
   const at = needle === '' ? -1 : textFind(toLowerText(name), needle);
@@ -77,7 +77,7 @@ function moveCoverageHighlight(step) {
   byId('coverageInput').setAttribute('aria-activedescendant', 'coverage-option-' + next);
 }
 
-/** showCoverageResult — binary search for the exact barangay and explain the answer. */
+/** showCoverageResult - binary search para sa exact na barangay, tapos i-explain yung sagot. */
 function showCoverageResult(name) {
   closeCoverageSuggestions();
   const typed = trimText(name);

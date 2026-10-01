@@ -1,9 +1,9 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/admin/applications.js
-   Applications list (filter → search → sort with the algorithm you pick) and
-   the actions shared with the detail page: approve, reject, schedule, and
-   "Create account" once installed (a sorted insert into subscribers).
-   Defense modules: Application List and Create Account — presented by Justin Banaag.
+   E3 Fiber Connect - views/admin/applications.js
+   List ng applications (filter -> search -> sort gamit yung algorithm na
+   pinili mo) at yung mga action na share din ng detail page: approve, reject,
+   schedule, at "Create account" pag installed na (sorted insert sa subscribers).
+   Modules sa defense: Application List at Create Account - si Justin Banaag ang mag-eexplain.
    ========================================================================== */
 
 'use strict';
@@ -12,7 +12,7 @@ const applicationsViewState = { status: 'all', query: '', sort: 'submittedAt-des
 const applicationActionState = { referenceNo: '' };
 const CREATE_ACCOUNT_FIELDS = { modemSerial: 'createAccountSerial', tested: 'createAccountTested' };
 
-/** applicationRowActions — the quick buttons for the next step of an application. */
+/** applicationRowActions - yung mga quick button para sa susunod na step ng application. */
 function applicationRowActions(app) {
   const ref = escapeHTML(app.referenceNo);
   const name = escapeHTML(app.fullName);
@@ -70,7 +70,7 @@ function renderApplicationsView() {
   setHTML('appsCaption', algorithmCaption(result.rows.length, result.total, 'application', result.stats, state.algorithm));
 }
 
-/* ---- Actions shared with the detail page ---------------------------------- */
+/* ---- Mga action na share din ng detail page -------------------------------- */
 
 function runApplicationAction(action, referenceNo) {
   const staff = currentStaff();
@@ -98,8 +98,8 @@ function runApplicationAction(action, referenceNo) {
 }
 
 /**
- * insertPreviewHTML — where the new account lands in the sorted subscribers
- * array: its neighbours, and how many comparisons the binary search took.
+ * insertPreviewHTML - kung saan mapupunta yung bagong account sa sorted na
+ * subscribers array: mga katabi niya, at ilang comparison yung binary search.
  */
 function insertPreviewHTML(preview) {
   let boxes = '';
@@ -118,7 +118,7 @@ function insertPreviewHTML(preview) {
     + (shifted === 0 ? 'it goes at the end, so nothing has to move.' : 'the ' + pluralize(shifted, 'account') + ' after it move one place to the right.') + '</p>';
 }
 
-/** openCreateAccountSheet — review the new subscriber account before it is created. */
+/** openCreateAccountSheet - i-review muna yung bagong subscriber account bago gawin. */
 function openCreateAccountSheet(referenceNo) {
   const preview = previewSubscriberAccount(referenceNo);
   if (!preview.ok) {

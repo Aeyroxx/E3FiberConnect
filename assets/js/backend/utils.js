@@ -1,11 +1,11 @@
 /* ==========================================================================
-   E3 Fiber Connect · backend/utils.js
-   Dates, money, text formatting, validation, ids and safe HTML.
+   E3 Fiber Connect - backend/utils.js
+   Mga helper para sa date, pera, pag-format ng text, validation, ids at safe HTML.
 
-   Everything is hand-written with the helpers from dsa/strings.js — no
-   toLocaleString, no regular expressions, no Date arithmetic. `new Date()` is
-   used in exactly one place (readClock) to read the computer's clock; every
-   calculation after that works on plain numbers and "YYYY-MM-DD" text.
+   Lahat dito ginawa namin by hand gamit yung mga helper sa dsa/strings.js - walang
+   toLocaleString, walang regular expression, walang Date arithmetic. Isang beses
+   lang namin ginamit yung `new Date()` (sa readClock) para basahin yung oras ng
+   computer; pagkatapos nun puro number at "YYYY-MM-DD" na text na lang kinakalkula.
    ========================================================================== */
 
 'use strict';
@@ -16,10 +16,10 @@ const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 /* --------------------------------------------------------------------------
-   Clock
+   Orasan - pagbasa ng date at oras
    -------------------------------------------------------------------------- */
 
-/** readClock — the computer's local date and time as a plain record. O(1) */
+/** readClock - kinukuha yung date at oras ngayon sa computer, as a plain record. O(1) */
 function readClock() {
   const now = new Date();
   return {
@@ -32,49 +32,50 @@ function readClock() {
   };
 }
 
-/** pad2 — 7 → "07". O(1) */
+/** pad2 - lagyan ng 0 sa unahan, 7 -> "07". O(1) */
 function pad2(number) {
   return padLeft(number, 2, '0');
 }
 
-/** isoDate — (2026, 9, 3) → "2026-09-03". O(1) */
+/** isoDate - (2026, 9, 3) -> "2026-09-03". O(1) */
 function isoDate(year, month, day) {
   return padLeft(year, 4, '0') + '-' + pad2(month) + '-' + pad2(day);
 }
 
-/** todayISO — today's date, e.g. "2026-09-23". O(1) */
+/** todayISO - date ngayong araw, halimbawa "2026-09-23". O(1) */
 function todayISO() {
   const clock = readClock();
   return isoDate(clock.year, clock.month, clock.day);
 }
 
-/** nowISO — the current date and time, e.g. "2026-09-23T08:42:05". O(1) */
+/** nowISO - date at oras ngayon, halimbawa "2026-09-23T08:42:05". O(1) */
 function nowISO() {
   const clock = readClock();
   return isoDate(clock.year, clock.month, clock.day) + 'T' + pad2(clock.hour) + ':' + pad2(clock.minute) + ':' + pad2(clock.second);
 }
 
 /* --------------------------------------------------------------------------
-   Calendar maths (days-from-civil, Howard Hinnant's algorithm)
-   A date becomes one whole number — days since 1970-01-01 — so adding days or
-   counting the days between two dates is simple integer arithmetic.
+   Calendar maths (days-from-civil, yung algorithm ni Howard Hinnant)
+   Ginagawa naming isang whole number yung date (ilang araw na mula 1970-01-01),
+   kaya simpleng integer arithmetic na lang pag magdadagdag ng araw o pag
+   bibilangin yung araw sa pagitan ng dalawang date.
    -------------------------------------------------------------------------- */
 
-/** isLeapYear — 2028 → true, 2100 → false. O(1) */
+/** isLeapYear - leap year ba? 2028 -> true, 2100 -> false. O(1) */
 function isLeapYear(year) {
   return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 }
 
-/** daysInMonth — (2026, 2) → 28. O(1) */
+/** daysInMonth - ilang araw sa buwan, (2026, 2) -> 28. O(1) */
 function daysInMonth(year, month) {
   const lengths = [31, isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
   return lengths[month - 1];
 }
 
 /**
- * daysFromCivil — days from 1970-01-01 to year-month-day (negative before 1970).
- * Counts from March so that the leap day is the last day of the "year".
- * Time O(1) · Space O(1)
+ * daysFromCivil - ilang araw mula 1970-01-01 hanggang year-month-day (negative pag bago 1970).
+ * Sa March nagsisimula yung bilang para yung leap day ang maging huling araw ng "year".
+ * Time: O(1), Space: O(1)
  */
 function daysFromCivil(year, month, day) {
   const y = month <= 2 ? year - 1 : year;
@@ -87,8 +88,8 @@ function daysFromCivil(year, month, day) {
 }
 
 /**
- * civilFromDays — the reverse of daysFromCivil: a day number back to {year, month, day}.
- * Time O(1) · Space O(1)
+ * civilFromDays - baligtad ng daysFromCivil: ibabalik yung day number sa {year, month, day}.
+ * Time: O(1), Space: O(1)
  */
 function civilFromDays(dayNumber) {
   const days = dayNumber + 719468;
@@ -104,8 +105,8 @@ function civilFromDays(dayNumber) {
 }
 
 /**
- * parseISODate — "2026-09-23" or "2026-09-23T08:42:00" → {year, month, day, hour, minute}.
- * Time O(1) · Space O(1)
+ * parseISODate - "2026-09-23" o "2026-09-23T08:42:00" -> {year, month, day, hour, minute}.
+ * Time: O(1), Space: O(1)
  */
 function parseISODate(iso) {
   const text = textOf(iso);
@@ -120,8 +121,8 @@ function parseISODate(iso) {
 }
 
 /**
- * isValidISODate — true for a real calendar date written as "YYYY-MM-DD".
- * Time O(1) · Space O(1)
+ * isValidISODate - true lang kung totoong date sa calendar at naka-"YYYY-MM-DD" na format.
+ * Time: O(1), Space: O(1)
  */
 function isValidISODate(value) {
   const text = textOf(value);
@@ -135,58 +136,58 @@ function isValidISODate(value) {
   return parts.day >= 1 && parts.day <= daysInMonth(parts.year, parts.month);
 }
 
-/** datePart — "2026-09-23T08:42:00" → "2026-09-23". O(1) */
+/** datePart - date lang kukunin, "2026-09-23T08:42:00" -> "2026-09-23". O(1) */
 function datePart(iso) {
   return textSlice(iso, 0, 10);
 }
 
-/** isoToDayNumber — "1970-01-02" → 1. O(1) */
+/** isoToDayNumber - gawing day number yung date, "1970-01-02" -> 1. O(1) */
 function isoToDayNumber(iso) {
   const parts = parseISODate(iso);
   return daysFromCivil(parts.year, parts.month, parts.day);
 }
 
-/** dayNumberToISO — 1 → "1970-01-02". O(1) */
+/** dayNumberToISO - balik sa date text, 1 -> "1970-01-02". O(1) */
 function dayNumberToISO(dayNumber) {
   const date = civilFromDays(dayNumber);
   return isoDate(date.year, date.month, date.day);
 }
 
-/** addDaysISO — ("2026-09-23", 10) → "2026-10-03". O(1) */
+/** addDaysISO - dagdagan ng araw, ("2026-09-23", 10) -> "2026-10-03". O(1) */
 function addDaysISO(iso, days) {
   return dayNumberToISO(isoToDayNumber(iso) + days);
 }
 
-/** daysBetweenISO — whole days from `from` to `to` (negative when `to` is earlier). O(1) */
+/** daysBetweenISO - ilang buong araw mula `from` hanggang `to` (negative kung mas maaga yung `to`). O(1) */
 function daysBetweenISO(from, to) {
   return isoToDayNumber(to) - isoToDayNumber(from);
 }
 
-/** addMonths — (2026, 12, 1) → {year: 2027, month: 1}. O(1) */
+/** addMonths - dagdagan ng buwan, (2026, 12, 1) -> {year: 2027, month: 1}. O(1) */
 function addMonths(year, month, delta) {
   const total = year * 12 + (month - 1) + delta;
   return { year: Math.floor(total / 12), month: (total % 12 + 12) % 12 + 1 };
 }
 
-/** weekdayIndex — 0 = Sunday … 6 = Saturday (1970-01-01 was a Thursday). O(1) */
+/** weekdayIndex - 0 = Sunday ... 6 = Saturday (Thursday kasi yung 1970-01-01). O(1) */
 function weekdayIndex(iso) {
   const n = isoToDayNumber(iso);
   return ((n % 7) + 7 + 4) % 7;
 }
 
-/** minuteStamp — minutes since 1970-01-01 00:00 for a date-time text. O(1) */
+/** minuteStamp - ilang minuto na mula 1970-01-01 00:00 para sa isang date-time text. O(1) */
 function minuteStamp(isoDateTime) {
   const parts = parseISODate(isoDateTime);
   return daysFromCivil(parts.year, parts.month, parts.day) * 1440 + parts.hour * 60 + parts.minute;
 }
 
-/** nowMinuteStamp — minuteStamp for this moment. O(1) */
+/** nowMinuteStamp - minuteStamp ng mismong oras ngayon. O(1) */
 function nowMinuteStamp() {
   const clock = readClock();
   return daysFromCivil(clock.year, clock.month, clock.day) * 1440 + clock.hour * 60 + clock.minute;
 }
 
-/** minutesAgoISO — the date-time `minutes` before now, e.g. for sample data. O(1) */
+/** minutesAgoISO - yung date-time na `minutes` minuto bago ngayon, gamit namin sa sample data. O(1) */
 function minutesAgoISO(minutes) {
   const stamp = nowMinuteStamp() - minutes;
   const dayNumber = Math.floor(stamp / 1440);
@@ -194,14 +195,14 @@ function minutesAgoISO(minutes) {
   return dayNumberToISO(dayNumber) + 'T' + pad2(Math.floor(rest / 60)) + ':' + pad2(rest % 60) + ':00';
 }
 
-/** atTime — ("2026-09-23", 14, 5) → "2026-09-23T14:05:00". O(1) */
+/** atTime - lagyan ng oras yung date, ("2026-09-23", 14, 5) -> "2026-09-23T14:05:00". O(1) */
 function atTime(iso, hour, minute) {
   return datePart(iso) + 'T' + pad2(hour) + ':' + pad2(minute) + ':00';
 }
 
 /**
- * ageOn — completed years between a birth date and another date.
- * Time O(1) · Space O(1)
+ * ageOn - ilang buong taon na mula sa birth date hanggang sa isang date.
+ * Time: O(1), Space: O(1)
  */
 function ageOn(birthISO, onISO) {
   const birth = parseISODate(birthISO);
@@ -214,10 +215,10 @@ function ageOn(birthISO, onISO) {
 }
 
 /* --------------------------------------------------------------------------
-   Formatting for display
+   Pag-format para sa display
    -------------------------------------------------------------------------- */
 
-/** formatDate — "2026-09-23" → "Sep 23, 2026". O(1) */
+/** formatDate - "2026-09-23" -> "Sep 23, 2026". O(1) */
 function formatDate(iso) {
   if (!iso) {
     return '—';
@@ -226,19 +227,19 @@ function formatDate(iso) {
   return MONTH_SHORT[parts.month - 1] + ' ' + parts.day + ', ' + parts.year;
 }
 
-/** formatShortDate — "2026-09-23" → "Sep 23". O(1) */
+/** formatShortDate - maikling version, "2026-09-23" -> "Sep 23". O(1) */
 function formatShortDate(iso) {
   const parts = parseISODate(iso);
   return MONTH_SHORT[parts.month - 1] + ' ' + parts.day;
 }
 
-/** formatLongDate — "2026-09-23" → "Wednesday, September 23". O(1) */
+/** formatLongDate - mahabang version, "2026-09-23" -> "Wednesday, September 23". O(1) */
 function formatLongDate(iso) {
   const parts = parseISODate(iso);
   return WEEKDAY_NAMES[weekdayIndex(iso)] + ', ' + MONTH_NAMES[parts.month - 1] + ' ' + parts.day;
 }
 
-/** formatTime — "2026-09-23T14:05:00" → "2:05 PM". O(1) */
+/** formatTime - oras lang na naka-12 hour, "2026-09-23T14:05:00" -> "2:05 PM". O(1) */
 function formatTime(isoDateTime) {
   const parts = parseISODate(isoDateTime);
   const suffix = parts.hour < 12 ? 'AM' : 'PM';
@@ -249,7 +250,7 @@ function formatTime(isoDateTime) {
   return hour + ':' + pad2(parts.minute) + ' ' + suffix;
 }
 
-/** formatDateTime — "2026-09-23T14:05:00" → "Sep 23, 2026 at 2:05 PM". O(1) */
+/** formatDateTime - date at oras, "2026-09-23T14:05:00" -> "Sep 23, 2026 at 2:05 PM". O(1) */
 function formatDateTime(isoDateTime) {
   if (!isoDateTime) {
     return '—';
@@ -257,17 +258,17 @@ function formatDateTime(isoDateTime) {
   return formatDate(isoDateTime) + ' at ' + formatTime(isoDateTime);
 }
 
-/** formatMonthYear — (2026, 9) → "September 2026". O(1) */
+/** formatMonthYear - (2026, 9) -> "September 2026". O(1) */
 function formatMonthYear(year, month) {
   return MONTH_NAMES[month - 1] + ' ' + year;
 }
 
-/** formatPeriod — ("2026-09-15", "2026-10-14") → "Sep 15 – Oct 14". O(1) */
+/** formatPeriod - para sa billing period, ("2026-09-15", "2026-10-14") -> "Sep 15 – Oct 14". O(1) */
 function formatPeriod(startISO, endISO) {
   return formatShortDate(startISO) + ' – ' + formatShortDate(endISO);
 }
 
-/** formatTimeAgo — "Just now", "12 min ago", "3 hr ago", "Yesterday", "4 days ago", "Sep 2, 2026". O(1) */
+/** formatTimeAgo - gaano na katagal: "Just now", "12 min ago", "3 hr ago", "Yesterday", "4 days ago", "Sep 2, 2026". O(1) */
 function formatTimeAgo(isoDateTime) {
   const minutes = nowMinuteStamp() - minuteStamp(isoDateTime);
   if (minutes < 1) {
@@ -289,7 +290,7 @@ function formatTimeAgo(isoDateTime) {
   return formatDate(isoDateTime);
 }
 
-/** formatTimeAgoInline — formatTimeAgo for the middle of a sentence ("sent just now"). O(1) */
+/** formatTimeAgoInline - formatTimeAgo pero pang-gitna ng sentence ("sent just now"). O(1) */
 function formatTimeAgoInline(isoDateTime) {
   const text = formatTimeAgo(isoDateTime);
   if (text === 'Just now') {
@@ -301,7 +302,7 @@ function formatTimeAgoInline(isoDateTime) {
   return text;
 }
 
-/** formatDayDistance — +3 → "in 3 days", 0 → "today", −1 → "yesterday". O(1) */
+/** formatDayDistance - ilang araw pa o nakalipas na: +3 -> "in 3 days", 0 -> "today", -1 -> "yesterday". O(1) */
 function formatDayDistance(days) {
   if (days === 0) {
     return 'today';
@@ -316,9 +317,9 @@ function formatDayDistance(days) {
 }
 
 /**
- * formatNumber — 1200 → "1,200". Walks the digits from the right and puts a
- * comma before every group of three.
- * Time O(n) for n digits · Space O(n)
+ * formatNumber - 1200 -> "1,200". Iniikot namin yung digits mula sa kanan tapos
+ * nilalagyan ng comma bago yung bawat grupo ng tatlo.
+ * Time: O(n) para sa n na digits, Space: O(n)
  */
 function formatNumber(value) {
   const rounded = Math.round(Number(value) || 0);
@@ -336,17 +337,17 @@ function formatNumber(value) {
   return negative ? '-' + result : result;
 }
 
-/** formatPeso — 1200 → "₱1,200". O(n) */
+/** formatPeso - may peso sign, 1200 -> "₱1,200". O(n) */
 function formatPeso(value) {
   return '₱' + formatNumber(value);
 }
 
-/** pluralize — (1, "bill") → "1 bill", (3, "bill") → "3 bills". O(1) */
+/** pluralize - nilalagyan ng "s" pag higit sa isa, (1, "bill") -> "1 bill", (3, "bill") -> "3 bills". O(1) */
 function pluralize(count, singular, plural) {
   return formatNumber(count) + ' ' + (count === 1 ? singular : (plural || singular + 's'));
 }
 
-/** formatOrdinal — 1 → "1st", 2 → "2nd", 13 → "13th", 23 → "23rd". O(1) */
+/** formatOrdinal - 1 -> "1st", 2 -> "2nd", 13 -> "13th", 23 -> "23rd". O(1) */
 function formatOrdinal(number) {
   const lastTwo = number % 100;
   const last = number % 10;
@@ -365,7 +366,7 @@ function formatOrdinal(number) {
   return number + 'th';
 }
 
-/** percentOf — (2200, 6400) → 34. O(1) */
+/** percentOf - ilang percent, (2200, 6400) -> 34. O(1) */
 function percentOf(part, whole) {
   if (!whole) {
     return 0;
@@ -374,13 +375,13 @@ function percentOf(part, whole) {
 }
 
 /* --------------------------------------------------------------------------
-   Text helpers for people
+   Text helpers para sa pangalan, mobile at e-mail ng tao
    -------------------------------------------------------------------------- */
 
 /**
- * escapeHTML — make any text safe to place inside innerHTML: & < > " ' become
- * entities, so typed text can never become markup (prevents XSS).
- * Time O(n) · Space O(n)
+ * escapeHTML - ginagawang safe yung kahit anong text bago ilagay sa innerHTML: yung
+ * & < > " ' ginagawang entities, kaya hindi magiging markup yung tinype (iwas XSS).
+ * Time: O(n), Space: O(n)
  */
 function escapeHTML(value) {
   const text = textOf(value);
@@ -404,12 +405,12 @@ function escapeHTML(value) {
   return safe;
 }
 
-/** firstNameOf — "Juan Dela Cruz" → "Juan". O(n) */
+/** firstNameOf - unang pangalan lang, "Juan Dela Cruz" -> "Juan". O(n) */
 function firstNameOf(name) {
   return splitText(collapseSpaces(name), ' ')[0];
 }
 
-/** initialsOf — "Juan Dela Cruz" → "JC" (first and last word). O(n) */
+/** initialsOf - "Juan Dela Cruz" -> "JC" (galing sa una at huling word). O(n) */
 function initialsOf(name) {
   const words = splitText(collapseSpaces(name), ' ');
   if (words[0] === '') {
@@ -422,7 +423,7 @@ function initialsOf(name) {
   return first + toUpperText(words[words.length - 1][0]);
 }
 
-/** maskName — "Juan Dela Cruz" → "Juan D. C." (privacy on the public tracker). O(n) */
+/** maskName - "Juan Dela Cruz" -> "Juan D. C." (para sa privacy sa public tracker). O(n) */
 function maskName(name) {
   const words = splitText(collapseSpaces(name), ' ');
   let masked = words[0];
@@ -432,7 +433,7 @@ function maskName(name) {
   return masked;
 }
 
-/** maskMobile — "0917 555 0199" → "0917 ••• 0199". O(n) */
+/** maskMobile - tinatago yung gitnang digits, "0917 555 0199" -> "0917 ••• 0199". O(n) */
 function maskMobile(mobile) {
   const digits = digitsOnly(mobile);
   if (digits.length < 8) {
@@ -441,7 +442,7 @@ function maskMobile(mobile) {
   return textSlice(digits, 0, 4) + ' ••• ' + textSlice(digits, digits.length - 4);
 }
 
-/** maskEmail — "juan.cruz@gmail.com" → "j•••@gmail.com". O(n) */
+/** maskEmail - tinatago yung pangalan bago ang @, "juan.cruz@gmail.com" -> "j•••@gmail.com". O(n) */
 function maskEmail(email) {
   const text = textOf(email);
   const at = textFind(text, '@');
@@ -452,13 +453,13 @@ function maskEmail(email) {
 }
 
 /* --------------------------------------------------------------------------
-   Validation — written without regular expressions
+   Validation - walang regular expression na ginamit dito
    -------------------------------------------------------------------------- */
 
 /**
- * isValidEmail — one "@", a non-empty name before it, and a domain with a dot
- * and a top-level part of at least 2 letters: "juan@gmail.com".
- * Time O(n) · Space O(1)
+ * isValidEmail - dapat isang "@" lang, may pangalan bago nito, at yung domain ay may
+ * tuldok at yung dulo ay at least 2 letters, halimbawa "juan@gmail.com".
+ * Time: O(n), Space: O(1)
  */
 function isValidEmail(value) {
   const email = trimText(value);
@@ -495,9 +496,9 @@ function isValidEmail(value) {
 }
 
 /**
- * normalizeMobile — a Philippine mobile number in the form "0917 555 0199",
- * or "" when invalid. Accepts spaces, dashes, brackets and the +63 prefix.
- * Time O(n) · Space O(n)
+ * normalizeMobile - inaayos yung Philippine mobile number para maging "0917 555 0199",
+ * o "" kapag invalid. Okay lang may spaces, dashes, brackets at +63 sa unahan.
+ * Time: O(n), Space: O(n)
  */
 function normalizeMobile(value) {
   const text = trimText(value);
@@ -519,14 +520,14 @@ function normalizeMobile(value) {
   return textSlice(digits, 0, 4) + ' ' + textSlice(digits, 4, 7) + ' ' + textSlice(digits, 7, 11);
 }
 
-/** isValidMobile — true for an 11-digit number starting with 09. O(n) */
+/** isValidMobile - true kung 11 digits at nagsisimula sa 09. O(n) */
 function isValidMobile(value) {
   return normalizeMobile(value) !== '';
 }
 
 /**
- * normalizeReference — " e3-2026-004879 " → "E3-2026-004879" (spaces removed, capitals).
- * Time O(n) · Space O(n)
+ * normalizeReference - " e3-2026-004879 " -> "E3-2026-004879" (tanggal spaces, gawing capital).
+ * Time: O(n), Space: O(n)
  */
 function normalizeReference(value) {
   const upper = toUpperText(value);
@@ -540,9 +541,9 @@ function normalizeReference(value) {
 }
 
 /**
- * hasCodeShape — checks text against a shape like "E3-####-######"
- * ("#" = any digit, anything else must match exactly).
- * Time O(n) · Space O(1)
+ * hasCodeShape - chine-check kung pasok yung text sa shape na tulad ng "E3-####-######"
+ * ("#" = kahit anong digit, yung iba dapat exact na tugma).
+ * Time: O(n), Space: O(1)
  */
 function hasCodeShape(value, shape) {
   const text = textOf(value);
@@ -561,19 +562,19 @@ function hasCodeShape(value, shape) {
   return true;
 }
 
-/** isValidReference — "E3-2026-004879". O(1) */
+/** isValidReference - dapat ganito yung format: "E3-2026-004879". O(1) */
 function isValidReference(value) {
   return hasCodeShape(value, 'E3-####-######');
 }
 
-/** isValidTicketNo — "TKT-000101". O(1) */
+/** isValidTicketNo - dapat ganito yung format: "TKT-000101". O(1) */
 function isValidTicketNo(value) {
   return hasCodeShape(value, 'TKT-######');
 }
 
 /**
- * isStrongPassword — at least 8 characters with a letter and a digit.
- * Time O(n) · Space O(1)
+ * isStrongPassword - at least 8 characters, dapat may letter at may digit.
+ * Time: O(n), Space: O(1)
  */
 function isStrongPassword(value) {
   const text = textOf(value);
@@ -589,12 +590,12 @@ function isStrongPassword(value) {
   return text.length >= 8 && hasLetter && hasDigit;
 }
 
-/** isBlank — true for "", "   ", null or undefined. O(n) */
+/** isBlank - true kapag "", "   ", null o undefined. O(n) */
 function isBlank(value) {
   return trimText(value) === '';
 }
 
-/** hasAnyErrors — true when an errors record has at least one message. O(n) */
+/** hasAnyErrors - true kapag may kahit isang message sa errors record. O(n) */
 function hasAnyErrors(errors) {
   for (const field in errors) {
     if (errors[field]) {
@@ -605,59 +606,59 @@ function hasAnyErrors(errors) {
 }
 
 /* --------------------------------------------------------------------------
-   Ids
+   Mga id (reference no., bill, ticket, payment, staff, registration)
    -------------------------------------------------------------------------- */
 
-/** formatReferenceNo — (2026, 4887) → "E3-2026-004887". O(1) */
+/** formatReferenceNo - (2026, 4887) -> "E3-2026-004887". O(1) */
 function formatReferenceNo(year, counter) {
   return 'E3-' + year + '-' + padLeft(counter, 6, '0');
 }
 
-/** makeBillId — (2026, 9, "E3-2026-004872") → "BILL-202609-004872". O(1) */
+/** makeBillId - (2026, 9, "E3-2026-004872") -> "BILL-202609-004872". O(1) */
 function makeBillId(year, month, accountNo) {
   const account = textOf(accountNo);
   return 'BILL-' + year + pad2(month) + '-' + textSlice(account, account.length - 6);
 }
 
-/** formatTicketNo — 103 → "TKT-000103". O(1) */
+/** formatTicketNo - 103 -> "TKT-000103". O(1) */
 function formatTicketNo(counter) {
   return 'TKT-' + padLeft(counter, 6, '0');
 }
 
-/** formatPaymentId — 3 → "PAY-000003". O(1) */
+/** formatPaymentId - 3 -> "PAY-000003". O(1) */
 function formatPaymentId(counter) {
   return 'PAY-' + padLeft(counter, 6, '0');
 }
 
-/** formatStaffId — 6 → "STF-0006". O(1) */
+/** formatStaffId - 6 -> "STF-0006". O(1) */
 function formatStaffId(counter) {
   return 'STF-' + padLeft(counter, 4, '0');
 }
 
-/** formatRegistrationId — 3 → "REG-000003". O(1) */
+/** formatRegistrationId - 3 -> "REG-000003". O(1) */
 function formatRegistrationId(counter) {
   return 'REG-' + padLeft(counter, 6, '0');
 }
 
 /* --------------------------------------------------------------------------
-   Randomness and the demo password hash
+   Random numbers at yung pang-demo na password hash
    -------------------------------------------------------------------------- */
 
 /**
- * randomIndex — a random whole number from 0 to max − 1, using the browser's
- * cryptographic random generator when it is available.
- * Time O(1) · Space O(1)
+ * randomIndex - random na whole number mula 0 hanggang max - 1. Kung meron, gamit
+ * namin yung cryptographic random generator ng browser.
+ * Time: O(1), Space: O(1)
  */
 function randomIndex(max) {
   if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-    const buffer = new Uint32Array(1); // typed array required by the Web Crypto API
+    const buffer = new Uint32Array(1); // kailangan ng typed array dito, yun ang hinihingi ng Web Crypto API
     crypto.getRandomValues(buffer);
     return buffer[0] % max;
   }
   return Math.floor(Math.random() * max);
 }
 
-/** toHex32 — 255 → "000000ff". O(1) */
+/** toHex32 - gawing 8 na hex digits, 255 -> "000000ff". O(1) */
 function toHex32(number) {
   const digits = '0123456789abcdef';
   let value = number >>> 0;
@@ -670,11 +671,11 @@ function toHex32(number) {
 }
 
 /**
- * hashPassword — FNV-1a, a simple hash, repeated 400 times over salt + password.
- * DEMO ONLY: it keeps plain-text passwords out of the staff table, but it is NOT
- * a secure password hash. A real system checks passwords on a server with a
- * slow algorithm such as bcrypt or Argon2.
- * Time O(n) for n characters — the 400 rounds are a fixed number · Space O(1)
+ * hashPassword - FNV-1a, simpleng hash lang, inuulit ng 400 beses sa salt + password.
+ * PANG-DEMO LANG ITO: hindi na plain text yung password sa staff table, pero HINDI
+ * ito secure na password hash. Sa totoong system, sa server chine-check yung password
+ * gamit yung mabagal na algorithm tulad ng bcrypt o Argon2.
+ * Time: O(n) para sa n na characters (fixed lang yung 400 rounds), Space: O(1)
  */
 function hashPassword(password, salt) {
   const text = textOf(salt) + ':' + textOf(password);

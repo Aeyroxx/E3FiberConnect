@@ -1,16 +1,16 @@
 /* ==========================================================================
-   E3 Fiber Connect — design system
-   An Apple-inspired layer on top of Bootstrap 5.3 (grid, utilities, forms,
-   buttons and the accordion come from Bootstrap; this file sets the look).
+   E3 Fiber Connect - design system
+   Apple-inspired na layer sa ibabaw ng Bootstrap 5.3 (galing sa Bootstrap yung
+   grid, utilities, forms, buttons at accordion; itong file ang bahala sa itsura).
 
    1  Tokens (light / dark)          9  Global nav + footer
-   2  Bootstrap bridge              10  Public pages
+   2  Bootstrap bridge              10  Mga public page
    3  Base + typography             11  Staff sign-in
    4  Buttons                       12  Admin app
    5  Forms                         13  Sheets + toasts
    6  Status, pills, avatars        14  Algorithms page
-   7  Panels, lists, tables         15  Motion
-   8  Layout helpers                16  Accessibility preferences
+   7  Panels, lists, tables         15  Motion (animations)
+   8  Layout helpers                16  Accessibility settings ng user
    ========================================================================== */
 
 /* ------------------------------------------------------------------------ 1 */
@@ -53,7 +53,7 @@
 
   --brand-gradient: linear-gradient(95deg, #0a84ff 0%, #30b0c7 48%, #34c759 100%);
 
-  /* Landing-page showcase card (300 Mbps) and the stats band */
+  /* Showcase card sa landing page (300 Mbps) at yung stats band */
   --showcase-bg:
     radial-gradient(90% 70% at 50% 100%, rgba(48, 176, 199, 0.16), transparent 70%),
     radial-gradient(60% 60% at 15% 10%, rgba(10, 132, 255, 0.12), transparent 70%),
@@ -687,7 +687,7 @@ html[data-shell="admin"] .form-select {
   border-radius: 6px;
 }
 
-/* Bootstrap floats the box 1.5em to the left; ours sits inside the flex row */
+/* Sa Bootstrap naka-float yung box ng 1.5em pakaliwa; sa atin nasa loob siya ng flex row */
 .form-check .form-check-input {
   float: none;
   margin-left: 0;
@@ -738,7 +738,7 @@ html[data-shell="admin"] .form-select {
   color: var(--blue);
 }
 
-/* Search field — iOS style */
+/* Search field - parang sa iOS */
 .search-field {
   position: relative;
   min-width: 0;
@@ -782,7 +782,7 @@ html[data-shell="admin"] .form-select {
   cursor: pointer;
 }
 
-/* Segmented control */
+/* Segmented control (yung parang tabs na magkakadikit) */
 .segmented {
   display: inline-flex;
   gap: 2px;
@@ -844,7 +844,7 @@ html[data-shell="admin"] .form-select {
   font-size: 0.9375rem;
 }
 
-/* Choice cards (radio buttons that look like cards) */
+/* Choice cards (radio buttons na mukhang card) */
 .choice-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -1005,7 +1005,7 @@ html[data-shell="admin"] .form-select {
   transform: translateY(-50%);
 }
 
-/* File upload */
+/* Pag-upload ng file */
 .upload {
   position: relative;
   display: flex;
@@ -1308,7 +1308,7 @@ html[data-shell="admin"] .form-select {
   vertical-align: middle;
 }
 
-/* Laptop widths with the sidebar showing: drop the least important columns. */
+/* Sa laptop width na kita yung sidebar: tanggalin yung mga column na hindi masyadong importante. */
 @media (min-width: 992px) and (max-width: 1279.98px) {
   .data-table .col-optional {
     display: none;
@@ -1383,7 +1383,7 @@ a.cell-primary:hover {
   font-family: var(--font-mono);
 }
 
-/* Phones and tablets: every table row becomes a card with labelled values. */
+/* Sa phone at tablet: bawat table row nagiging card na may label bawat value. */
 @media (max-width: 991.98px) {
   .data-table thead {
     display: none;
@@ -1448,7 +1448,7 @@ a.cell-primary:hover {
   }
 }
 
-/* List rows (queues, feeds, simple lists) */
+/* List rows (para sa queues, feeds, at simpleng lists) */
 .row-list {
   list-style: none;
   margin: 0;
@@ -1630,7 +1630,7 @@ a.row-title:hover {
   padding: 0;
 }
 
-/* Light / dark toggle (ui/theme.js) — nav, staff toolbar and the sign-in page */
+/* Light / dark toggle (ui/theme.js) - nasa nav, staff toolbar at sign-in page */
 .theme-toggle {
   display: inline-grid;
   place-items: center;
@@ -1670,7 +1670,7 @@ a.row-title:hover {
   z-index: 2;
 }
 
-/* A short cross-fade while the theme changes (not when reduced motion is on) */
+/* Maikling cross-fade habang nagpapalit ng theme (wala nito pag naka-on yung reduced motion) */
 html.theme-switching,
 html.theme-switching *,
 html.theme-switching *::before,
@@ -1881,7 +1881,7 @@ html.theme-switching *::after {
 }
 
 /* ----------------------------------------------------------------------- 10 */
-/* Hero */
+/* Hero (yung pinakaunang section sa home) */
 .hero {
   padding: clamp(3.5rem, 8vw, 6rem) 0 clamp(3rem, 6vw, 4.5rem);
   text-align: center;
@@ -2018,7 +2018,7 @@ html.theme-switching *::after {
   }
 }
 
-/* Plans */
+/* Mga plan */
 .plan-rail {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -2156,7 +2156,7 @@ html.theme-switching *::after {
   }
 }
 
-/* Dark stats band */
+/* Yung madilim na stats band */
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2185,7 +2185,7 @@ html.theme-switching *::after {
   }
 }
 
-/* How it works */
+/* How it works (paano gumagana) */
 .steps {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2238,7 +2238,7 @@ html.theme-switching *::after {
   }
 }
 
-/* Tiles (bento) */
+/* Mga tile (bento style) */
 .tiles {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2302,7 +2302,7 @@ html.theme-switching *::after {
   margin-top: 1.75rem;
 }
 
-/* Inner page header */
+/* Header ng mga inner page */
 .page-hero {
   padding: clamp(3rem, 7vw, 5rem) 0 clamp(2rem, 4vw, 2.75rem);
   text-align: center;
@@ -2338,7 +2338,7 @@ html.theme-switching *::after {
   margin-bottom: 1.5rem;
 }
 
-/* Plans page */
+/* Page ng mga plan */
 .recommender {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -2407,7 +2407,7 @@ html.theme-switching *::after {
   min-width: 640px;
 }
 
-/* Coverage */
+/* Coverage check */
 .big-search {
   display: flex;
   align-items: center;
@@ -2555,7 +2555,7 @@ html.theme-switching *::after {
   font-size: 0.9375rem;
 }
 
-/* Apply wizard */
+/* Apply wizard (yung application form na step by step) */
 .apply-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
@@ -3011,7 +3011,7 @@ a.contact-card:hover {
   line-height: 1;
 }
 
-/* Data Privacy Act (RA 10173): privacy bar, form notes and the Privacy Notice page */
+/* Data Privacy Act (RA 10173): yung privacy bar, mga note sa form at yung Privacy Notice page */
 .privacy-bar {
   background: var(--accent-tint);
   color: var(--label);
@@ -3265,8 +3265,8 @@ body:has([data-view="privacy"]:not([hidden])) .privacy-bar {
     var(--bg-secondary);
 }
 
-/* Each sign-in screen fills the row and centres its card (a grid item sized to its
-   content would otherwise grow to the longest unwrapped line and leave the card left). */
+/* Bawat sign-in screen sakop yung buong row tapos naka-center yung card. Kung hindi,
+   lalaki yung grid item hanggang sa pinakamahabang line at mapupunta sa kaliwa yung card. */
 .login-shell > section {
   width: 100%;
 }
@@ -3769,7 +3769,7 @@ a.kpi:hover {
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--label-2);
-  padding-right: 2.25rem; /* room for the icon in the corner — long labels wrap instead of running under it */
+  padding-right: 2.25rem; /* space para sa icon sa gilid, para mag-wrap yung mahabang label imbes na matakpan */
 }
 
 .kpi-value {
@@ -4001,7 +4001,7 @@ a.kpi:hover {
   align-items: center;
 }
 
-/* Validation checks — payments (Payments page) and staff requests (Registrations) */
+/* Validation checks - para sa payments (Payments page) at staff requests (Registrations) */
 .validate-card {
   padding: 1rem 1.125rem 1.125rem;
   border-radius: 18px;
@@ -4362,7 +4362,7 @@ a.kpi:hover {
   outline: 2px solid #fff;
 }
 
-/* Two-step verification sheet (Google Authenticator) — views/admin/twofactor.js */
+/* Sheet ng two-step verification (Google Authenticator), gamit sa views/admin/twofactor.js */
 .otp-sheet .sheet-body {
   text-align: center;
 }
@@ -4461,7 +4461,7 @@ a.kpi:hover {
   color: var(--label);
 }
 
-/* The QR code always sits on white (scanners need dark-on-light, also in dark mode) */
+/* Laging puti yung likod ng QR code kasi dark-on-light ang kailangan ng scanner, kahit naka-dark mode */
 .otp-qr {
   width: min(184px, 64%);
   margin: 0 auto 1rem;
@@ -4530,7 +4530,7 @@ a.kpi:hover {
   transition: border-color 0.12s ease, box-shadow 0.12s ease, background-color 0.2s ease, color 0.2s ease;
 }
 
-/* a wider gap between the two groups of three: 123 456 */
+/* mas malaking pagitan sa dalawang grupo ng tig-tatlo: 123 456 */
 .otp-digit:nth-of-type(3) {
   margin-right: 0.5rem;
 }
@@ -4631,7 +4631,7 @@ a.kpi:hover {
   margin-top: 0.25rem;
 }
 
-/* First setup, step 1: the password (so a session left signed in can't link another phone) */
+/* Unang setup, step 1: password muna (para yung session na naiwang naka-sign in hindi makapag-link ng ibang phone) */
 .otp-password {
   max-width: 22rem;
   margin: 0 auto;
@@ -4653,7 +4653,7 @@ a.kpi:hover {
   }
 }
 
-/* On a phone the QR code can't be scanned from the same screen: offer the app link instead */
+/* Sa phone hindi ma-scan yung QR sa sariling screen, kaya link na lang papunta sa app */
 .otp-open-app {
   display: none;
 }
@@ -4667,7 +4667,7 @@ a.kpi:hover {
   }
 }
 
-/* Wider screens: steps beside the QR code, so the whole setup fits without scrolling */
+/* Pag malapad yung screen, katabi ng QR code yung steps para kasya lahat nang hindi na nag-i-scroll */
 @media (min-width: 576px) {
   .otp-setup {
     display: grid;
@@ -4751,10 +4751,10 @@ a.kpi:hover {
   margin: 0.5rem 0 0;
 }
 
-/* The card is narrower than the sheet: the six boxes share its width (never wider than 3rem). */
+/* Mas makitid yung card kaysa sa sheet, kaya hati-hati yung anim na box sa width niya (max 3rem bawat isa). */
 .forgot-card .otp-digit {
   flex: 1 1 2rem;
-  width: 2rem;               /* small base size, so the card can shrink; the boxes then grow to fill it */
+  width: 2rem;               /* maliit na base size para kayang lumiit ng card, tapos lalaki na lang yung mga box para mapuno */
   min-width: 0;
   max-width: 3rem;
 }
@@ -4776,8 +4776,8 @@ a.kpi:hover {
   opacity: 1;
 }
 
-/* The code arrives like a phone notification: a translucent banner that drops
-   in from the top, can be tapped (fills the code) or pushed back up. */
+/* Dumarating yung code na parang notification sa phone: banner na medyo transparent na
+   bumababa galing sa taas. Pwedeng i-tap (ilalagay na yung code) o i-swipe pataas. */
 .notify-banner {
   position: fixed;
   top: max(0.75rem, env(safe-area-inset-top));
@@ -4889,7 +4889,7 @@ a.kpi:hover {
   }
 }
 
-/* Account page panel */
+/* Panel sa Account page */
 .twofactor-row {
   display: flex;
   align-items: flex-start;

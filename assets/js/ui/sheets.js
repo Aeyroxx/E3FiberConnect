@@ -1,9 +1,10 @@
 /* ==========================================================================
-   E3 Fiber Connect · ui/sheets.js
-   Dialogs, Apple-style: a centred sheet on larger screens, a bottom sheet on
-   phones that can be dragged down to dismiss (with spring physics, see
-   spring.js). Open sheets form a STACK — Esc and the backdrop always close
-   the top one, and focus returns to the button that opened it.
+   E3 Fiber Connect - ui/sheets.js
+   Mga dialog na parang sa Apple: sheet sa gitna pag malaki yung screen, tapos
+   sa phone bottom sheet siya na pwedeng hilahin pababa para isara (may spring
+   physics, tingnan yung spring.js). Yung mga bukas na sheet naka-STACK - yung
+   Esc at yung backdrop laging yung nasa taas ang sinasara, tapos babalik yung
+   focus sa button na nagbukas nito.
    ========================================================================== */
 
 'use strict';
@@ -11,7 +12,7 @@
 const SHEET_TRANSITION_MS = 320;
 const sheetState = { stack: createStack(), drag: null, springs: [] };
 
-/** visibleFocusables — every focusable, visible element inside a container. O(n) */
+/** visibleFocusables - lahat ng focusable at nakikitang element sa loob ng container. O(n) */
 function visibleFocusables(container) {
   const found = qsa('a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])', container);
   const list = [];
@@ -23,7 +24,7 @@ function visibleFocusables(container) {
   return list;
 }
 
-/** setBackgroundInert — make the page behind an open sheet unreachable. */
+/** setBackgroundInert - para hindi ma-click o ma-focus yung page sa likod ng bukas na sheet. */
 function setBackgroundInert(inert) {
   const shells = ['publicShell', 'loginShell', 'adminShell'];
   for (let i = 0; i < shells.length; i++) {
@@ -34,7 +35,7 @@ function setBackgroundInert(inert) {
   }
 }
 
-/** openSheet — show a sheet on top of the stack and focus its first field. */
+/** openSheet - ilagay yung sheet sa taas ng stack tapos i-focus yung unang field. */
 function openSheet(id, opener) {
   const sheet = byId(id);
   if (!sheet || sheet.classList.contains('is-open')) {
@@ -47,7 +48,7 @@ function openSheet(id, opener) {
   sheet.style.transform = '';
   sheet.style.zIndex = String(1060 + stackSize(sheetState.stack) * 2);
   backdrop.style.zIndex = String(1059 + stackSize(sheetState.stack) * 2);
-  void sheet.offsetWidth; // start the CSS transition from the closed state
+  void sheet.offsetWidth; // simulan yung CSS transition galing sa closed state
   backdrop.classList.add('is-open');
   sheet.classList.add('is-open');
   setBackgroundInert(true);
@@ -55,13 +56,13 @@ function openSheet(id, opener) {
   const body = qs('.sheet-body', sheet) || sheet;
   const first = visibleFocusables(body)[0];
   setTimeout(function () {
-    // Focus the first field only when it can be seen; on a short phone screen it may sit
-    // below the fold, and focusing it there would open the keyboard for a hidden field.
+    // I-focus lang yung unang field kung kita siya; sa maliit na phone screen baka nasa
+    // baba pa siya, at pag na-focus dun lalabas yung keyboard para sa field na hindi naman kita.
     focusElement(first && isInsideBox(first, body) ? first : sheet);
   }, 40);
 }
 
-/** isInsideBox — is the element fully inside the visible part of the box? O(1) */
+/** isInsideBox - buo bang nakikita yung element sa loob ng box? O(1) */
 function isInsideBox(element, box) {
   const a = element.getBoundingClientRect();
   const b = box.getBoundingClientRect();
@@ -69,8 +70,8 @@ function isInsideBox(element, box) {
 }
 
 /**
- * closeSheet — hide a sheet (usually the top one). options.immediate skips the
- * closing transition (used after a drag already moved it off screen).
+ * closeSheet - itago yung sheet (kadalasan yung nasa taas). Pag may options.immediate,
+ * wala nang closing transition (gamit to pag nailabas na ng drag yung sheet sa screen).
  */
 function closeSheet(id, options) {
   const sheet = byId(id);
@@ -87,7 +88,7 @@ function closeSheet(id, options) {
   stackRemoveWhere(sheetState.stack, 'id', id);
   const immediate = (options && options.immediate) || prefersReducedMotion();
   sheet.classList.remove('is-open');
-  sheet.dispatchEvent(new CustomEvent('sheetclose'));   // lets a view clean up (e.g. forget a shown password)
+  sheet.dispatchEvent(new CustomEvent('sheetclose'));   // para makapaglinis yung view (halimbawa, kalimutan na yung pinakitang password)
   if (immediate) {
     sheet.hidden = true;
     sheet.style.transform = '';
@@ -120,7 +121,7 @@ function closeSheet(id, options) {
   }
 }
 
-/** closeTopSheet — close whichever sheet is on top of the stack (stackPeek). */
+/** closeTopSheet - isara kung anong sheet yung nasa taas ng stack (stackPeek). */
 function closeTopSheet() {
   const top = stackPeek(sheetState.stack);
   if (top) {
@@ -128,19 +129,19 @@ function closeTopSheet() {
   }
 }
 
-/** closeAllSheets — used when the screen changes. */
+/** closeAllSheets - tinatawag pag lumipat ng screen. */
 function closeAllSheets() {
   while (!stackIsEmpty(sheetState.stack)) {
     closeSheet(stackPeek(sheetState.stack).id, { immediate: true });
   }
 }
 
-/** isSheetOpen — O(1) */
+/** isSheetOpen - may bukas bang sheet? O(1) */
 function isSheetOpen() {
   return !stackIsEmpty(sheetState.stack);
 }
 
-/* ---- Keyboard: Esc closes, Tab stays inside the top sheet ---- */
+/* ---- Keyboard: Esc pang-close, tapos yung Tab hindi lalabas sa top sheet ---- */
 function handleSheetKeys(event) {
   if (stackIsEmpty(sheetState.stack)) {
     return;
@@ -169,7 +170,7 @@ function handleSheetKeys(event) {
   }
 }
 
-/* ---- Phone bottom sheets: drag the header down to dismiss ---- */
+/* ---- Bottom sheet sa phone: hilahin pababa yung header para isara ---- */
 function startSheetDrag(event) {
   const sheet = findAncestorWithClass(event.target, 'sheet', null);
   if (!sheet || !isSmallScreen() || prefersReducedMotion()) {
@@ -180,7 +181,7 @@ function startSheetDrag(event) {
     return;
   }
   for (let i = 0; i < sheetState.springs.length; i++) {
-    sheetState.springs[i].cancelled = true; // grab it mid-flight
+    sheetState.springs[i].cancelled = true; // nahawakan habang gumagalaw pa
   }
   arrayClear(sheetState.springs);
   const current = sheet.style.transform ? parseFloat(textSlice(sheet.style.transform, 11)) || 0 : 0;
@@ -196,7 +197,7 @@ function moveSheetDrag(event) {
   }
   let offset = event.clientY - drag.startY;
   if (offset < 0) {
-    offset = -rubberband(-offset, drag.sheet.offsetHeight, 0.55); // resist upward pulls
+    offset = -rubberband(-offset, drag.sheet.offsetHeight, 0.55); // may pigil pag hinihila pataas
   }
   drag.offset = offset;
   drag.sheet.style.transform = 'translateY(' + offset + 'px)';
@@ -248,7 +249,7 @@ function endSheetDrag(event) {
   }
 }
 
-/** initSheets — wire the backdrop, close buttons, keyboard and drag handling once. */
+/** initSheets - isang beses lang i-wire yung backdrop, close buttons, keyboard at drag. */
 function initSheets() {
   const backdrop = byId('sheetBackdrop');
   backdrop.addEventListener('click', closeTopSheet);

@@ -1,6 +1,6 @@
 /* ==========================================================================
-   E3 Fiber Connect · views/public/home.js
-   The landing page: hero, plan cards, stats, steps and shortcuts.
+   E3 Fiber Connect - views/public/home.js
+   Landing page: hero, plan cards, stats, steps at shortcuts.
    ========================================================================== */
 
 'use strict';
@@ -8,9 +8,9 @@
 const homeViewState = { heroAnimated: false };
 
 /**
- * planTileHTML — one plan card, used on the home page and the plans page.
- * `scope` keeps element ids unique per page; `recommendedId` highlights the
- * recommender's pick.
+ * planTileHTML - isang plan card, gamit sa home page at sa plans page.
+ * Yung `scope` para unique yung element ids sa bawat page; yung `recommendedId`
+ * naman ang nagha-highlight sa plan na pinili ng recommender.
  */
 function planTileHTML(plan, scope, recommendedId) {
   const recommended = recommendedId === plan.id;
@@ -37,7 +37,7 @@ function planTileHTML(plan, scope, recommendedId) {
     + '</article>';
 }
 
-/** cheapestPlan — linear scan for the lowest price. O(n) */
+/** cheapestPlan - linear scan para makita yung pinakamurang presyo. O(n) */
 function cheapestPlan() {
   let best = PLANS[0];
   for (let i = 1; i < PLANS.length; i++) {
@@ -48,7 +48,7 @@ function cheapestPlan() {
   return best;
 }
 
-/** fastestPlan — linear scan for the highest speed. O(n) */
+/** fastestPlan - linear scan para sa pinakamabilis na speed. O(n) */
 function fastestPlan() {
   let best = PLANS[0];
   for (let i = 1; i < PLANS.length; i++) {
@@ -77,5 +77,5 @@ function renderHomeView() {
 }
 
 function initHomeView() {
-  // Everything on the home page is drawn by renderHomeView.
+  // Lahat ng nasa home page dina-draw ng renderHomeView.
 }
